@@ -1,5 +1,5 @@
 ### Domino in "OursCraft"
-&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; By Yiming CAI, Yue PAN, Ke CHEN
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;By Yiming CAI, Yue PAN, Ke CHEN
 
 ---
 
@@ -28,17 +28,14 @@ They should be under the rules below:
 
 And then finally we can create a world with an amazing domino project, then making tracking cameras to record **its fallen** from many different views.
  
-#### Division
-talk in Thu
-
 #### Schedule
 
 | Due Date  | Part | Responsibility Man|
 | :--------: | :--------:| :------: |
-| 2017.12.1 Fri | Finish the blog website(like github repo url or website) ||
-| 2017.12.3 Sun | Finish basic engine (object placing,skybox, lighting, etc.) for first snapshot ||
-| 2017.12.3 Sun | Finish basic domino part (including configuring domino and collision) ||
-| 2017.12.4 Mon | Finish the first blog and Finish the combanation||
+| 2017.12.1 Fri | Finish the blog website(like github repo url or website) |Pan|
+| 2017.12.3 Sun | Finish basic engine (object placing,skybox, lighting, etc.) for first snapshot |Ke Cai|
+| 2017.12.3 Sun | Finish basic domino part (including configuring domino and collision) |Pan|
+| 2017.12.4 Mon | Finish the first blog and Finish the combanation|T|
 | 2017.12.8 Fri | DIY basic environment(including dominoes placement)||
 | 2017.12.8 Fri | Copy backup for another man to start some advanced parts ||
 | | by this time, we should finish a "at least can be shown" project =_=||
