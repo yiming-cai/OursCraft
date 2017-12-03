@@ -1,516 +1,264 @@
 #include "OBJObject.h"
 
-using namespace std;
 
-// constructor: parse the file and initialize toWorld matrix
-OBJObject::OBJObject(const char *filepath) 
+OBJObject::OBJObject(const char *filepath,float pointSize) 
 {
+	this->angle = this->orbit = 0.0f;
+	this->pointSize = pointSize;
+	this->xTran = this->yTran = this->zTran = 0;
+	this->scaling = 1.0f;
+	orbit = orbitX = orbitY = orbitZ = 0;
 	toWorld = glm::mat4(1.0f);
+	orbitW = glm::mat4(1.0f);
+	transW = glm::mat4(1.0f);
+	doit = 0;
 	parse(filepath);
-	normalize_vertices();
-	i_normal_mode = 0;
-
-	// Create array object and buffers. 
+	unsigned int len = vertices.size();
+	mVertices = new GLfloat[len];
+	for (unsigned int i = 0; i < len; ++i) {
+		mVertices[i] = vertices[i];
+	}
+	len = normals.size();
+	mNormals = new GLfloat[len];
+	for (unsigned int i = 0; i < len; ++i) {
+		mNormals[i] = normals[i];
+	}
+	len = colors.size();
+	mColors = new GLfloat[len];
+	for (unsigned int i = 0; i < len; ++i) {
+		mColors[i] = colors[i];
+	}
+	len = indices.size();
+	mIndices = new GLuint[len];
+	for (unsigned int i = 0; i < len; ++i) {
+		mIndices[i] = indices[i];
+	}
+ 	printf("%d %d\n", sizeof(mVertices), sizeof(mIndices));
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
+	glGenBuffers(1, &CBO);
 	glGenBuffers(1, &NBO);
-
-	// Bind the Vertex Array Object (VAO) first, then bind the associated buffers to it.
-	// Consider the VAO as a container for all your buffers.
 	glBindVertexArray(VAO);
 
-	// Now bind a VBO to it as a GL_ARRAY_BUFFER. The GL_ARRAY_BUFFER is an array containing relevant data to what
-	// you want to draw, such as vertices, normals, colors, etc.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// glBufferData populates the most recently bound buffer with data starting at the 3rd argument and ending after
-	// the 2nd argument number of indices. How does OpenGL know how long an index spans? Go to glVertexAttribPointer.
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), &vertices[0], GL_STATIC_DRAW);
-
-	// Enable the usage of layout location 0 (check the vertex shader to see what this is)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * vertices.size(), mVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
-		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
-		GL_FLOAT, // What type these components are
-		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
-		3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
-		(GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
-
-	// bind the normal vector
-	glBindBuffer(GL_ARRAY_BUFFER, NBO);
-	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(normals[0]), &normals[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(GLfloat), (GLvoid*)0);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, CBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * colors.size(), mColors, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	// We've sent the vertex data over to OpenGL, but there's still something missing.
-	// In what order should it draw those vertices? That's why we'll need a GL_ELEMENT_ARRAY_BUFFER for this.
+	glBindBuffer(GL_ARRAY_BUFFER, NBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * normals.size(), mNormals, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size() * sizeof(faces[0]), &faces[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLfloat) * indices.size(), mIndices, GL_STATIC_DRAW);
 
-	// Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Unbind the VAO now so we don't accidentally tamper with it.
-	// NOTE: You must NEVER unbind the element array buffer associated with a VAO!
 	glBindVertexArray(0);
 }
 
-OBJObject::~OBJObject()
-{
+OBJObject::~OBJObject() {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &NBO);
 	glDeleteBuffers(1, &EBO);
+	glDeleteBuffers(1, &CBO);
+	glDeleteBuffers(1, &NBO);
 }
-
-void OBJObject::normalize_vertices()
-{
-	// find the current boundaries of the model
-	float xmax = std::numeric_limits<float>::min();
-	float xmin = std::numeric_limits<float>::max();
-	float ymax = std::numeric_limits<float>::min();
-	float ymin = std::numeric_limits<float>::max();
-	float zmax = std::numeric_limits<float>::min();
-	float zmin = std::numeric_limits<float>::max();
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		if (vertices[i].x > xmax)
-		{
-			xmax = vertices[i].x;
-		}
-
-		if (vertices[i].x < xmin)
-		{
-			xmin = vertices[i].x;
-		}
-
-		if (vertices[i].y > ymax)
-		{
-			ymax = vertices[i].y;
-		}
-
-		if (vertices[i].y < ymin)
-		{
-			ymin = vertices[i].y;
-		}
-
-		if (vertices[i].z > zmax)
-		{
-			zmax = vertices[i].z;
-		}
-
-		if (vertices[i].z < zmin)
-		{
-			zmin = vertices[i].z;
-		}
-	}
-
-	// calculate the offset to move the position
-	float x_offset = (xmin + xmax) / -2.0f;
-	float y_offset = (ymin + ymax) / -2.0f;
-	float z_offset = (zmin + zmax) / -2.0f;
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		vertices[i].x += x_offset;
-		vertices[i].y += y_offset;
-		vertices[i].z += z_offset;
-	}
-	
-	xmax += x_offset;
-	ymax += y_offset;
-	zmax += z_offset;
-
-	float scale = std::max(xmax, ymax);
-	scale = std::max(scale, zmax);
-
-	for (int i = 0; i < vertices.size(); i++)
-	{
-		vertices[i].x /= scale;
-		vertices[i].y /= scale;
-		vertices[i].z /= scale;
-	}
-}
-
 void OBJObject::parse(const char *filepath) 
 {
-	// Populate the face indices, vertices, and normals vectors with the OBJ Object data
-
-	// initialize some local variables to temporarily store data
-	std::ifstream file;
-	float x, y, z;
-	GLuint v1, v2, v3;
-	
-	// open the file and check if the file exists
-	errno = 0;
-	file.open(filepath);
-	if (!file.is_open() || errno != 0)
-	{
-		char * str = nullptr;
-		strerror_s(str, 80, errno);
-		std::cerr << "Error loading file " << filepath << ": " << str << std::endl;
-		exit(-1);
-	}
-
-	// define some variable for parsing
+	FILE *fp;
+	int indexx, indexy, indexz, normalx, normaly, normalz;
+	float maxX, maxY, maxZ, minX, minY, minZ;
+	float x, y, z; // for the position 
+	float len;
+	float r, g, b; // for the color
 	int c1, c2;
-	std::string temp;
-
-	// main loop for reading the file
-	while (std::getline(file, temp))
-	{
-		if (temp.size() > 1)
-		{
-
-			c1 = temp.at(0);
-			c2 = temp.at(1);
-		}
-		else
-		{
-			continue;
-		}
-
-		// check for comment
-		if (c1 == '#') 
-		{
-			// skip current line
-			continue;
-		}
-
-		// check for vertex
-		else if ((c1 == 'v') && (c2 == ' '))
-		{
-			// parse the vertex and insert it
-			parseVertex(temp, x, y, z);
-			vertices.push_back(glm::vec3(x,y,z));
-		}
-
-		// check for vertex normal
-		else if ((c1 == 'v') && (c2 == 'n'))
-		{
-			// parse the normal, map it and insert it
-			parseVertex(temp, x, y, z);
-			glm::vec3 tempv = glm::normalize(glm::vec3(x, y, z));
-			// disable mapping the vectors into [0, 1]
-			//tempv.x = tempv.x * 0.5f + 0.5f;
-			//tempv.y = tempv.y * 0.5f + 0.5f;
-			//tempv.z = tempv.z * 0.5f + 0.5f;
-			normals.push_back(tempv);
-		}
-
-		// checck for faces
-		else if ((c1 == 'f') && (c2 == ' '))
-		{
-			parseFace(temp, v1, v2, v3);
-
-			// 0-based index adjustment
-			faces.push_back( glm::uvec3(v1-1,v2-1,v3-1) );
-		}
+	char s[1010];
+	maxX = maxY = maxZ = -999999;
+	minX = minY = minZ = 999999;
+	fopen_s(&fp,filepath, "rb");
+	if (fp == NULL) {
+		fprintf(stderr, "Failed to open the FILE!\n");
+		glfwTerminate();
+		return;
 	}
-
-	//std::cout << filepath << ": " << vertices.size() << "vertices" << std::endl;
-	//std::cout << filepath << ": " << normals.size() << "normals" << std::endl;
-	//std::cout << filepath << ": " << faces.size() << "faces" << std::endl;
-	file.close();
-}
-
-void OBJObject::parseFace(std::string str, 
-	unsigned int & v1, unsigned int & v2, unsigned int & v3)
-{
-	std::string temp = "";
-	int token_count = 0;
-	std::string::size_type sz;     // alias of size_t
-
-	for (int i = 0; i < str.size(); i++)
-	{
-		if ((str.at(i) == ' '))
-		{
-			if (token_count == 1)
-			{
-				v1 = std::stoi(temp, &sz);
-				//temp = temp.substr(sz+2);
-				//n1 = std::stoi(temp, &sz);
-			}
-			else if (token_count == 2)
-			{
-				v2 = std::stoi(temp, &sz);
-				//temp = temp.substr(sz + 2);
-				//n2 = std::stoi(temp, &sz);
-			}
-			else if (token_count > 2)
-			{
-				break;
-			}
-			token_count++;
-			temp.clear();
+	
+	while (!feof(fp)) {
+		c1 = fgetc(fp);
+		c2 = fgetc(fp);
+		fgets(s, 1000, fp);
+		if (c1 == 'v' && c2 == ' ') {
+			sscanf_s(s, "%f %f %f %f %f %f", &x, &y, &z,&r,&g,&b);
+			vertices.push_back(x);
+			vertices.push_back(y);
+			vertices.push_back(z);
+			minX = MIN(minX, x);
+			minY = MIN(minY, y);
+			minZ = MIN(minZ, z);
+			maxX = MAX(maxX, x);
+			maxY = MAX(maxY, y);
+			maxZ = MAX(maxZ, z);
+			//localSize.push_back(3 / (1 + pow(2.71828,(-z))) + 1);
 		}
-		else
-		{
-			temp.append(1, str.at(i));
+		else if (c1 == 'v' && c2 == 'n') {
+			sscanf_s(s, "%f %f %f", &x, &y, &z);
+			normals.push_back(x);
+			normals.push_back(y);
+			normals.push_back(z);
+			len = sqrt(x * x + y * y + z * z);
+			x /= len;
+			y /= len;
+			z /= len;
+			x = x / 2 + 0.5f;
+			y = y / 2 + 0.5f;
+			z = z / 2 + 0.5f;
+			colors.push_back(x);
+			colors.push_back(y);
+			colors.push_back(z);
 		}
-	}
-
-	// the final element after the loop
-	v3 = std::stoi(temp, &sz);
-	//temp = temp.substr(sz + 2);
-	//n3 = std::stoi(temp, &sz);
-}
-
-void OBJObject::parseVertex(std::string str, float & x, float & y, float & z)
-{
-	std::string temp = "";
-	int token_count = 0;
-	for (int i = 0; i < str.size(); i++)
-	{
-		if ( (str.at(i) == ' ') || (i == str.size() - 1) )
-		{
-			if (token_count == 1)
-			{
-				x = std::stof(temp, nullptr);
-			}
-			else if (token_count == 2)
-			{
-				y = std::stof(temp, nullptr);
-			}
-			else if (token_count > 2)
-			{
-				break;
-			}
-			token_count++;
-			temp.clear();
+		else if (c1 == 'f' && c2 == ' ') {
+			sscanf_s(s, "%d//%d %d//%d %d//%d", &indexx, &normalx, &indexy, &normaly, &indexz, &normalz);
+			indices.push_back(indexx - 1);
+			indices.push_back(indexy - 1);
+			indices.push_back(indexz - 1);
+		//	printf("faces %d//%d %d//%d %d//%d\n", indexx, normalx, indexy, normaly, indexz, normalz);
 		}
-		else
-		{
-			temp.append(1, str.at(i));
-		}
+		
 	}
-
-	// final element 
-	z = std::stof(temp, nullptr);
+	printf("parse object %s ok!\n",filepath);
+	fclose(fp);
+	scalingX = 2 / (maxX - minX);
+	biasX = (maxX + minX) / (minX - maxX);
+	scalingY = 2 / (maxY - minY);
+	biasY = (maxY + minY) / (minY - maxY);
+	scalingZ = 2 / (maxZ - minZ);
+	biasZ = (maxZ + minZ) / (minZ - maxZ);
+	midX = scalingX * (maxX + minX) / 2 + biasX;
+	midY = scalingY * (maxY + minY) / 2 + biasY;
+	midZ = scalingZ * (maxZ + minZ) / 2 + biasZ;
+	//TODO parse the OBJ file
+	// Populate the face indices, vertices, and normals vectors with the OBJ Object data
 }
 
-void OBJObject::increase_point_size()
+void OBJObject::draw() 
 {
-	if (point_size <= 50.0f)
-	{
-		point_size += 0.5f;
-		glPointSize(point_size);
-	}
-}
-
-void OBJObject::decrease_point_size()
-{
-	if (point_size > 0.5f)
-	{
-		point_size -= 0.5f;
-		glPointSize(point_size);
-	}
-}
-
-void OBJObject::setPointSize()
-{
-	glPointSize(point_size);
-}
-
-void OBJObject::draw(GLuint shaderProgram)
-{
+	// Calculate the combination of the model and view (camera inverse) matrices
+	glm::mat4 modelview = V * toWorld;
 	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 	// Get the location of the uniform variables "projection" and "modelview"
-	uProjection = glGetUniformLocation(shaderProgram, "projection");
-	uModel = glGetUniformLocation(shaderProgram, "model");
-	uView = glGetUniformLocation(shaderProgram, "view");
-	normal_mode = glGetUniformLocation(shaderProgram, "normal_mode");
-
-	GLint loc_k_s = glGetUniformLocation(shaderProgram, "k_s");
-	GLint loc_k_d = glGetUniformLocation(shaderProgram, "k_d");
-	GLint loc_k_a = glGetUniformLocation(shaderProgram, "k_a");
-	GLint loc_def_c = glGetUniformLocation(shaderProgram, "shininess");
-
+	uProjection = glGetUniformLocation(shader, "projection");
+	uModelview = glGetUniformLocation(shader, "modelview");
+	justModel = glGetUniformLocation(shader, "model");
+	glm::vec4 k = glm::vec4(1.0, 1.0, 0, 1.0);
+	k = this->toWorld * k;
+	//printf("%f %f %f\n", k.x, k.y, k.z);
 	// Now send these values to the shader program
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-	glUniformMatrix4fv(uModel, 1, GL_FALSE, &toWorld[0][0]);
-	glUniformMatrix4fv(uView, 1, GL_FALSE, &Window::V[0][0]);
-	glUniform1i(normal_mode, i_normal_mode);
-	glUniform3fv(loc_k_s, 1, &k_s[0]);
-	glUniform3fv(loc_k_d, 1, &k_d[0]);
-	glUniform3fv(loc_k_a, 1, &k_a[0]);
-	glUniform1f(loc_def_c, shininess);
-
+	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
+	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+	glUniformMatrix4fv(justModel, 1, GL_FALSE, &toWorld[0][0]);
 	// Now draw the cube. We simply need to bind the VAO associated with it.
 	glBindVertexArray(VAO);
-
-	// Tell OpenGL to draw with triangles, using all indices, the type of the indices, and the offset to start from
-	glDrawElements(GL_TRIANGLES, (GLsizei) faces.size() * 3, GL_UNSIGNED_INT, 0);
-
+	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 	glBindVertexArray(0);
 }
 
-void OBJObject::switchRenderMode()
-{
-	if (i_normal_mode == 0)
-	{
-		i_normal_mode = 1;
+void OBJObject::accumulateUpdate() {
+	if (doit == 0) {
+		this->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(scalingX, scalingY, scalingZ)) * this->toWorld;
+		this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(biasX, biasY, biasZ))  * this->toWorld;
+		this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(-midX, -midY, -midZ)) * this->toWorld;
+		doit = 1;
 	}
-	else
-	{
-		i_normal_mode = 0;
+	// for scrolling 
+	if (this->orbit != 0) {
+		this->toWorld = glm::rotate(glm::mat4(1.0f), this->orbit / 180.0f * glm::pi<float>(), glm::vec3(orbitX, orbitY, orbitZ)) * toWorld;
+		this->orbit = 0;
 	}
+	if (this->xTran != 0 || this->yTran != 0 || this->zTran != 0)
+	{
+		this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(xTran, yTran, zTran)) * this->toWorld;
+		this->xTran = 0;
+		this->yTran = 0;
+		this->zTran = 0;
+	}
+
+	// for scaling 
+	this->toWorld = glm::scale(this->toWorld, glm::vec3(scaling , scaling, scaling));
+	scaling = 1;
+
 }
 
 void OBJObject::update()
 {
-	// spin all the time
-	// this->spin(1.0f);
+	this->toWorld = glm::mat4(1.0f);
+	/*
+	this->angle += 1.0f;
+	if (this->angle > 360.0f || this->angle < -360.0f) this->angle = 0.0f;
+	if (this->orbit > 360.0f || this->orbit < -360.0f) this->orbit = 0.0f;
+	this->toWorld = glm::rotate(glm::mat4(1.0f), this->orbit / 180.0f * glm::pi<float>(), glm::vec3(0.0f, 0.0f, 1.0f));
+	this->toWorld = glm::translate(this->toWorld, glm::vec3(xTran, yTran, zTran));
+	this->toWorld = glm::rotate(this->toWorld, this->angle / 180.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
+	
+	*/
+	//printf("%f %f %f\n", midX, midY, midZ);
+	// for centering and scalling the model
+	
+	this->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(scalingX, scalingY, scalingZ)) * this->toWorld;
+	this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(biasX, biasY, biasZ))  * this->toWorld;
+	this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(-midX, -midY, -midZ)) * this->toWorld;
+	// for scrolling 
+	//this->toWorld = this->orbitW * this->toWorld;
+	//this->translate();
+	this->rotate();
+	this->toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(xTran, yTran, zTran)) * this->toWorld; 
+	
+	
+	// for scaling 
+	this->toWorld = glm::scale(this->toWorld, glm::vec3(scaling, scaling, scaling));
+	
+//	this->spin(1.0f);
+
+	
+}
+
+void OBJObject::translate() {
+	if (this->xTran != 0 || this ->yTran !=0 || this ->zTran != 0)
+	{
+
+		//if (this->angle > 360.0f || this->angle < -360.0f) this->angle = 0.0f;
+		this->transW = glm::translate(glm::mat4(1.0f), glm::vec3(xTran, yTran, zTran)) * this->transW;
+		this->xTran = 0;
+		this->yTran = 0;
+		this->zTran = 0;
+	}
+	this->toWorld = this->transW  * this->toWorld;
+}
+
+void OBJObject::rotate()
+{
+	if (this->orbit != 0)
+	{
+		
+		//if (this->angle > 360.0f || this->angle < -360.0f) this->angle = 0.0f;
+		this-> orbitW = glm::rotate(glm::mat4(1.0f), this->orbit / 180.0f * glm::pi<float>(), glm::vec3(orbitX, orbitY, orbitZ));
+		this->orbit = 0;
+	}
+	this->toWorld = this->orbitW * this->toWorld;
+
 }
 
 void OBJObject::spin(float deg)
 {
-	// This creates the matrix to rotate the cube
-	this->toWorld = glm::rotate(this->toWorld, deg * degree , glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-// Reset the 3x3 sub-matrix
-void OBJObject::reset(int arg)
-{
-	if (arg == RESET_ORIENTATION)
-	{
-		for (int i = 0; i < 3; i++)
-		{
-			for (int j = 0; j < 3; j++)
-			{
-				if (i == j)
-				{
-					this->toWorld[i][j] = 1;
-				}
-				else
-				{
-					this->toWorld[i][j] = 0;
-				}
-			}
-		}
-	}
-
-	// Reset the position
-	else if (arg == RESET_POSITION)
-	{
-		// reset the last column, which stores the translation information
-		this->toWorld[3][0] = 0;
-		this->toWorld[3][1] = 0;
-		this->toWorld[3][2] = 0;
-	}
-}
-
-void OBJObject::scale(int opt)
-{
-	if (opt == SCALE_UP)
-	{
-		this->toWorld = glm::scale(this->toWorld, glm::vec3(1.25,1.25,1.25));
-	}
-	else if (opt == SCALE_DOWN)
-	{
-		this->toWorld = glm::scale(this->toWorld, glm::vec3(.8, .8, .8));
-	}
-}
-
-void OBJObject::setSize(float s)
-{
-	toWorld[0][0] = s;
-	toWorld[1][1] = s;
-	toWorld[2][2] = s;
-}
-
-void OBJObject::orbit(int direction)
-{
-	if (direction == ORBIT_COUNTER_CW)
-	{
-		this->toWorld = glm::rotate(glm::mat4(1.0f), 5.0f * degree, glm::vec3(0.0f, 0.0f, 1.0f)) * this->toWorld;
-	}
-	else if (direction == ORBIT_CW)
-	{
-		this->toWorld = glm::rotate(glm::mat4(1.0f), 5.0f * degree, glm::vec3(0.0f, 0.0f, -1.0f)) * this->toWorld;
-	}
-}
-
-void OBJObject::rotate(double p_xPos, double p_yPos, double xPos, double yPos)
-{
-	glm::vec3 v1 = trackBallMapping(p_xPos, p_yPos);
-	glm::vec3 v2 = trackBallMapping(xPos, yPos);
-	glm::vec3 a = glm::cross(v1, v2);
-	float cos_theta = glm::dot(v1, v2) / (v1.length() * v2.length());
-	float theta = acos(cos_theta);
-	this->toWorld = glm::rotate(glm::mat4(1.0f), theta * degree , a) * this->toWorld;
-}
-
-glm::vec3 OBJObject::trackBallMapping(double xpos, double ypos)  
-{
-	glm::vec3 v;    // Vector v is the synthesized 3D position of the mouse location on the trackball
-	float d;     // this is the depth of the mouse location: the delta between the plane through the center of the trackball and the z position of the mouse
-	v.x = ( 2.0f* (float) xpos - (float) Window::width) / (float) Window::width;   // this calculates the mouse X position in trackball coordinates, which range from -1 to +1
-	v.y = ( (float) Window::height - 2.0f* (float) ypos) / (float) Window::height;   // this does the equivalent to the above for the mouse Y position
-	v.z = 0.0f;   // initially the mouse z position is set to zero, but this will change below
-	d = glm::length(v);    // this is the distance from the trackball's origin to the mouse location, without considering depth (=in the plane of the trackball's origin)
-	d = (d<1.0f) ? d : 1.0f;   // this limits d to values of 1.0 or less to avoid square roots of negative values in the following line
-	v.z = sqrtf(1.001f - d*d);  // this calculates the Z coordinate of the mouse position on the trackball, based on Pythagoras: v.z*v.z + d*d = 1*1
-	glm::normalize(v);
-	return v;  // return the mouse location on the surface of the trackball
-}
-
-void OBJObject::setPosition(glm::vec3 pos)
-{
-	this->toWorld[3][0] = pos.x;
-	this->toWorld[3][1] = pos.y;
-	this->toWorld[3][2] = pos.z;
-}
-
-void OBJObject::translate(double x, double y)
-{
-	glm::vec3 temp( (float) x, (float) y, 0);
-	float dim = (float) std::min(Window::width, Window::height);
-	temp.x /= ( dim / 20.0f );
-	temp.y /= -1.0f * ( dim / 20.0f );
-	this->toWorld = glm::translate(glm::mat4(1.0f), temp) * this->toWorld;
-}
-
-void OBJObject::translate(int direction)
-{
-	glm::vec3 temp;
-
-	// set the direction vector
-	switch (direction)
-	{
-	case UP:
-		temp = glm::vec3(0.0f, 1.0f, 0.0f);
-		break;
-
-	case DOWN:
-		temp = glm::vec3(0.0f, -1.0f, 0.0f);
-		break;
-
-	case LEFT:
-		temp = glm::vec3(-1.0f, 0.0f, 0.0f);
-		break;
-
-	case RIGHT:
-		temp = glm::vec3(1.0f, 0.0f, 0.0f);
-		break;
-
-	case IN:
-		temp = glm::vec3(0.0f, 0.0f, -1.0f);
-		break;
-
-	case OUT:
-		temp = glm::vec3(0.0f, 0.0f, 1.0f);
-		break;
-	}
-
-	// perform the translation
-	this->toWorld = glm::translate(glm::mat4(1.0f), temp) * this->toWorld;
-}
-
-glm::vec3 OBJObject::getPosition()
-{
-	return glm::vec3(toWorld[3][0], toWorld[3][1], toWorld[3][2]);
+	this->angle += deg;
+    if (this->angle > 360.0f || this->angle < -360.0f) this->angle = 0.0f;
+	this->toWorld = this ->toWorld * glm::rotate(glm::mat4(1.0f), this->angle / 180.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
 }

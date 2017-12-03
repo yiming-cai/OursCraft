@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\src\example4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{AE347BEA-9329-38DD-9E74-CB0B24E6E88A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

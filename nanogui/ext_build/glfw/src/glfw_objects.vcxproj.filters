@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\vulkan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_joystick.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_monitor.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_time.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_tls.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\wgl_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\egl_context.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\include\GLFW\glfw3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\include\GLFW\glfw3native.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_platform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\win32_joystick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\wgl_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\egl_context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{AE347BEA-9329-38DD-9E74-CB0B24E6E88A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{FF3D8D05-EDE9-3548-B476-FFE44A98C45A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

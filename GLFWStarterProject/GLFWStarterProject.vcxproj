@@ -19,36 +19,58 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Camera.h" />
+    <ClInclude Include="..\Coordinate.h" />
     <ClInclude Include="..\Cube.h" />
     <ClInclude Include="..\Geometry.h" />
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\Node.h" />
+    <ClInclude Include="..\Object.h" />
     <ClInclude Include="..\OBJObject.h" />
+    <ClInclude Include="..\Rotate.h" />
+    <ClInclude Include="..\Scale.h" />
     <ClInclude Include="..\shader.h" />
-    <ClInclude Include="..\skybox.h" />
+    <ClInclude Include="..\Skybox.h" />
     <ClInclude Include="..\stb_image.h" />
     <ClInclude Include="..\Transform.h" />
+    <ClInclude Include="..\Translate.h" />
+    <ClInclude Include="..\Util.h" />
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Camera.cpp" />
+    <ClCompile Include="..\Coordinate.cpp" />
     <ClCompile Include="..\Cube.cpp" />
     <ClCompile Include="..\Geometry.cpp" />
     <ClCompile Include="..\main.cpp" />
+    <ClCompile Include="..\Node.cpp" />
+    <ClCompile Include="..\Object.cpp" />
     <ClCompile Include="..\OBJObject.cpp" />
+    <ClCompile Include="..\Rotate.cpp" />
+    <ClCompile Include="..\Scale.cpp" />
     <ClCompile Include="..\shader.cpp" />
-    <ClCompile Include="..\skybox.cpp" />
+    <ClCompile Include="..\Skybox.cpp" />
+    <ClCompile Include="..\stb_image.cpp" />
     <ClCompile Include="..\Transform.cpp" />
+    <ClCompile Include="..\Translate.cpp" />
+    <ClCompile Include="..\Util.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\coordinateShader.frag" />
+    <None Include="..\coordinateShader.vert" />
+    <None Include="..\geometryShader.frag" />
+    <None Include="..\geometryShader.vert" />
     <None Include="..\shader.frag" />
     <None Include="..\shader.vert" />
+    <None Include="..\skyboxShader.frag" />
+    <None Include="..\skyboxShader.vert" />
     <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EBF1E546-3F93-49DB-BD9A-B629C3C6DCB0}</ProjectGuid>
     <RootNamespace>GLFWStarterProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -108,6 +130,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>glu32.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -137,6 +160,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -146,16 +170,16 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\glm.0.9.8.4\build\native\glm.targets" Condition="Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" />
     <Import Project="..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets" Condition="Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" />
     <Import Project="..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets" Condition="Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" />
+    <Import Project="..\packages\glm.0.9.8.4\build\native\glm.targets" Condition="Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+      <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.0.9.8.4\build\native\glm.targets'))" />
     <Error Condition="!Exists('..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.redist.0.1.0.1\build\native\nupengl.core.redist.targets'))" />
     <Error Condition="!Exists('..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\nupengl.core.0.1.0.1\build\native\nupengl.core.targets'))" />
+    <Error Condition="!Exists('..\packages\glm.0.9.8.4\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.0.9.8.4\build\native\glm.targets'))" />
   </Target>
 </Project>

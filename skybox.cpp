@@ -1,118 +1,107 @@
-#include "skybox.h"
+#include "Skybox.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+GLfloat Skybox::skyboxVertices[108] = {
+	-1.0f,  1.0f, -1.0f,  -1.0f, -1.0f, -1.0f,  1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f,  -1.0f,  1.0f, -1.0f,
 
+	-1.0f, -1.0f,  1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f, -1.0f,  1.0f,  1.0f, -1.0f, -1.0f,  1.0f,
 
-skybox::skybox()
+	1.0f, -1.0f, -1.0f, 1.0f, -1.0f,  1.0f,1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f, 1.0f,  1.0f, -1.0f,1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f, -1.0f,  1.0f,  1.0f,1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f, 1.0f, -1.0f,  1.0f,-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f, 1.0f,  1.0f, -1.0f,1.0f,  1.0f,  1.0f,
+	1.0f,  1.0f,  1.0f, -1.0f,  1.0f,  1.0f,-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,1.0f, -1.0f, -1.0f,
+	1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  1.0f,1.0f, -1.0f,  1.0f
+};
+
+GLuint Skybox::loadCubemap()
 {
-}
-
-skybox::skybox(std::vector<std::string > p_faces)
-{
-	faces = p_faces;
-}
-
-skybox::~skybox()
-{
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
-}
-
-void skybox::loadCubemap()
-{
-	// source: https://learnopengl.com/#!Advanced-OpenGL/Cubemaps
-
-	// initialize the new texture ID
-	unsigned int textureID;
+	GLuint textureID;
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	// read each face, aka image file
 	int width, height, nrChannels;
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		// load the jpg file onto a byte buffer
-		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-				0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data
-			);
+	for (unsigned int i = 0; i < faces -> size(); ++i) {
+		unsigned char *data = stbi_load((*faces)[i].c_str(), &width, &height, &nrChannels, 0);
+
+		if (data) {
+			//printf("%d %d %d\n", width, height, nrChannels);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);
 		}
-		else
-		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
+		else {
+			printf("wrong in load skybox %s", (*faces)[i].c_str());
 			stbi_image_free(data);
 		}
 	}
 
-	// configure texture settings
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	return textureID;
 
-	cubemapTexture = textureID;
 }
 
-void skybox::initialize()
+Skybox::Skybox(int id, float distance, std::vector<std::string>* faces)
 {
-
-	// Create array object and buffers. 
+	this->id = id;
+	this->distance = distance;
+	this->faces = faces;
+	this->shader = Shader_Skybox;
+	texture = loadCubemap();
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-
-	// Bind the Vertex Array Object (VAO) first, then bind the associated buffers to it.
-	// Consider the VAO as a container for all your buffers.
 	glBindVertexArray(VAO);
 
-	// Now bind a VBO to it as a GL_ARRAY_BUFFER. The GL_ARRAY_BUFFER is an array containing relevant data to what
-	// you want to draw, such as vertices, normals, colors, etc.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// glBufferData populates the most recently bound buffer with data starting at the 3rd argument and ending after
-	// the 2nd argument number of indices. How does OpenGL know how long an index spans? Go to glVertexAttribPointer.
-	glBufferData(GL_ARRAY_BUFFER, 3 * 6 * 6 * 4, &skyboxVertices[0], GL_STATIC_DRAW);
-
-	// Enable the usage of layout location 0 (check the vertex shader to see what this is)
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
-		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
-		GL_FLOAT, // What type these components are
-		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
-		3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
-		(GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
-					 
-	// Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	printf("Skybox Load!\n");
+}
 
-	// Unbind the VAO now so we don't accidentally tamper with it.
-	// NOTE: You must NEVER unbind the element array buffer associated with a VAO!
+Skybox::~Skybox()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteTextures(1, &texture);
+}
+
+void Skybox::draw(glm::mat4 C)
+{
+	glm::mat4 modelview = V * C * glm::mat4(1.0f);
+	glDepthMask(GL_FALSE);
+	glUseProgram(shader);
+
+	GLuint uProjection = glGetUniformLocation(shader, "projection");
+	GLuint uModelview = glGetUniformLocation(shader, "modelview");
+	GLuint skyboxI = glGetUniformLocation(shader, "skybox");
+	GLuint distanceI = glGetUniformLocation(shader, "distance");
+
+	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
+	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+
+
+	glBindVertexArray(VAO);
+	glUniform1i(skyboxI, 0);
+	glUniform1f(distanceI, distance);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	glDepthMask(GL_TRUE);
 	glBindVertexArray(0);
 }
 
-void skybox::display(GLuint shaderProgram)
+void Skybox::update()
 {
-	glDepthMask(GL_FALSE);
-
-	uProjection = glGetUniformLocation(shaderProgram, "projection");
-	uModel = glGetUniformLocation(shaderProgram, "model");
-	uView = glGetUniformLocation(shaderProgram, "view");
-	uSkybox = glGetUniformLocation(shaderProgram, "draw_skybox");
-	
-	glm::mat4 view = glm::mat4(glm::mat3( Window::V ));
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
-	glUniformMatrix4fv(uView, 1, GL_FALSE, &view[0][0]);
-	glUniform1i(uSkybox, 1);
-	
-	glBindVertexArray(VAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDepthMask(GL_TRUE);
-
-	glUniform1i(uSkybox, 0);
 }

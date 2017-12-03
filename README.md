@@ -32,8 +32,8 @@ And then finally we can create a world with an amazing domino project, then maki
 
 | Due Date  | Part | Responsibility Man|
 | :--------: | :--------:| :------: |
-| 2017.12.1 Fri | Finish the blog website(like github repo url or website) |Pan|
-| 2017.12.3 Sun | Finish basic engine (object placing,skybox, lighting, etc.) for first snapshot |Ke Cai|
+| 2017.12.1 Fri | Finish the blog website(like github repo url or website (**finished**)) |Pan|
+| 2017.12.3 Sun | Finish basic engine (object placing,skybox, lighting, etc.) for first snapshot (**finished 50%**) |Ke Cai|
 | 2017.12.3 Sun | Finish basic domino part (including configuring domino and collision) |Pan|
 | 2017.12.4 Mon | Finish the first blog and Finish the combanation|T|
 | 2017.12.8 Fri | DIY basic environment(including dominoes placement)||
@@ -45,5 +45,4 @@ And then finally we can create a world with an amazing domino project, then maki
 | 2017.12.13 Wed| Prepare for presentation ||
 | 2017.12.14 Thu| Good Luck||  
   
-
 

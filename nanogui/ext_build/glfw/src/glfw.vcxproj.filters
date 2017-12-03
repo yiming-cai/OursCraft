@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\nanogui\ext\glfw\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\init.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\input.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\monitor.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\vulkan.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_init.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_joystick.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_monitor.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_time.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_tls.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\win32_window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\wgl_context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="D:\UCSD Courses\CSE 167\HW\Project2\nanogui\ext_build\glfw\src\glfw_objects.dir\$(Configuration)\egl_context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{8D398CCB-10D0-34CB-91BB-59C97472FD5D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

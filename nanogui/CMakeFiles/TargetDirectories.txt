@@ -1,0 +1,16 @@
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/example3.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/nanogui.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/nanogui-obj.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/example_icons.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/example1.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/example2.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/example4.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/mkdoc.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/INSTALL.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/ALL_BUILD.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/CMakeFiles/ZERO_CHECK.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/ext_build/glfw/CMakeFiles/INSTALL.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/ext_build/glfw/CMakeFiles/ALL_BUILD.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/ext_build/glfw/src/CMakeFiles/glfw_objects.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/ext_build/glfw/src/CMakeFiles/glfw.dir
+D:/UCSD Courses/CSE 167/HW/Project2/nanogui/ext_build/glfw/src/CMakeFiles/INSTALL.dir

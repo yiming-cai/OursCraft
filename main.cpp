@@ -14,14 +14,17 @@ void setup_callbacks()
 	glfwSetErrorCallback(error_callback);
 	// Set the key callback
 	glfwSetKeyCallback(window, Window::key_callback);
-
-	// Set the mouse callbacks
-	glfwSetCursorPosCallback(window, Window::cursor_pos_callback);
-	glfwSetMouseButtonCallback(window, Window::mouse_button_callback);
-	glfwSetScrollCallback(window, Window::scroll_callback);
-
 	// Set the window resize callback
 	glfwSetFramebufferSizeCallback(window, Window::resize_callback);
+
+	// set the mouse button callback
+	glfwSetMouseButtonCallback(window, Window::mouseButton_callback);
+
+	// set the mouse scroll callback
+	glfwSetScrollCallback(window, Window::mouseScroll_callback);
+
+	// set the mouse pos callback
+	glfwSetCursorPosCallback(window, Window::mousePos_callback);
 }
 
 void setup_glew()
@@ -46,16 +49,14 @@ void setup_opengl_settings()
 	setup_glew();
 #endif
 	// Enable depth buffering
-	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
-
 	// Related to shaders and z value comparisons for the depth buffer
 	glDepthFunc(GL_LEQUAL);
 	// Set polygon drawing mode to fill front and back of each polygon
 	// You can also use the paramter of GL_LINE instead of GL_FILL to see wireframes
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// Disable backface culling to render both sides of polygons
-	// glDisable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 	// Set clear color
 	glClearColor(0.05f, 0.8f, 0.85f, 1.0f);
 }
@@ -75,7 +76,7 @@ void print_versions()
 int main(void)
 {
 	// Create the GLFW window
-	window = Window::create_window(640, 480);
+	window = Window::create_window(1280, 720);
 	// Print OpenGL and GLSL versions
 	print_versions();
 	// Setup callbacks

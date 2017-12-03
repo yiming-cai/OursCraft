@@ -1,84 +1,210 @@
 #include "Cube.h"
-#include "Window.h"
 
-Cube::Cube()
+std::vector<std::string> Cube::cubeTexturesAddress = {
+	"../assets/CubeTexture/cube_01.jpg",
+	"../assets/CubeTexture/cube_02.jpg",
+	"../assets/CubeTexture/cube_03.jpg",
+	"../assets/CubeTexture/cube_04.jpg",
+	"../assets/CubeTexture/cube_05.jpg",
+	"../assets/CubeTexture/cube_06.jpg",
+	"../assets/CubeTexture/cube_07.jpg",
+	"../assets/CubeTexture/cube_08.jpg"
+};
+
+std::vector<GLint> Cube::cubeTextureId = {
+	-1,-1,-1,-1,-1,-1,-1,-1
+};
+
+GLfloat Cube::cubeBoundBoxV[72] = {
+	0,0,0, 1,0,0, 1,1,0, 0,1,0,
+	0,0,-1, 1,0,-1, 1,1,-1, 0,1,-1,
+
+	0,0,-1, 0,0,0, 0,1,0, 0,1,-1,
+	1,0,-1, 1,0,0, 1,1,0, 1,1,-1,
+
+	0,1,0, 1,1,0, 1,1,-1, 0,1,-1,
+	0,0,0, 1,0,0, 1,0,-1, 0,0,-1
+};
+
+GLfloat Cube::cubeBoundBoxN[18] = {
+	0,0,1,
+	0,0,-1,
+	-1,0,0,
+	1,0,0,
+	0,1,0,
+	0,-1,0
+};
+
+int Cube::cubeVerticesLen = 24;
+GLfloat Cube::cubeVertices[24] = {
+	0,0,0,  1,0,0,  1,1,0,  0,1,0,
+	0,0,-1, 1,0,-1, 1,1,-1, 0,1,-1
+};
+
+int Cube::cubeColorsLen = 24;
+
+int Cube::cubeNormalsLen = 24;
+GLfloat Cube::cubeNormals[24] = {
+	0,0,1, 0,0,1, 0,0,1, 0,0,1,
+	0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1
+};
+
+int Cube::cubeIndicesLen = 36;
+GLuint Cube::cubeIndices[36] = {
+	0,1,2, 2,3,0,
+	4,5,6, 6,7,4,
+	3,2,6, 6,7,3,
+	0,1,5, 5,4,1,
+	4,0,3, 3,7,4,
+	1,5,6, 6,2,1
+};
+GLuint Cube::loadTexture(int pos)
 {
-	toWorld = glm::mat4(1.0f);
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	int width, height, nrChannels;
+	for (unsigned int i = 0; i < 6; ++i) {
+		unsigned char *data = stbi_load(cubeTexturesAddress[pos].c_str(), &width, &height, &nrChannels, 0);
 
-	// Create array object and buffers. Remember to delete your buffers when the object is destroyed!
+		if (data) {
+			//printf("%d %d %d\n", width, height, nrChannels);
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else {
+			printf("wrong in load skybox %s", cubeTexturesAddress[pos].c_str());
+			stbi_image_free(data);
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+	return textureID;
+
+}
+Cube::Cube(int id, float size, glm::vec3 color) {
+	this->id = id;
+	this->selected = 0;
+	this->haveTexture = 0;
+	this->size = size;
+	this->nameID = OBJECT_CUBE;
+	this->vertices = cubeVertices;
+	for (int i = 0; i < 8; ++i) {
+		for (int j = 0; j < 3; ++j)
+			cubeColors[3 * i + j] = color[j];
+	}
+	this->colors = cubeColors;
+	this->indices = cubeIndices;
+	this->normals = cubeNormals;
+
+	this->boundBoxN = cubeBoundBoxN;
+	this->boundBoxV = cubeBoundBoxV;
+	this->shader = Shader_Geometry;
+	this->toWorld = glm::scale(glm::mat4(1.0f),glm::vec3(size,size,size));
+	verticesLen = cubeVerticesLen;
+	normalsLen = cubeNormalsLen;
+	colorsLen = cubeColorsLen;
+	indicesLen = cubeIndicesLen;
+	//printf("in address %d\n", &P);
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &CBO);
+	glGenBuffers(1, &NBO);
 	glGenBuffers(1, &EBO);
-	
-	// Bind the Vertex Array Object (VAO) first, then bind the associated buffers to it.
-	// Consider the VAO as a container for all your buffers.
+
 	glBindVertexArray(VAO);
 
-	// Now bind a VBO to it as a GL_ARRAY_BUFFER. The GL_ARRAY_BUFFER is an array containing relevant data to what
-	// you want to draw, such as vertices, normals, colors, etc.
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	// glBufferData populates the most recently bound buffer with data starting at the 3rd argument and ending after
-	// the 2nd argument number of indices. How does OpenGL know how long an index spans? Go to glVertexAttribPointer.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	std::cerr << sizeof(vertices) << std::endl;
-	// Enable the usage of layout location 0 (check the vertex shader to see what this is)
+	glBufferData(GL_ARRAY_BUFFER, verticesLen * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0,// This first parameter x should be the same as the number passed into the line "layout (location = x)" in the vertex shader. In this case, it's 0. Valid values are 0 to GL_MAX_UNIFORM_LOCATIONS.
-		3, // This second line tells us how any components there are per vertex. In this case, it's 3 (we have an x, y, and z component)
-		GL_FLOAT, // What type these components are
-		GL_FALSE, // GL_TRUE means the values should be normalized. GL_FALSE means they shouldn't
-		3 * sizeof(GLfloat), // Offset between consecutive indices. Since each of our vertices have 3 floats, they should have the size of 3 floats in between
-		(GLvoid*)0); // Offset of the first vertex's component. In our case it's 0 since we don't pad the vertices array with anything.
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 
-	// We've sent the vertex data over to OpenGL, but there's still something missing.
-	// In what order should it draw those vertices? That's why we'll need a GL_ELEMENT_ARRAY_BUFFER for this.
+	glBindBuffer(GL_ARRAY_BUFFER, NBO);
+	glBufferData(GL_ARRAY_BUFFER, normalsLen * sizeof(GLfloat), normals, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, CBO);
+	glBufferData(GL_ARRAY_BUFFER, colorsLen * sizeof(GLfloat), colors, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// Unbind the currently bound buffer so that we don't accidentally make unwanted changes to it.
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	// Unbind the VAO now so we don't accidentally tamper with it.
-	// NOTE: You must NEVER unbind the element array buffer associated with a VAO!
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicesLen, indices, GL_STATIC_DRAW);
 	glBindVertexArray(0);
+	//printf("Load Cube!\n");
+}
+
+Cube::Cube(int id, float size, int textureSeq)
+{
+	this->id = id;
+	this->selected = 0;
+	this->haveTexture = 1;
+	this->size = size;
+	this->nameID = OBJECT_CUBE;
+	this->vertices = cubeVertices;
+	for (int i = 0; i < 8; ++i) {
+		for (int j = 0; j < 3; ++j)
+			cubeColors[3 * i + j] = 1;
+	}
+	this->colors = cubeColors;
+	this->indices = cubeIndices;
+	this->normals = cubeNormals;
+
+	this->boundBoxN = cubeBoundBoxN;
+	this->boundBoxV = cubeBoundBoxV;
+	this->shader = Shader_Geometry;
+	this->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(size, size, size));
+	verticesLen = cubeVerticesLen;
+	normalsLen = cubeNormalsLen;
+	colorsLen = cubeColorsLen;
+	indicesLen = cubeIndicesLen;
+	//printf("in address %d\n", &P);
+	if (cubeTextureId.size() <= textureSeq) textureSeq = cubeTextureId.size() - 1;
+	if (cubeTextureId[textureSeq] == -1) {
+		cubeTextureId[textureSeq] = loadTexture(textureSeq);
+	}
+	textureID = cubeTextureId[textureSeq];
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &CBO);
+	glGenBuffers(1, &NBO);
+	glGenBuffers(1, &EBO);
+
+	glBindVertexArray(VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, verticesLen * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, NBO);
+	glBufferData(GL_ARRAY_BUFFER, normalsLen * sizeof(GLfloat), normals, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, CBO);
+	glBufferData(GL_ARRAY_BUFFER, colorsLen * sizeof(GLfloat), colors, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indicesLen, indices, GL_STATIC_DRAW);
+	glBindVertexArray(0);
+	//printf("Load Cube!\n");
 }
 
 Cube::~Cube()
 {
-	// Delete previously generated buffers. Note that forgetting to do this can waste GPU memory in a 
-	// large project! This could crash the graphics driver due to memory leaks, or slow down application performance!
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
-}
-
-void Cube::draw(GLuint shaderProgram)
-{ 
-	// Calculate the combination of the model and view (camera inverse) matrices
-	glm::mat4 modelview = Window::V * toWorld;
-	// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
-	// Consequently, we need to forward the projection, view, and model matrices to the shader programs
-	// Get the location of the uniform variables "projection" and "modelview"
-	uProjection = glGetUniformLocation(shaderProgram, "projection");
-	uModelview = glGetUniformLocation(shaderProgram, "modelview");
-	// Now send these values to the shader program
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
-	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-	// Now draw the cube. We simply need to bind the VAO associated with it.
-	glBindVertexArray(VAO);
-	// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-	// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
-	glBindVertexArray(0);
-}
-
-void Cube::update()
-{
-	spin(1.0f);
-}
-
-void Cube::spin(float deg)
-{
-	// If you haven't figured it out from the last project, this is how you fix spin's behavior
-	toWorld = toWorld * glm::rotate(glm::mat4(1.0f), 1.0f / 180.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
+	glDeleteBuffers(1, &CBO);
+	glDeleteBuffers(1, &NBO);
 }
 

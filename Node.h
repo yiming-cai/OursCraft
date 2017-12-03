@@ -1,21 +1,23 @@
-#pragma once
-#define GLFW_INCLUDE_GLEXT
-#ifdef __APPLE__
-#define GLFW_INCLUDE_GLCOREARB
-#else
-#include <GL/glew.h>
-#endif
+#ifndef _NODE_H_
+#define _NODE_H_
 
-#include <GLFW/glfw3.h>
-#include <vector>
-#include <glm/mat4x4.hpp>
-#include <iostream>
-#include <errno.h>
+#include "Util.h"
+#include "stb_image.h"
 
-class Node
-{
+
+extern glm::mat4 P;
+extern glm::mat4 V;
+extern GLuint Shader_Geometry;
+extern GLuint Shader_Skybox;
+extern GLuint Shader_Coordinate;
+class Node {
+protected:
+	int id;
 public:
-	virtual void draw(GLuint shaderProgram, glm::mat4 C) = 0;
+	virtual void draw(glm::mat4 C) = 0;
 	virtual void update() = 0;
+	int getId() { return this->id; }
 };
 
+
+#endif

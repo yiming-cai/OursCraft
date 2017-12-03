@@ -27,22 +27,43 @@
     <ClInclude Include="..\OBJObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\stb_image.h">
+    <ClInclude Include="..\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\skybox.h">
+    <ClInclude Include="..\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Node.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Coordinate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Translate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Rotate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Scale.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,7 +80,10 @@
     <ClCompile Include="..\OBJObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\skybox.cpp">
+    <ClCompile Include="..\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Cube.cpp">
@@ -68,7 +92,31 @@
     <ClCompile Include="..\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Coordinate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Translate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Rotate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Scale.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,5 +128,23 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\geometryShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\geometryShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\skyboxShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\skyboxShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\coordinateShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\coordinateShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
