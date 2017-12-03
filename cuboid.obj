@@ -1,7 +1,5 @@
 # Blender v2.74 (sub 0) OBJ File: ''
 # www.blender.org
-mtllib cuboid.mtl
-o Box
 v 0.225000 0.450000 0.075000
 v 0.225000 0.450000 0.045000
 v 0.225000 0.450000 0.015000
