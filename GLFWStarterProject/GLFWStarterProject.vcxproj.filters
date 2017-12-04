@@ -147,7 +147,4 @@
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Object Include="..\cuboid.obj" />
-  </ItemGroup>
 </Project>
