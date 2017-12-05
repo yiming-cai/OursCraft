@@ -26,10 +26,17 @@ struct MyMaterial {
 struct MyMesh {
 
 	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	GLuint nbo;
 	GLuint texIndex;
 	GLuint uniformBlockIndex;
 	int numFaces;
 };
+
+extern glm::mat4 P;
+extern glm::mat4 V;
+extern GLuint Shader_Model;
 
 class Model
 {
@@ -63,11 +70,13 @@ public:
 	// Generate the VAO and Buffers
 	void genVAOsAndUniformBuffer(const aiScene *sc);
 
-	glm::mat4 toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
 
-	void render(GLuint shaderProgram, const glm::mat4 & View, const glm::mat4 & Projection, const glm::vec3 & cam_pos);
+	void render(const glm::vec3 & cam_pos);
 
 	//void recursive_render(const aiScene * sc, const aiNode * nd);
+	
+
 };
 
 

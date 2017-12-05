@@ -24,6 +24,11 @@ uniform vec3 cam_pos;
 // main loop
 void main()
 {
+
+	// For testing
+	color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	return;
+
 	// find normal in world coordinate
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 normal_world = normalize(normalMatrix * normal);

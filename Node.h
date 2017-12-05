@@ -10,6 +10,7 @@ extern glm::mat4 V;
 extern GLuint Shader_Geometry;
 extern GLuint Shader_Skybox;
 extern GLuint Shader_Coordinate;
+extern GLuint Shader_Model;
 class Node {
 protected:
 	int id;

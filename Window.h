@@ -12,6 +12,7 @@
 #include "Camera.h"
 #include "Coordinate.h"
 #include "Model.h"
+#include "OBJObject.h"
 
 class Window
 {
