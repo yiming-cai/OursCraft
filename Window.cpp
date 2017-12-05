@@ -124,6 +124,8 @@ void Window::initialize_objects()
 	// Enables backface culling
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
+
+	// Disable cursor
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -316,6 +318,7 @@ glm::vec3 compute_axis(float x1, float y1, float x2, float y2) {
 */
 
 void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
+
 	if (leftMousePressed == 0) {
 		if (mouseX == MOUSEPOS_INIT_VALUE) {
 			mouseX = xpos;
@@ -338,6 +341,12 @@ void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 			//printf("%f %f %f %f\n", ray_world.x / ray_world.w, ray_world.y / ray_world.w, ray_world.z / ray_world.w, ray_world.w);
 			ray_dir = glm::normalize(glm::vec3(ray_world.x / ray_world.w, ray_world.y / ray_world.w, ray_world.z / ray_world.w) - currentCam->camera_pos);
 		}
+
+		// sets the cursor to the center of the screen
+		//glfwSetCursorPos(window, Window::width / 2, Window::height / 2);
+
+		// hides cursor away from screen
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 

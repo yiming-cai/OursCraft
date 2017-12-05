@@ -34,11 +34,13 @@ OBJObject::OBJObject(const char *filepath,float pointSize)
 		mIndices[i] = indices[i];
 	}
  	printf("%d %d\n", sizeof(mVertices), sizeof(mIndices));
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
 	glGenBuffers(1, &CBO);
 	glGenBuffers(1, &NBO);
+
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
