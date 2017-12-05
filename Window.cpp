@@ -121,7 +121,9 @@ void Window::initialize_objects()
 	ray_dir = glm::vec3(0, 0.5, -1);
 	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture");
 
-	
+	// Enables backface culling
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.

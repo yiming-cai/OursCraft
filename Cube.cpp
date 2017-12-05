@@ -16,14 +16,14 @@ std::vector<GLint> Cube::cubeTextureId = {
 };
 
 GLfloat Cube::cubeBoundBoxV[72] = {
-	0,0,0, 1,0,0, 1,1,0, 0,1,0,
-	0,0,-1, 1,0,-1, 1,1,-1, 0,1,-1,
+	0,0,0, 1,0,0, 1,1,0, 0,1,0,			// front face counterclockwise
+	0,0,-1, 0,1,-1, 1,1,-1, 1,0,-1,		// back face clockwise
 
-	0,0,-1, 0,0,0, 0,1,0, 0,1,-1,
-	1,0,-1, 1,0,0, 1,1,0, 1,1,-1,
+	0,0,-1, 0,0,0, 0,1,0, 0,1,-1,		// left face clockwise
+	1,0,-1, 1,1,-1, 1,1,0, 1,0,0,		// right face clockwise
 
-	0,1,0, 1,1,0, 1,1,-1, 0,1,-1,
-	0,0,0, 1,0,0, 1,0,-1, 0,0,-1
+	0,1,0, 1,1,0, 1,1,-1, 0,1,-1,		// top face counterclockwise
+	0,0,0, 0,0,-1, 1,0,-1,  1,0,0		// bottom face clockwise
 };
 
 GLfloat Cube::cubeBoundBoxN[18] = {
@@ -35,6 +35,9 @@ GLfloat Cube::cubeBoundBoxN[18] = {
 	0,-1,0
 };
 
+// The order is such that:
+// the front face has the first 4 vertices, counterclockwise facing towards camera
+// the front face has the last 4 vertices, counterclockwise facing away from camera
 int Cube::cubeVerticesLen = 24;
 GLfloat Cube::cubeVertices[24] = {
 	0,0,0,  1,0,0,  1,1,0,  0,1,0,
@@ -51,12 +54,12 @@ GLfloat Cube::cubeNormals[24] = {
 
 int Cube::cubeIndicesLen = 36;
 GLuint Cube::cubeIndices[36] = {
-	0,1,2, 2,3,0,
-	4,5,6, 6,7,4,
-	3,2,6, 6,7,3,
-	0,1,5, 5,4,1,
-	4,0,3, 3,7,4,
-	1,5,6, 6,2,1
+	0,1,2, 2,3,0,		// front face, both counterclockwise facing camera
+	4,6,5, 6,4,7,		// back face, both clockwise facing away from camera
+	3,2,6, 6,7,3,		// top face, both counterclockwise facing camera
+	0,5,1, 5,0,4,		// bottom face, both clockwise facing away from camera
+	4,0,3, 3,7,4,		// left face, both clockwise facing away from camera
+	1,5,6, 6,2,1		// right face, both counterclockwise facing towards camera
 };
 GLuint Cube::loadTexture(int pos)
 {
