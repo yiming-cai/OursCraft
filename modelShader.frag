@@ -34,6 +34,7 @@ layout (std140) uniform Material {
 // main loop
 void main()
 {
+	
 
 	// find normal in world coordinate
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
@@ -62,13 +63,13 @@ void main()
 	vec3 spec = specular.rgb;
 	float shine = shininess;
 
-	vec3 c_mat = dif * dot( surfaceToLight, normal_world ) / length(surfaceToLight) / length(normal_world);
+	vec3 c_mat = dif * dot( surfaceToLight, normal_world );
 	c_mat += spec * pow( dot(R_vec, e_vec), 128.0f * shininess);
-	// c_mat += amb;
+	c_mat += amb * 0.5f;
 
 	// find the c_l, or light intensity
 	vec3 c_l = vec3(0.9f, 0.9f, 0.9f);
 
 	// output color
-	color = vec4( c_mat * c_l + amb, 1.0f );
+	color = vec4( c_l * c_mat, 1.0f );
 }

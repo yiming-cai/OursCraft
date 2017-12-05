@@ -77,7 +77,7 @@ public:
 	// Generate the VAO and Buffers
 	void genVAOsAndUniformBuffer(const aiScene *sc);
 
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
 
 	void render();
 
