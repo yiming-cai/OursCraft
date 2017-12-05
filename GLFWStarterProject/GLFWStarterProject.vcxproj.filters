@@ -158,5 +158,11 @@
     <None Include="..\coordinateShader.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\modelShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\modelShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

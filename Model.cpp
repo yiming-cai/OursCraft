@@ -19,11 +19,19 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 Model::Model(std::string p_filepath)
 {
 	filepath = p_filepath;
+	importObj(filepath);
+	genVAOsAndUniformBuffer(scene);
 }
 
 Model::~Model()
 {
 	//delBuffers();
+	for (unsigned int i = 0; i < myMeshes.size(); ++i) {
+
+		glDeleteVertexArrays(1, &(myMeshes[i].vao));
+		glDeleteTextures(1, &(myMeshes[i].texIndex));
+		glDeleteBuffers(1, &(myMeshes[i].uniformBlockIndex));
+	}
 }
 
 /*
@@ -203,6 +211,35 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
 
 		myMeshes.push_back(aMesh);
+	}
+}
+
+void Model::render(GLuint shaderProgram, const glm::mat4 & View, const glm::mat4 & Projection, const glm::vec3 & cam_pos)
+{
+	for (auto mesh : myMeshes)
+	{
+		// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
+		// Consequently, we need to forward the projection, view, and model matrices to the shader programs
+		// Get the location of the uniform variables "projection" and "modelview"
+		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
+		GLuint uView = glGetUniformLocation(shaderProgram, "view");
+		GLuint uModel = glGetUniformLocation(shaderProgram, "model");
+		GLuint uCam = glGetUniformLocation(shaderProgram, "cam_pos");
+		glm::vec4 k = glm::vec4(1.0, 1.0, 0, 1.0);
+		k = this->toWorld * k;
+		//printf("%f %f %f\n", k.x, k.y, k.z);
+		// Now send these values to the shader program
+		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Projection[0][0]);
+		glUniformMatrix4fv(uView, 1, GL_FALSE, &View[0][0]);
+		glUniformMatrix4fv(uModel, 1, GL_FALSE, &toWorld[0][0]);
+		glUniform3fv(uCam, 1, &cam_pos[0]);
+
+		// Now draw the cube. We simply need to bind the VAO associated with it.
+		glBindVertexArray(mesh.vao);
+		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
+		glDrawElements(GL_TRIANGLES, mesh.numFaces, GL_UNSIGNED_INT, 0);
+		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+		glBindVertexArray(0);
 	}
 }
 

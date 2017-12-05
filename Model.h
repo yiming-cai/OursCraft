@@ -62,6 +62,12 @@ public:
 
 	// Generate the VAO and Buffers
 	void genVAOsAndUniformBuffer(const aiScene *sc);
+
+	glm::mat4 toWorld = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 10.0f, 0.0f));
+
+	void render(GLuint shaderProgram, const glm::mat4 & View, const glm::mat4 & Projection, const glm::vec3 & cam_pos);
+
+	//void recursive_render(const aiScene * sc, const aiNode * nd);
 };
 
 

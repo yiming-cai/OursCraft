@@ -34,6 +34,8 @@
 #define SKYBOX_FRAGMENT_SHADER_PATH "../skyboxShader.frag"
 #define COORDINATE_VERTEX_SHADER_PATH "../coordinateShader.vert"
 #define COORDINATE_FRAGMENT_SHADER_PATH "../coordinateShader.frag"
+#define MODEL_VERTEX_SHADER_PATH "../modelShader.vert"
+#define MODEL_FRAGMENT_SHADER_PATH "../modelShader.frag"
 
 #define CUBE_TEXTURE_NUM 8
 

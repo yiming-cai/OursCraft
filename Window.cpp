@@ -6,6 +6,7 @@ extern glm::mat4 V;
 extern GLuint Shader_Geometry; 
 extern GLuint Shader_Skybox;
 extern GLuint Shader_Coordinate;
+extern GLuint Shader_Model;
 
 
 std::vector<Object *> objectList;
@@ -98,6 +99,7 @@ void Window::loadAllShader() {
 	Shader_Geometry = LoadShaders(GEOMETRY_VERTEX_SHADER_PATH, GEOMETRY_FRAGMENT_SHADER_PATH);
 	Shader_Skybox = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
 	Shader_Coordinate = LoadShaders(COORDINATE_VERTEX_SHADER_PATH, COORDINATE_FRAGMENT_SHADER_PATH);
+	Shader_Model = LoadShaders(MODEL_VERTEX_SHADER_PATH, MODEL_FRAGMENT_SHADER_PATH);
 }
 
 void Window::initialize_objects()
