@@ -21,6 +21,16 @@ uniform mat4 view;
 // camera position
 uniform vec3 cam_pos;
 
+
+layout (std140) uniform Material {
+	vec4 diffuse;
+	vec4 ambient;
+	vec4 specular;
+	vec4 emissive;
+	float shininess;
+	int texCount;
+};
+
 // main loop
 void main()
 {

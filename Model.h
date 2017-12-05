@@ -49,6 +49,7 @@ public:
 	const static int vertexLoc = 0;
 	const static int normalLoc = 1;
 	const static int texCoordLoc = 2;
+	const static int materialUniLoc = 3;
 
 	// store material properties
 	std::vector<MyMesh> myMeshes;

@@ -143,76 +143,77 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		}
 
 		// buffer for vertex texture coordinates
-		//if (mesh->HasTextureCoords(0)) {
-		//	float *texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
-		//	for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
+		if (mesh->HasTextureCoords(0)) {
+			float *texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
+			for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
 
-		//		texCoords[k * 2] = mesh->mTextureCoords[0][k].x;
-		//		texCoords[k * 2 + 1] = mesh->mTextureCoords[0][k].y;
+				texCoords[k * 2] = mesh->mTextureCoords[0][k].x;
+				texCoords[k * 2 + 1] = mesh->mTextureCoords[0][k].y;
 
-		//	}
-		//	glGenBuffers(1, &buffer);
-		//	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-		//	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->mNumVertices, texCoords, GL_STATIC_DRAW);
-		//	glEnableVertexAttribArray(texCoordLoc);
-		//	glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, 0, 0, 0);
-		//}
+			}
+			glGenBuffers(1, &buffer);
+			glBindBuffer(GL_ARRAY_BUFFER, buffer);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->mNumVertices, texCoords, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(texCoordLoc);
+			glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, 0, 0, 0);
+		}
 
 		// unbind buffers
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		//// create material uniform buffer
-		//aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
+		// create material uniform buffer
+		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
 
-		//aiString texPath;	//contains filename of texture
-		//if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath)) {
-		//	//bind texture
-		//	unsigned int texId = textureIdMap[texPath.data];
-		//	aMesh.texIndex = texId;
-		//	aMat.texCount = 1;
-		//}
-		//else
-		//	aMat.texCount = 0;
+		aiString texPath;	//contains filename of texture
+		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath)) {
+			//bind texture
+			unsigned int texId = textureIdMap[texPath.data];
+			aMesh.texIndex = texId;
+			aMat.texCount = 1;
+		}
+		else
+			aMat.texCount = 0;
 
-		//float c[4];
-		//set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
-		//aiColor4D diffuse;
-		//if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
-		//	color4_to_float4(&diffuse, c);
-		//memcpy(aMat.diffuse, c, sizeof(c));
+		float c[4];
+		set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
+		aiColor4D diffuse;
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+			color4_to_float4(&diffuse, c);
+		memcpy(aMat.diffuse, c, sizeof(c));
 
-		//set_float4(c, 0.2f, 0.2f, 0.2f, 1.0f);
-		//aiColor4D ambient;
-		//if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_AMBIENT, &ambient))
-		//	color4_to_float4(&ambient, c);
-		//memcpy(aMat.ambient, c, sizeof(c));
+		set_float4(c, 0.2f, 0.2f, 0.2f, 1.0f);
+		aiColor4D ambient;
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_AMBIENT, &ambient))
+			color4_to_float4(&ambient, c);
+		memcpy(aMat.ambient, c, sizeof(c));
 
-		//set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
-		//aiColor4D specular;
-		//if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_SPECULAR, &specular))
-		//	color4_to_float4(&specular, c);
-		//memcpy(aMat.specular, c, sizeof(c));
+		set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
+		aiColor4D specular;
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_SPECULAR, &specular))
+			color4_to_float4(&specular, c);
+		memcpy(aMat.specular, c, sizeof(c));
 
-		//set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
-		//aiColor4D emission;
-		//if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_EMISSIVE, &emission))
-		//	color4_to_float4(&emission, c);
-		//memcpy(aMat.emissive, c, sizeof(c));
+		set_float4(c, 0.0f, 0.0f, 0.0f, 1.0f);
+		aiColor4D emission;
+		if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_EMISSIVE, &emission))
+			color4_to_float4(&emission, c);
+		memcpy(aMat.emissive, c, sizeof(c));
 
-		//float shininess = 0.0;
-		//unsigned int max;
-		//aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
-		//aMat.shininess = shininess;
+		float shininess = 0.0;
+		unsigned int max;
+		aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
+		aMat.shininess = shininess;
 
-		//glGenBuffers(1, &(aMesh.uniformBlockIndex));
-		//glBindBuffer(GL_UNIFORM_BUFFER, aMesh.uniformBlockIndex);
-		//glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
+		glGenBuffers(1, &(aMesh.uniformBlockIndex));
+		glBindBuffer(GL_UNIFORM_BUFFER, aMesh.uniformBlockIndex);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
 
 		myMeshes.push_back(aMesh);
-		std::cerr << "\nPushed a mesh back!" << std::endl;
 	}
+
+	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
 }
 
 void Model::render(const glm::vec3 & cam_pos)
@@ -236,6 +237,8 @@ void Model::render(const glm::vec3 & cam_pos)
 
 		// Now draw the cube. We simply need to bind the VAO associated with it.
 		glBindVertexArray(mesh.vao);
+		// bind material uniform
+		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, mesh.uniformBlockIndex, 0, sizeof(struct MyMaterial));
 		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 		glDrawElements(GL_TRIANGLES, mesh.numFaces * 3, GL_UNSIGNED_INT, 0);
 		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
