@@ -43,7 +43,7 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
-//Model * model;
+Model * model;
 
 int keyPressed;
 int shiftPressed;
@@ -128,7 +128,8 @@ void Window::initialize_objects()
 	glCullFace(GL_BACK);
 
 	// Create a test model
-	//model = new Model("C:/Users/cai_y/Documents/GitHub/CSE167-p4/bunny.obj");
+	model = new Model("../BirthdayCake_v2.obj");
+	model->setCamera(currentCam);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -225,16 +226,16 @@ void Window::display_callback(GLFWwindow* window)
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
 
-	////draw skybox
+	//draw skybox
 	skybox->draw(glm::mat4(1.0f));
 
-	//// draw object
+	// draw object
 	for (int i = 0; i < objectList.size();++i)
 		objectList[i]->draw(glm::mat4(1.0f));
 	
 
 	// test draw model
-	//model->render(currentCam->camera_pos);
+	model->draw(glm::mat4(1.0f));
 
 	glfwPollEvents();
 
