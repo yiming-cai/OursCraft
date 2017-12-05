@@ -237,7 +237,7 @@ void Model::render(GLuint shaderProgram, const glm::mat4 & View, const glm::mat4
 		// Now draw the cube. We simply need to bind the VAO associated with it.
 		glBindVertexArray(mesh.vao);
 		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
-		glDrawElements(GL_TRIANGLES, mesh.numFaces, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, mesh.numFaces * 3, GL_UNSIGNED_INT, 0);
 		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 		glBindVertexArray(0);
 	}

@@ -43,7 +43,7 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
-
+Model * model;
 
 int keyPressed;
 int shiftPressed;
@@ -127,7 +127,8 @@ void Window::initialize_objects()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
-	// Disable cursor
+	// Create a test model
+	model = new Model("C:/Users/cai_y/Documents/GitHub/CSE167-p4/sphere.obj");
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -202,14 +203,6 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 void Window::idle_callback()
 {
 	// Call the update function the cube
-	
-}
-
-void Window::display_callback(GLFWwindow* window)
-{
-	// Clear the color and depth buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	if (goForward) currentCam->cameraMove(0);
 	if (goBackward) currentCam->cameraMove(1);
 	if (goRight) currentCam->cameraMove(2);
@@ -222,14 +215,29 @@ void Window::display_callback(GLFWwindow* window)
 
 	// init intersection
 	pickObject = testForCollision(&pickObjectFace);
+}
+
+void Window::display_callback(GLFWwindow* window)
+{
+	// Clear the color and depth buffers
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
+
 	//draw skybox
 	skybox->draw(glm::mat4(1.0f));
+
 	// draw object
 	for (int i = 0; i < objectList.size();++i)
 		objectList[i]->draw(glm::mat4(1.0f));
+	
+
+	// test draw model
+	model->render(Shader_Model, V, P, currentCam->camera_pos);
+
 	glfwPollEvents();
+
 	// Swap buffers
 	glfwSwapBuffers(window);
 }
@@ -348,7 +356,7 @@ void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 		//glfwSetCursorPos(window, Window::width / 2, Window::height / 2);
 
 		// hides cursor away from screen
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 

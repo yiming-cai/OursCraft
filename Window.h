@@ -11,6 +11,7 @@
 #include "Scale.h"
 #include "Camera.h"
 #include "Coordinate.h"
+#include "Model.h"
 
 class Window
 {
