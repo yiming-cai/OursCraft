@@ -22,7 +22,10 @@ glm::vec3 Light::localTrackBallMapping(double xpos, double ypos, int width, int 
 Light::Light()
 {
 	lights = std::vector<LightParameters>(NUM_LIGHTS);
-	
+}
+
+void Light::presetInit()
+{
 	srand(srand_seed);
 	for (int i = 0; i < lights.size(); i++)
 	{
@@ -30,95 +33,117 @@ Light::Light()
 		int rand_type = rand() % 3;
 		switch (rand_type)
 		{
-			case Light::TYPE_DIRECTIONAL:
-				set_preset_directional(i);
+		case Light::TYPE_DIRECTIONAL:
+			set_preset_directional(i);
+			break;
 
-				// randomly sets the light direction
-				setAbsoluteLightDirection(
-					i,									
-					glm::vec3
-					( 
-						(float)(rand() % 100) / 100.0f,		
-						(float)(rand() % 100) / 100.0f, 
-						(float)(rand() % 100) / 100.0f
-					) 
-				);
+		case Light::TYPE_POINT:
+			set_preset_point(i);
+			break;
 
-				// randomly sets the light intensity
-				setAbsoluteLightIntensity(
-					i, 
-					glm::vec3
-					(
-						(float)(rand() % 100) / 100.0f,
-						(float)(rand() % 100) / 100.0f,
-						(float)(rand() % 100) / 100.0f
-					)
-				);
-
-				break;
-
-			case Light::TYPE_POINT:
-				set_preset_point(i);
-
-				// randomly sets the light position
-				setAbsoluteLightPosition(
-					i,
-					glm::vec3
-					(
-						(float)(rand() % 100) / 10.0f,
-						(float)(rand() % 100) / 10.0f,
-						(float)(rand() % 100) / 10.0f
-					)
-				);
-
-				// randomly sets the light intensity
-				setAbsoluteLightIntensity(
-					i,
-					glm::vec3
-					(
-					(float)(rand() % 100) / 40.0f,
-						(float)(rand() % 100) / 40.0f,
-						(float)(rand() % 100) / 40.0f
-					)
-				);
-
-				break;
-
-			case Light::TYPE_SPOT:
-				set_preset_spot(i);
-
-				// randomly sets the light position
-				setAbsoluteLightPosition(
-					i,
-					glm::vec3
-					(
-					(float)(rand() % 100) / 10.0f,
-						(float)(rand() % 100) / 10.0f,
-						(float)(rand() % 100) / 10.0f
-					)
-				);
-
-				// randomly sets the light intensity
-				setAbsoluteLightIntensity(
-					i,
-					glm::vec3
-					(
-					(float)(rand() % 100) / 40.0f,
-						(float)(rand() % 100) / 40.0f,
-						(float)(rand() % 100) / 40.0f
-					)
-				);
-
-				// make it point to the origin, or center of the map
-				setAbsoluteConeDirection(i, glm::vec3(0.0f) - getConeDirection(i));
-
-				// make it randomly wide, as wide as up to 120 degrees
-				setAbsoluteConeAngleDegrees(i, (float)(rand()%120) );
-				break;
+		case Light::TYPE_SPOT:
+			set_preset_spot(i);
+			break;
 		}
 	}
+}
 
+void Light::randInit()
+{
+	srand(srand_seed);
+	for (int i = 0; i < lights.size(); i++)
+	{
+		// randomly initialize light types
+		int rand_type = rand() % 3;
+		switch (rand_type)
+		{
+		case Light::TYPE_DIRECTIONAL:
+			set_preset_directional(i);
 
+			// randomly sets the light direction
+			setAbsoluteLightDirection(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 100.0f,
+					(float)(rand() % 100) / 100.0f,
+					(float)(rand() % 100) / 100.0f
+				)
+			);
+
+			// randomly sets the light intensity
+			setAbsoluteLightIntensity(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 100.0f,
+					(float)(rand() % 100) / 100.0f,
+					(float)(rand() % 100) / 100.0f
+				)
+			);
+
+			break;
+
+		case Light::TYPE_POINT:
+			set_preset_point(i);
+
+			// randomly sets the light position
+			setAbsoluteLightPosition(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 10.0f,
+					(float)(rand() % 100) / 10.0f,
+					(float)(rand() % 100) / 10.0f
+				)
+			);
+
+			// randomly sets the light intensity
+			setAbsoluteLightIntensity(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 40.0f,
+					(float)(rand() % 100) / 40.0f,
+					(float)(rand() % 100) / 40.0f
+				)
+			);
+
+			break;
+
+		case Light::TYPE_SPOT:
+			set_preset_spot(i);
+
+			// randomly sets the light position
+			setAbsoluteLightPosition(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 10.0f,
+					(float)(rand() % 100) / 10.0f,
+					(float)(rand() % 100) / 10.0f
+				)
+			);
+
+			// randomly sets the light intensity
+			setAbsoluteLightIntensity(
+				i,
+				glm::vec3
+				(
+				(float)(rand() % 100) / 40.0f,
+					(float)(rand() % 100) / 40.0f,
+					(float)(rand() % 100) / 40.0f
+				)
+			);
+
+			// make it point to the origin, or center of the map
+			setAbsoluteConeDirection(i, glm::vec3(0.0f) - getConeDirection(i));
+
+			// make it randomly wide, as wide as up to 120 degrees
+			setAbsoluteConeAngleDegrees(i, (float)(rand() % 120));
+			break;
+		}
+	}
 }
 
 
@@ -142,6 +167,28 @@ void Light::set_preset_spot(int index)
 	lights[index] = SPOTLIGHT_PRESET;
 }
 
+void Light::initializeShader(GLuint shaderProgram)
+{
+	// bind the array to the buffer
+	glUniformBlockBinding(shaderProgram, glGetUniformBlockIndex(shaderProgram, "LightBlock"), LIGHT_UNIFORM_LOC);
+
+	lightUniformBlocks.emplace(shaderProgram, 0);
+	glGenBuffers(1, &(lightUniformBlocks[shaderProgram]) );
+	glBindBuffer(GL_UNIFORM_BUFFER, lightUniformBlocks[shaderProgram]);
+	glBufferData(GL_UNIFORM_BUFFER, NUM_LIGHTS * sizeof(LightParameters), (void *)(&(lights[0])), GL_STATIC_DRAW);
+
+	// unbind buffer
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	std::cerr << GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT << std::endl;
+}
+
+void Light::updateShader(GLuint shaderProgram)
+{
+	glUseProgram(shaderProgram);
+	glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_UNIFORM_LOC, lightUniformBlocks[shaderProgram], 0, NUM_LIGHTS * sizeof(LightParameters));
+}
+
 LightParameters Light::getLight(int index) const
 {
 	return lights[index];
@@ -152,43 +199,72 @@ void Light::setLight(int index, LightParameters light)
 	lights[index] = light;
 }
 
-int Light::getLightType(int index)
+int Light::getLightType(int index) const
 {
 	return lights[index].type;
 }
 
 void Light::setLightType(int index, int type)
 {
+	lights[index].type = type;
 }
 
-int Light::getLightStatus(int index)
+int Light::getLightStatus(int index) const
 {
-	return 0;
+	return lights[index].status;
 }
 
 void Light::turnLightOn(int index)
 {
+	lights[index].status = Light::STATUS_ON;
 }
 
 void Light::turnLightOff(int index)
 {
+	lights[index].status = Light::STATUS_OFF;
 }
 
 void Light::toggleLight(int index)
 {
+	if (getLightStatus(index) == Light::STATUS_ON)
+	{
+		turnLightOff(index);
+	}
+	else
+	{
+		turnLightOn(index);
+	}
 }
 
-glm::vec3 Light::getLightDirection(int index)
+glm::vec3 Light::getLightDirection(int index) const
 {
-	return glm::vec3();
+	if (lights[index].type != TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to get the position of non-directional light!" << std::endl;
+		//return glm::vec3(0.0f);
+	}
+	return glm::vec3(lights[index].position.x, lights[index].position.y, lights[index].position.z);
 }
 
-void Light::setAbsoluteLightDirection(int index, glm::vec3 direction)
+bool Light::setAbsoluteLightDirection(int index, glm::vec3 direction)
 {
+	if (lights[index].type != TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to set the position of non-directional light!" << std::endl;
+		return false;
+	}
+	lights[index].position = glm::vec4(direction,1.0f);
+	return true;
 }
 
-void Light::rotateLightDirection(int index, glm::vec3 curr_dir, double p_xPos, double p_yPos, double xPos, double yPos, int window_width, int window_height)
+bool Light::rotateLightDirection(int index, double p_xPos, double p_yPos, double xPos, double yPos, int window_width, int window_height)
 {
+	if (lights[index].type != TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to set the position of non-directional light!" << std::endl;
+		return false;
+	}
+
 	glm::vec3 v1 = localTrackBallMapping(p_xPos, p_yPos, window_width, window_height);
 	glm::vec3 v2 = localTrackBallMapping(xPos, yPos, window_width, window_height);
 	glm::vec3 a = glm::cross(v1, v2);
@@ -196,6 +272,7 @@ void Light::rotateLightDirection(int index, glm::vec3 curr_dir, double p_xPos, d
 	float theta = acos(cos_theta);
 
 	// identity matrix 
+	glm::vec3 curr_dir = glm::vec3(lights[index].position.x, lights[index].position.y, lights[index].position.z);
 	glm::mat4 temp(1.0f);
 	temp[3][0] = curr_dir.x * -1.0f;
 	temp[3][1] = curr_dir.y * -1.0f;
@@ -207,117 +284,238 @@ void Light::rotateLightDirection(int index, glm::vec3 curr_dir, double p_xPos, d
 	out.z = temp[3][2] * -1.0f;
 
 	setAbsoluteLightDirection(index, out);
+	return true;
 }
 
-glm::vec3 Light::getLightPosition(int index)
+glm::vec3 Light::getLightPosition(int index) const
 {
-	return glm::vec3();
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to get the direction of directional light!" << std::endl;
+		//return glm::vec3(0.0f);
+	}
+	return glm::vec3(lights[index].position.x, lights[index].position.y, lights[index].position.z);
 }
 
-void Light::setAbsoluteLightPosition(int index, glm::vec3 position)
+bool Light::setAbsoluteLightPosition(int index, glm::vec3 position)
 {
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to set the direction of directional light!" << std::endl;
+		return false;
+	}
+	lights[index].position = glm::vec4(position,0.0f);
+	return true;
 }
 
-void Light::setRelativeLightPosition(int index, glm::vec3 offset)
+bool Light::setRelativeLightPosition(int index, glm::vec3 offset)
 {
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Trying to rotate the direction of directional light!" << std::endl;
+		return false;
+	}
+	lights[index].position += glm::vec4(offset,0.0f);
+	return true;
 }
 
-glm::vec3 Light::getLightIntensity(int index)
+glm::vec3 Light::getLightIntensity(int index) const
 {
-	return glm::vec3();
+	return glm::vec3(lights[index].intensities.x, lights[index].intensities.y, lights[index].intensities.z);
 }
 
 void Light::setAbsoluteLightIntensity(int index, glm::vec3 intensity)
 {
+	lights[index].intensities = glm::vec4(intensity,1.0f);
 }
 
 void Light::setRelativeLightIntensity(int index, glm::vec3 offset)
 {
+	lights[index].intensities += glm::vec4(offset,0.0f);
 }
 
-float Light::getAttenuation(int index)
+float Light::getAttenuation(int index) const
 {
-	return 0.0f;
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		return 1.0f;
+	}
+	return lights[index].attenuation;
 }
 
-void Light::setAbsoluteAttenuation(int index, float attenuation)
+bool Light::setAbsoluteAttenuation(int index, float attenuation)
 {
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Setting attenuation of directional light has no effect!" << std::endl;
+		return false;
+	}
+	lights[index].attenuation = attenuation;
+	return true;
 }
 
-void Light::setRelativeAttenuation(int index, float offset)
+bool Light::setRelativeAttenuation(int index, float offset)
 {
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "Setting attenuation of directional light has no effect!" << std::endl;
+		return false;
+	}
+	lights[index].attenuation += offset;
+	return true;
 }
 
-float Light::getAmbientCoefficient(int index)
+float Light::getAmbientCoefficient(int index) const
 {
-	return 0.0f;
+	return lights[index].ambientCoefficient;
 }
 
 void Light::setAbsoluteAmbientCoefficient(int index, float ambientCoefficient)
 {
+	lights[index].ambientCoefficient = ambientCoefficient;
 }
 
 void Light::setRelativeAmbientCoefficient(int index, float offset)
 {
+	lights[index].ambientCoefficient += offset;
 }
 
-float Light::getConeAngle(int index)
+float Light::getConeAngle(int index) const
 {
-	return 0.0f;
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to get the cone angle of non-spot light" << std::endl;
+		return 0.0f;
+	}
+	return lights[index].coneAngle;
 }
 
-float Light::getConeAngleDegrees(int index)
+float Light::getConeAngleDegrees(int index) const
 {
-	return 0.0f;
+	return getConeAngle(index) * 180.0f / glm::pi<float>();
 }
 
-void Light::setAbsoluteConeAngle(int index, float angle)
+bool Light::setAbsoluteConeAngle(int index, float angle)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to set the cone angle of non-spot light" << std::endl;
+		return false;
+	}
+	lights[index].coneAngle = angle;
+	return true;
 }
 
-void Light::setRelativeConeAngle(int index, float offset)
+bool Light::setRelativeConeAngle(int index, float offset)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to set the cone angle of non-spot light" << std::endl;
+		return false;
+	}
+	lights[index].coneAngle += offset;
+	return true;
 }
 
-void Light::setAbsoluteConeAngleDegrees(int index, float angle)
+bool Light::setAbsoluteConeAngleDegrees(int index, float angle)
 {
+	return setAbsoluteConeAngle(index, angle * 180.0f / glm::pi<float>());
 }
 
-void Light::setRelativeConeAngleDegrees(int index, float offset)
+bool Light::setRelativeConeAngleDegrees(int index, float offset)
 {
+	return setRelativeConeAngle(index, offset * 180.0f / glm::pi<float>());
 }
 
-float Light::getConeExponent(int index)
+float Light::getConeExponent(int index) const
 {
-	return 0.0f;
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to get the exponent of non-spot light" << std::endl;
+		return 0.0f;
+	}
+	return lights[index].exponent;;
 }
 
-void Light::setAbsoluteConeExponent(int index, float exponent)
+bool Light::setAbsoluteConeExponent(int index, float exponent)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to set the exponent of non-spot light" << std::endl;
+		return false;
+	}
+	lights[index].exponent = exponent;
+	return true;
 }
 
-void Light::setRelativeConeExponent(int index, float exponent)
+bool Light::setRelativeConeExponent(int index, float offset)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "trying to set the exponent of non-spot light" << std::endl;
+		return false;
+	}
+	lights[index].exponent += offset;
+	return true;
 }
 
-int Light::getAttenuationType(int index)
+int Light::getAttenuationType(int index) const
 {
-	return 0;
+	return lights[index].attenuationType;
 }
 
-void Light::setAttenuationType(int index, int attenuation_type)
+bool Light::setAttenuationType(int index, int attenuation_type)
 {
+	if (lights[index].type == TYPE_DIRECTIONAL)
+	{
+		std::cerr << "trying to set the attenuation type of directional light" << std::endl;
+		return false;
+	}
+
+	lights[index].attenuationType = attenuation_type;
+	return true;
 }
 
-glm::vec3 Light::getConeDirection(int index)
+glm::vec3 Light::getConeDirection(int index) const
 {
-	return glm::vec3();
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to get the cone direction of non-spot light" << std::endl;
+		return glm::vec3(0.0f);
+	}
+	return glm::vec3(lights[index].coneDirection.x, lights[index].coneDirection.y, lights[index].coneDirection.z);
 }
 
-void Light::setAbsoluteConeDirection(int index, glm::vec3 cone_dir)
+bool Light::setAbsoluteConeDirection(int index, glm::vec3 cone_dir)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to set the cone direction of non-spot light" << std::endl;
+		return false;
+	}
+	lights[index].coneDirection = glm::vec4( glm::normalize(cone_dir), 1.0f);
+	return true;
 }
 
-void Light::rotateConeDirection(int index, float angle, glm::vec3 axis)
+bool Light::rotateConeDirection(int index, float angle, glm::vec3 axis)
 {
+	if (lights[index].type != TYPE_SPOT)
+	{
+		std::cerr << "Trying to set the cone direction of non-spot light" << std::endl;
+		return false;
+	}
+
+	glm::vec4 temp = glm::vec4( glm::normalize(-1.0f * glm::vec3(lights[index].coneDirection)), 1.0f );
+	
+	// trying to rotate the spot to look at
+	temp = glm::rotate(glm::mat4(1.0f), angle, axis) * temp;
+
+	// set the cone direction
+	lights[index].coneDirection = glm::vec4( glm::normalize(-1.0f * glm::vec3(temp)), 1.0f);
+	return true;
+}
+
+bool Light::rotateConeDirectionDegrees(int index, float angle, glm::vec3 axis)
+{
+	return rotateConeDirectionDegrees(index, angle * 180.0f / glm::pi<float>(), axis);
 }

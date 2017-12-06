@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "SimplePointer.h"
 #include "OBJObject.h"
+#include "Light.h"
 
 class Window
 {

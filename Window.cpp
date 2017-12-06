@@ -45,6 +45,7 @@ std::vector<std::string> faces
 const char* window_title = "GLFW Starter Project";
 
 Model * model;
+Light lights;
 
 int keyPressed;
 int shiftPressed;
@@ -137,6 +138,12 @@ void Window::initialize_objects()
 	// Create a test model
 	model = new Model("../BirthdayCake_v2.obj");
 	model->setCamera(currentCam);
+
+	// create a test light
+	lights = Light();
+	lights.presetInit();
+	lights.initializeShader(Shader_Model);
+	lights.updateShader(Shader_Model);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.

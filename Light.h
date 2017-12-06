@@ -2,12 +2,14 @@
 
 #include "Util.h"
 #include <stdlib.h>     /* srand, rand */
+#include <map>
+#include <iostream>
 
 const static LightParameters DIRECTIONAL_PRESET =
 {
-	glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)),	// light direction
-	glm::vec3(1.0f,1.0f,1.0f),						// light intensity
-	glm::vec3(0.0f),								// cone direction
+	glm::normalize(glm::vec4(-1.0f,-1.0f,-1.0f, 0.0f)),	// light direction
+	glm::vec4(1.0f,0.0f,0.0f,1.0f),					// light intensity
+	glm::vec4(0),									// cone direction
 	0.0f,											// light attenuation
 	1.0f,											// ambient light coefficient
 	0.0f,											// cone angle
@@ -15,13 +17,14 @@ const static LightParameters DIRECTIONAL_PRESET =
 	0,												// light type, set to directional
 	0,												// attenuation type, set to constant
 	0,												// light status, set to off
+	0												// PADDING
 };
 
 const static LightParameters POINTLIGHT_PRESET =
 {
-	glm::vec3(0, 5.0f, 0),							// light direction
-	glm::vec3(1.0f),								// light intensity
-	glm::vec3(0.0f),								// cone direction
+	glm::vec4(0, 5.0f, 0, 0),						// light position
+	glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),				// light intensity
+	glm::vec4(0),									// cone direction
 	0.25f,											// light attenuation
 	0.25f,											// ambient light coefficient
 	0.0f,											// cone angle
@@ -29,13 +32,14 @@ const static LightParameters POINTLIGHT_PRESET =
 	1,												// light type, set to point light
 	1,												// attenuation type, set to linear
 	0,												// light status, set to off
+	0												// PADDING
 };
 
 const static LightParameters SPOTLIGHT_PRESET =
 {
-	glm::vec3(0, 5.0f, 0),							// light direction
-	glm::vec3(1.0f),								// light intensity
-	glm::vec3(0, -1.0f, 0),							// cone direction
+	glm::vec4(0, 0.0f, 5.0f, 0),					// light position
+	glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),				// light intensity
+	glm::vec4(0, -1.0f, 0, 1.0f),					// cone direction
 	0.25f,											// light attenuation
 	0.25f,											// ambient light coefficient
 	1.0f,											// cone angle, set to 1 radian (or 180/pi degrees)
@@ -43,8 +47,12 @@ const static LightParameters SPOTLIGHT_PRESET =
 	2,												// light type, set to spot light
 	1,												// attenuation type, set to linear
 	0,												// light status, set to off
+	0												// PADDING
 };
 
+/*
+ * author: Yiming Cai 
+ */
 class Light
 {
 private:
@@ -72,9 +80,11 @@ private:
 	std::vector<LightParameters> lights;
 
 	// a fixed seed for randomly initializing lights
-	int srand_seed = 15;
+	int srand_seed = 20;
 
 	const static int LIGHT_UNIFORM_LOC = 5;
+
+	std::map<GLuint, GLuint> lightUniformBlocks;
 
 public:
 
@@ -93,6 +103,8 @@ public:
 
 	Light();
 	~Light();
+	void randInit();
+	void presetInit();
 
 	// set the light at 'index' to become one of the preset
 	void set_preset_directional(int index);
@@ -100,7 +112,11 @@ public:
 	void set_preset_spot(int index);
 	
 	/* -------- !call this function to update lights in shaders! --------- */
-	void updateShader();
+
+	// IMPORTANT: call this first before calling updateShader()
+	void initializeShader(GLuint shaderProgram);
+
+	void updateShader(GLuint shaderProgram);
 	/* ------------------------------------------------------------------- */
 
 
@@ -118,7 +134,7 @@ public:
 	// return the type of light
 	// preferably, if you want to check light type, use:
 	//		if (getLightType(i) == Light::DIRECTIONAL) { // do something }
-	int getLightType(int index);
+	int getLightType(int index) const;
 
 	// set the type of light
 	void setLightType(int index, int type);
@@ -127,7 +143,7 @@ public:
 
 	/* ------- deal with toggling the lights on and off ------------- */
 	// check if light is turned on or off
-	int getLightStatus(int index);
+	int getLightStatus(int index) const;
 
 	void turnLightOn(int index);
 
@@ -140,34 +156,34 @@ public:
 	/* ---------- deal with the direction of the lights, directional lights only ------------- */
 
 	// get the light direction, will return all 0s if light is not directional
-	glm::vec3 getLightDirection(int index);
+	glm::vec3 getLightDirection(int index) const;
 
 	// set the absolute light direction
-	void setAbsoluteLightDirection(int index, glm::vec3 direction);
+	bool setAbsoluteLightDirection(int index, glm::vec3 direction);
 
 	// rotate the light based on mouse movements (must pass in the pair of mouse position previously and
 	// the pair of mouse position currently, as well as the window width and height
-	void rotateLightDirection(int index, glm::vec3 curr_dir, double p_xPos, double p_yPos, double xPos, double yPos, int window_width, int window_height);
+	bool rotateLightDirection(int index, double p_xPos, double p_yPos, double xPos, double yPos, int window_width, int window_height);
 	/* ------------------------------------------------------------ */
 
 
 	/* ---------- deal with the position of the lights, non-directional lights only ------------- */
 
 	// get the light position, will return all 0s if light is directional
-	glm::vec3 getLightPosition(int index);
+	glm::vec3 getLightPosition(int index) const;
 
 	// set the light position, in world coordinates, will do nothing if light is directional
-	void setAbsoluteLightPosition(int index, glm::vec3 position);
+	bool setAbsoluteLightPosition(int index, glm::vec3 position);
 
 	// set the light position, relative to current position of the light, will do nothing if light is directional
-	void setRelativeLightPosition(int index, glm::vec3 offset);
+	bool setRelativeLightPosition(int index, glm::vec3 offset);
 	/* -------------------------------------------------------------------------------------------*/
 
 	
 	/* ---------- deal with light intensities --------------------------------------------*/
 
 	// get the light intensity
-	glm::vec3 getLightIntensity(int index);
+	glm::vec3 getLightIntensity(int index) const;
 
 	// set the absolute light intensity 
 	void setAbsoluteLightIntensity(int index, glm::vec3 intensity);
@@ -179,19 +195,19 @@ public:
 
 	/* --------------- deal with attenuation -------------------------------------------- */
 	// get the light attenuation value
-	float getAttenuation(int index);
+	float getAttenuation(int index) const;
 
 	// set the light attenuation value
-	void setAbsoluteAttenuation(int index, float attenuation);
+	bool setAbsoluteAttenuation(int index, float attenuation);
 
 	// set the light attenuation value (increase or decrease) relative to current value
-	void setRelativeAttenuation(int index, float offset);
+	bool setRelativeAttenuation(int index, float offset);
 	/* ----------------------------------------------------------------------------------- */
 
 
 	/* --------------- deal with ambientCoefficient --------------------------------------- */
 	// get the light ambientCoefficient value
-	float getAmbientCoefficient(int index);
+	float getAmbientCoefficient(int index) const;
 
 	// set the light ambientCoefficient value
 	void setAbsoluteAmbientCoefficient(int index, float ambientCoefficient);
@@ -203,50 +219,52 @@ public:
 
 	/* --------------- deal with cone angle ---------------------------------------------- */
 	// get the cone angle (width), in radians
-	float getConeAngle(int index);
+	float getConeAngle(int index) const;
 
 	// get the cone angle (width), in degrees
-	float getConeAngleDegrees(int index);
+	float getConeAngleDegrees(int index) const;
 
 	// set the absolute cone angle, in radians
-	void setAbsoluteConeAngle(int index, float angle);
+	bool setAbsoluteConeAngle(int index, float angle);
 
 	// set the cone angle relative to current angle, in radians
-	void setRelativeConeAngle(int index, float offset);
+	bool setRelativeConeAngle(int index, float offset);
 
 	// set the absolute cone angle, in degrees
-	void setAbsoluteConeAngleDegrees(int index, float angle);
+	bool setAbsoluteConeAngleDegrees(int index, float angle);
 
 	// set the cone angle relative to current angle, in degrees
-	void setRelativeConeAngleDegrees(int index, float offset);
+	bool setRelativeConeAngleDegrees(int index, float offset);
 	/* ----------------------------------------------------------------------------------- */
 
 
 	/* ----------- deal with spotlight wear-off exponent --------------------------------- */
 	// get the cone exponent
-	float getConeExponent(int index);
+	float getConeExponent(int index) const;
 
 	// set the absolute value of the cone exponent
-	void setAbsoluteConeExponent(int index, float exponent);
+	bool setAbsoluteConeExponent(int index, float exponent);
 
 	// set the value of the cone exponent relative to current value
-	void setRelativeConeExponent(int index, float exponent);
+	bool setRelativeConeExponent(int index, float offset);
 	/* ------------------------------------------------------------------------------------ */
 
 
 	/* ------------ deal with the attenuation type ---------------------------------------- */
-	int getAttenuationType(int index);
+	int getAttenuationType(int index) const;
 
-	void setAttenuationType(int index, int attenuation_type);
+	bool setAttenuationType(int index, int attenuation_type);
 	/* ------------------------------------------------------------------------------------ */
 
 
 	/* --------------- deal with cone direction ------------------------------------------- */
-	glm::vec3 getConeDirection(int index);
+	glm::vec3 getConeDirection(int index) const;
 
-	void setAbsoluteConeDirection(int index, glm::vec3 cone_dir);
+	bool setAbsoluteConeDirection(int index, glm::vec3 cone_dir);
 
-	void rotateConeDirection(int index, float angle, glm::vec3 axis);
+	bool rotateConeDirection(int index, float angle, glm::vec3 axis);
+
+	bool rotateConeDirectionDegrees(int index, float angle, glm::vec3 axis);
 	/* ------------------------------------------------------------------------------------ */
 };
 

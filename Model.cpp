@@ -99,6 +99,8 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 	struct MyMaterial aMat;
 	GLuint buffer;
 
+	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
+
 	// For each mesh
 	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
 	{
@@ -212,11 +214,12 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		glGenBuffers(1, &(aMesh.uniformBlockIndex));
 		glBindBuffer(GL_UNIFORM_BUFFER, aMesh.uniformBlockIndex);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
+		
+		// unbind buffer
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		myMeshes.push_back(aMesh);
 	}
-
-	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
 
 }
 
