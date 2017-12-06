@@ -32,6 +32,7 @@
     <ClInclude Include="..\Rotate.h" />
     <ClInclude Include="..\Scale.h" />
     <ClInclude Include="..\shader.h" />
+    <ClInclude Include="..\SimplePointer.h" />
     <ClInclude Include="..\Skybox.h" />
     <ClInclude Include="..\stb_image.h" />
     <ClInclude Include="..\Transform.h" />
@@ -53,6 +54,7 @@
     <ClCompile Include="..\Rotate.cpp" />
     <ClCompile Include="..\Scale.cpp" />
     <ClCompile Include="..\shader.cpp" />
+    <ClCompile Include="..\SimplePointer.cpp" />
     <ClCompile Include="..\Skybox.cpp" />
     <ClCompile Include="..\stb_image.cpp" />
     <ClCompile Include="..\Transform.cpp" />
@@ -69,6 +71,8 @@
     <None Include="..\modelShader.vert" />
     <None Include="..\shader.frag" />
     <None Include="..\shader.vert" />
+    <None Include="..\simplePointerShader.frag" />
+    <None Include="..\simplePointerShader.vert" />
     <None Include="..\skyboxShader.frag" />
     <None Include="..\skyboxShader.vert" />
     <None Include="packages.config">

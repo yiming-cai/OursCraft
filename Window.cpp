@@ -7,6 +7,7 @@ extern GLuint Shader_Geometry;
 extern GLuint Shader_Skybox;
 extern GLuint Shader_Coordinate;
 extern GLuint Shader_Model;
+extern GLuint Shader_SimplePointer;
 
 
 std::vector<Object *> objectList;
@@ -28,6 +29,7 @@ Cube *cube;
 Skybox *skybox;
 Camera *currentCam;
 Coordinate *coordinate;
+SimplePointer *centerRouter;
 
 std::vector<std::string> faces
 {
@@ -38,7 +40,6 @@ std::vector<std::string> faces
 	"../assets/back.jpg",
 	"../assets/front.jpg"
 };
-
 
 
 const char* window_title = "GLFW Starter Project";
@@ -56,6 +57,7 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 
 int Window::width;
 int Window::height;
+
 
 
 void Window::placeObject(int type, int *style)
@@ -100,6 +102,8 @@ void Window::loadAllShader() {
 	Shader_Skybox = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
 	Shader_Coordinate = LoadShaders(COORDINATE_VERTEX_SHADER_PATH, COORDINATE_FRAGMENT_SHADER_PATH);
 	Shader_Model = LoadShaders(MODEL_VERTEX_SHADER_PATH, MODEL_FRAGMENT_SHADER_PATH);
+	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
+	
 }
 
 void Window::initialize_objects()
@@ -110,22 +114,23 @@ void Window::initialize_objects()
 	showCoordinate = 0;
 	loadAllShader();
 //	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
-	for (int i = -20; i <= 20; ++i)
-		for (int j = -20; j <= 20; ++j) {
+	for (int i = -3; i <= 3; ++i)
+		for (int j = -3; j <= 3; ++j) {
 			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
-			cube = new Cube(idCount++, 1, 3);
+			cube = new Cube(idCount++,1,3);
 			cube->setPosition(i, GROUND_LEVEL - 1, j);
 			objectList.push_back(cube);
 		}
 	skybox = new Skybox(idCount++, 1000, &faces);
-	currentCam = new Camera(idCount++, glm::vec3(0, 1, 10), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	currentCam = new Camera(idCount++, glm::vec3(0, 1, 0), glm::vec3(0, 1, -1), glm::vec3(0, 1, 0));
 	coordinate = new Coordinate(idCount++, 100);
+	centerRouter = new SimplePointer(idCount++, 0, 0, glm::vec3(1, 0, 0));
 	ray_dir = glm::vec3(0, 0.5, -1);
 	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture");
 
 	// Enables backface culling
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	// Create a test model
 	//model = new Model("C:/Users/cai_y/Documents/GitHub/CSE167-p4/bunny.obj");
@@ -224,6 +229,9 @@ void Window::display_callback(GLFWwindow* window)
 
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
+
+	//draw a cursor
+	centerRouter->draw(glm::mat4(1.0f));
 
 	////draw skybox
 	skybox->draw(glm::mat4(1.0f));
@@ -340,9 +348,8 @@ void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 			currentCam->cameraRotate(delta);
 			mouseX = xpos;
 			mouseY = ypos;
-
-			float x = (2.0f * xpos) / Window::width - 1.0f;
-			float y =  1.0f - (2.0f * ypos) / Window::height;
+			float x = 0; // (2.0f * xpos) / Window::width - 1.0f;
+			float y = 0; // 1.0f - (2.0f * ypos) / Window::height;
 			float z = 1.0f;
 			//printf("%f %f %f\n", x, y, z);
 			glm::vec4 ray = glm::vec4(x, y, z, 1.0);

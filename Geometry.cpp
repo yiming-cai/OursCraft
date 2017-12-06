@@ -19,7 +19,7 @@ void Geometry::draw(glm::mat4 C) {
 	glUniform1i(sel, selected);
 	glBindVertexArray(VAO);
 	if(haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	glDrawElements(GL_TRIANGLES, indicesLen, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	if (haveTexture)
 	{

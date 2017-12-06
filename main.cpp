@@ -48,6 +48,9 @@ void setup_opengl_settings()
 	// Setup GLEW. Don't do this on OSX systems.
 	setup_glew();
 #endif
+
+	// set the cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	// Enable depth buffering
 	glEnable(GL_DEPTH_TEST);
 	// Related to shaders and z value comparisons for the depth buffer

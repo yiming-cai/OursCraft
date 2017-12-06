@@ -36,11 +36,13 @@
 #define COORDINATE_FRAGMENT_SHADER_PATH "../coordinateShader.frag"
 #define MODEL_VERTEX_SHADER_PATH "../modelShader.vert"
 #define MODEL_FRAGMENT_SHADER_PATH "../modelShader.frag"
+#define SIMPLE_POINTER_VERTEX_SHADER_PATH "../simplePointerShader.vert"
+#define SIMPLE_POINTER_FRAGMENT_SHADER_PATH "../simplePointerShader.frag"
 
 #define CUBE_TEXTURE_NUM 8
 
 #define MOUSEPOS_INIT_VALUE -1999999
-#define CAMERA_MOVE_STRIP 0.2
+#define CAMERA_MOVE_STRIP 0.1
 #define GROUND_LEVEL 0
 
 #endif

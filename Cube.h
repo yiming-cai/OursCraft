@@ -7,19 +7,17 @@
 class Cube: public Geometry {
 private:
 	static int cubeVerticesLen;
-	static GLfloat cubeVertices[24];
+	static GLfloat cubeVertices[108];
 	static std::vector<std::string> cubeTexturesAddress;
 	static std::vector<GLint> cubeTextureId;
 	static int cubeColorsLen;
 
 	static int cubeNormalsLen;
-	static GLfloat cubeNormals[24];
-	static int cubeIndicesLen ;
-	static GLuint cubeIndices[36];
+	static GLfloat cubeNormals[108];
 	static GLfloat cubeBoundBoxV[72];
 	static GLfloat cubeBoundBoxN[18];
 	float size;
-	GLfloat cubeColors[24];
+	GLfloat cubeColors[108];
 	GLuint loadTexture(int pos);
 public:
 	Cube(int id, float size,glm::vec3 color);
