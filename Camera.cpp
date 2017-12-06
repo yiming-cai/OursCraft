@@ -28,10 +28,10 @@ void Camera::update()
 
 
 void Camera::cameraMove(int dir) { // 
-	glm::vec3 rz = glm::normalize(camera_lookAt - camera_pos) * 0.1f;
-	glm::vec3 ry = glm::vec3(0, 1, 0) * 0.1f;
-	glm::vec3 rx = glm::normalize(glm::cross(rz, ry)) * 0.1f;
-	rz = glm::normalize(glm::cross(ry, rx)) * 0.1f;
+	glm::vec3 rz = glm::normalize(camera_lookAt - camera_pos);
+	glm::vec3 ry = glm::vec3(0, 1, 0) * 0.5f;
+	glm::vec3 rx = glm::normalize(glm::cross(rz, ry)) * 0.5f;
+	rz = glm::normalize(glm::cross(ry, rx)) * 0.5f;
 	float strip = CAMERA_MOVE_STRIP;
 	rx *= strip;
 	ry *= strip;

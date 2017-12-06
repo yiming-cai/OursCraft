@@ -44,9 +44,14 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
+// ------------ FOR TESTING ONLY ------------
 Model * model;
+Light lights;
+//-------------------------------------------
+
 Model * model1;
 Model * model2;
+
 int keyPressed;
 int shiftPressed;
 // On some systems you need to change this to the absolute path
@@ -135,9 +140,20 @@ void Window::initialize_objects()
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 
+	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
 	model = new Model("../cuboid.obj");
 	model->setCamera(currentCam);
+<<<<<<< HEAD
+=======
+
+	// create a test light
+	lights = Light();
+	lights.presetInit();
+	lights.initializeShader(Shader_Model);
+	lights.updateShader(Shader_Model);
+	// --------------------------------------------------------------
+>>>>>>> 45cccf2133aea11b23000ddead4e53faf8f80168
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.

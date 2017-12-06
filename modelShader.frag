@@ -3,9 +3,9 @@
 // ----------------------------------------------------------------------------------------------------------------------------------
 // Define the light struct
 struct Light {
-	vec3 position; // also used as direction for directional light
-	vec3 intensities; // a.k.a the color of the light
-	vec3 coneDirection; // only needed for spotlights
+	vec4 position; // also used as direction for directional light
+	vec4 intensities; // a.k.a the color of the light
+	vec4 coneDirection; // only needed for spotlights
 
 	float attenuation; // only needed for point and spotlights
 	float ambientCoefficient; // how strong the light ambience should be... 0 if there's no ambience (background reflection) at all
@@ -14,6 +14,7 @@ struct Light {
 	int type; // specify the type of the light (directional, spotlight, point light)
 	int attenuationType; // specify the type of attenuation to use
 	int status;			// 0 for turning off the light, 1 for turning on the light
+	int PADDING;		// useless, don't touch it
 };
 
 // some constants for the light structures
