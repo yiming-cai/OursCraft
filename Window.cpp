@@ -249,7 +249,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	// test draw model
 	for (int j = 0; j < 6; j++) {
-		model1->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
+		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
 	}
 
 
