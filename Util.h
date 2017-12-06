@@ -45,4 +45,19 @@
 #define CAMERA_MOVE_STRIP 0.1
 #define GROUND_LEVEL 0
 
+struct LightParameters
+{
+	glm::vec3 position; // also used as direction for directional light
+	glm::vec3 intensities; // a.k.a the color of the light
+	glm::vec3 coneDirection; // only needed for spotlights
+
+	float attenuation; // only needed for point and spotlights
+	float ambientCoefficient; // how strong the light ambience should be... 0 if there's no ambience (background reflection) at all
+	float coneAngle; // only needed for spotlights
+	float exponent; // cosine exponent for how light tapers off
+	int type; // specify the type of the light (directional, spotlight, point light)
+	int attenuationType; // specify the type of attenuation to use
+	int status;			// 0 for turning off the light, 1 for turning on the light
+};
+
 #endif

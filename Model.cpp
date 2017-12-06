@@ -19,8 +19,11 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 Model::Model(std::string p_filepath)
 {
 	filepath = p_filepath;
-	importObj(filepath);
-	genVAOsAndUniformBuffer(scene);
+	if (importObj(filepath))
+	{
+		genVAOsAndUniformBuffer(scene);
+	}
+	std::cerr << "\nLoaded " << myMeshes.size() << " meshes!" << std::endl;
 }
 
 Model::~Model()
@@ -46,8 +49,8 @@ bool Model::importObj(const std::string& path)
 		fin.close();
 	}
 	else {
-		printf("Couldn't open file: %s\n", path.c_str());
-		printf("%s\n", importer.GetErrorString());
+		std::cerr << ("Couldn't open file: %s\n", path.c_str());
+		std::cerr << ("%s\n", importer.GetErrorString());
 		return false;
 	}
 
@@ -66,7 +69,7 @@ bool Model::importObj(const std::string& path)
 		std::cerr << ( importer.GetErrorString() );
 		return false;
 	}
-	
+	return true;
 }
 
 //void Model::genBuffers()
@@ -214,6 +217,7 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 	}
 
 	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
+
 }
 
 void Model::render()

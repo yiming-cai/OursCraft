@@ -135,7 +135,7 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// Create a test model
-	model = new Model("../BirthdayCake_v2.mtl");
+	model = new Model("../BirthdayCake_v2.obj");
 	model->setCamera(currentCam);
 }
 
@@ -245,7 +245,8 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-	model->draw(glm::mat4(1.0f));
+	model->draw( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,5.0f,0.0f)));
+	model->draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)));
 
 	glfwPollEvents();
 
