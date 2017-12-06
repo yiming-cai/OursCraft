@@ -135,7 +135,7 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// Create a test model
-	model = new Model("../BirthdayCake_v2.obj");
+	model = new Model("../BirthdayCake_v2.mtl");
 	model->setCamera(currentCam);
 }
 
@@ -233,14 +233,10 @@ void Window::display_callback(GLFWwindow* window)
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
 
-<<<<<<< HEAD
 	//draw a cursor
 	centerRouter->draw(glm::mat4(1.0f));
 
-	////draw skybox
-=======
 	//draw skybox
->>>>>>> c43b5c4c1cb961c7dc556a4d0c775af3b8dafde8
 	skybox->draw(glm::mat4(1.0f));
 
 	// draw object
