@@ -34,22 +34,21 @@ layout (std140) uniform Material {
 // main loop
 void main()
 {
-
-	// For testing
-	color = vec4(1.0f, 0.0f, 0.0f, 1.0f);
-	return;
+	
 
 	// find normal in world coordinate
 	mat3 normalMatrix = transpose(inverse(mat3(model)));
 	vec3 normal_world = normalize(normalMatrix * normal);
+	// vec3 normal_world = normalize( vec3(view * model * vec4(normal, 0.0f) ) );
 
 	// calculate the location of this fragment in world coordinates
 	vec3 vert = vec3(model * vec4(position, 1.0f));
 
-	vec3 surfaceToLight = vec3(1.0f);
+	// set the direction of light, from surface to light source
+	vec3 surfaceToLight = normalize( vec3(1.0f, 1.0f, 1.0f) );
 
 	// find the lightToSurface vector
-	vec3 lightToSurface = -1.0f * surfaceToLight;
+	vec3 lightToSurface = normalize( -1.0f * surfaceToLight) ;
 
 	// find the R vector
 	vec3 R_vec = lightToSurface - (2 * dot(lightToSurface, normal_world)) * normal_world;
@@ -59,9 +58,18 @@ void main()
 	vec3 e_vec = cam_pos - vert;
 	e_vec = normalize(e_vec);
 
+	vec3 amb = ambient.rgb;
+	vec3 dif = diffuse.rgb;
+	vec3 spec = specular.rgb;
+	float shine = shininess;
+
+	vec3 c_mat = dif * dot( surfaceToLight, normal_world );
+	c_mat += spec * pow( dot(R_vec, e_vec), 128.0f * shininess);
+	c_mat += amb * 0.5f;
+
 	// find the c_l, or light intensity
-	vec3 c_l = vec3(0.5f, 0.8f, 0.3f);
+	vec3 c_l = vec3(0.9f, 0.9f, 0.9f);
 
-	color = vec4(c_l, 1.0f);
-
+	// output color
+	color = vec4( c_l * c_mat, 1.0f );
 }

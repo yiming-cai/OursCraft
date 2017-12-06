@@ -216,24 +216,26 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
 }
 
-void Model::render(const glm::vec3 & cam_pos)
+void Model::render()
 {
 	for (auto mesh : myMeshes)
 	{
+		glUseProgram(Shader_Model);
+
 		// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 		// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 		// Get the location of the uniform variables "projection" and "modelview"
 		GLuint uProjection = glGetUniformLocation(Shader_Model, "projection");
 		GLuint uView = glGetUniformLocation(Shader_Model, "view");
 		GLuint uModel = glGetUniformLocation(Shader_Model, "model");
-		//GLuint uCam = glGetUniformLocation(Shader_Model, "cam_pos");
+		GLuint uCam = glGetUniformLocation(Shader_Model, "cam_pos");
 
 		//printf("%f %f %f\n", k.x, k.y, k.z);
 		// Now send these values to the shader program
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 		glUniformMatrix4fv(uView, 1, GL_FALSE, &V[0][0]);
 		glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
-		//glUniform3fv(uCam, 1, &cam_pos[0]);
+		glUniform3fv(uCam, 1, &(camera->camera_pos[0]) );
 
 		// Now draw the cube. We simply need to bind the VAO associated with it.
 		glBindVertexArray(mesh.vao);
@@ -246,3 +248,18 @@ void Model::render(const glm::vec3 & cam_pos)
 	}
 }
 
+void Model::draw(glm::mat4 C)
+{
+	model = C;
+	render();
+}
+
+void Model::update()
+{
+
+}
+
+void Model::setCamera(Camera * cam)
+{
+	camera = cam;
+}

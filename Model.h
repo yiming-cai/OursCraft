@@ -7,6 +7,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include "Node.h"
+#include "Camera.h"
 
 /*
  * source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
@@ -38,7 +40,7 @@ extern glm::mat4 P;
 extern glm::mat4 V;
 extern GLuint Shader_Model;
 
-class Model
+class Model : public Node
 {
 public:
 
@@ -54,9 +56,13 @@ public:
 	// store material properties
 	std::vector<MyMesh> myMeshes;
 
+	// assimp libs
 	const aiScene* scene;
 	Assimp::Importer importer;
 	std::string filepath;
+
+	// camera
+	Camera * camera = nullptr;
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
@@ -71,13 +77,15 @@ public:
 	// Generate the VAO and Buffers
 	void genVAOsAndUniformBuffer(const aiScene *sc);
 
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -20.0f));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
 
-	void render(const glm::vec3 & cam_pos);
+	void render();
 
 	//void recursive_render(const aiScene * sc, const aiNode * nd);
-	
+	void draw(glm::mat4 C);
+	void update();
 
+	void setCamera(Camera * cam);
 };
 
 

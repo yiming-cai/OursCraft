@@ -44,7 +44,7 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
-//Model * model;
+Model * model;
 
 int keyPressed;
 int shiftPressed;
@@ -83,10 +83,12 @@ void Window::placeObject(int type, int *style)
 Object* Window::testForCollision(int *face) {
 	Object *obj = NULL;
 	float value = 999999;
+	int fff = 0;
 	for (int i = 0; i < objectList.size(); ++i) {
 		//objectList[i]->getId();
-		float j = objectList[i]->getCollisionValue(currentCam->camera_pos, ray_dir,face);
+		float j = objectList[i]->getCollisionValue(currentCam->camera_pos, ray_dir,&fff);
 		if (j > 0 && j < value) {
+			*face = fff;
 			value = j;
 			obj = objectList[i];
 		}
@@ -133,7 +135,8 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// Create a test model
-	//model = new Model("C:/Users/cai_y/Documents/GitHub/CSE167-p4/bunny.obj");
+	model = new Model("../BirthdayCake_v2.obj");
+	model->setCamera(currentCam);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -230,19 +233,23 @@ void Window::display_callback(GLFWwindow* window)
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
 
+<<<<<<< HEAD
 	//draw a cursor
 	centerRouter->draw(glm::mat4(1.0f));
 
 	////draw skybox
+=======
+	//draw skybox
+>>>>>>> c43b5c4c1cb961c7dc556a4d0c775af3b8dafde8
 	skybox->draw(glm::mat4(1.0f));
 
-	//// draw object
+	// draw object
 	for (int i = 0; i < objectList.size();++i)
 		objectList[i]->draw(glm::mat4(1.0f));
 	
 
 	// test draw model
-	//model->render(currentCam->camera_pos);
+	model->draw(glm::mat4(1.0f));
 
 	glfwPollEvents();
 
