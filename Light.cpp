@@ -174,9 +174,10 @@ void Light::set_preset_spot(int index)
 
 void Light::initializeShader(GLuint shaderProgram)
 {
-	// bind the array to the buffer
+	// bind the loc to the shaderprogram 
 	glUniformBlockBinding(shaderProgram, glGetUniformBlockIndex(shaderProgram, "LightBlock"), LIGHT_UNIFORM_LOC);
 
+	// generate a new buffer for this shaderprogram
 	lightUniformBlocks.emplace(shaderProgram, 0);
 	glGenBuffers(1, &(lightUniformBlocks[shaderProgram]) );
 	glBindBuffer(GL_UNIFORM_BUFFER, lightUniformBlocks[shaderProgram]);
