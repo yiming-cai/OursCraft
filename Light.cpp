@@ -48,6 +48,11 @@ void Light::presetInit()
 	}
 }
 
+void Light::update()
+{
+	
+}
+
 void Light::randInit()
 {
 	srand(srand_seed);
@@ -177,16 +182,35 @@ void Light::initializeShader(GLuint shaderProgram)
 	glBindBuffer(GL_UNIFORM_BUFFER, lightUniformBlocks[shaderProgram]);
 	glBufferData(GL_UNIFORM_BUFFER, NUM_LIGHTS * sizeof(LightParameters), (void *)(&(lights[0])), GL_STATIC_DRAW);
 
-	// unbind buffer
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	std::cerr << GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT << std::endl;
+	// update buffer for the first time
+	updateShader(shaderProgram);
 }
 
 void Light::updateShader(GLuint shaderProgram)
 {
 	glUseProgram(shaderProgram);
 	glBindBufferRange(GL_UNIFORM_BUFFER, LIGHT_UNIFORM_LOC, lightUniformBlocks[shaderProgram], 0, NUM_LIGHTS * sizeof(LightParameters));
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, NUM_LIGHTS * sizeof(LightParameters), (void *)(&(lights[0])));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+}
+
+bool Light::partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights)
+{
+	if (start_index + num_lights > NUM_LIGHTS)
+	{
+		std::cerr << "Trying to update too many lights!" << std::endl;
+		return false;
+	}
+	glUseProgram(shaderProgram);
+	glBindBufferRange(GL_UNIFORM_BUFFER,				// type of buffer
+		LIGHT_UNIFORM_LOC,								// which uniform layout
+		lightUniformBlocks[shaderProgram],				// which program buffer
+		start_index * sizeof(LightParameters),			// where to start
+		num_lights * sizeof(LightParameters));			// size to send to buffer
+
+	glBufferSubData(GL_UNIFORM_BUFFER, start_index * sizeof(LightParameters), num_lights * sizeof(LightParameters), (void *)(&(lights[0])));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	return true;
 }
 
 LightParameters Light::getLight(int index) const

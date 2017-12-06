@@ -67,6 +67,8 @@ layout (std140) uniform LightBlock {
 // main loop
 void main()
 {
+	color = lights[0].intensities;
+	return;
 
 	// find normal in world coordinate
 	mat3 normalMatrix = transpose(inverse(mat3(model)));

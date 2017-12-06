@@ -106,6 +106,8 @@ public:
 	void randInit();
 	void presetInit();
 
+	void update();
+
 	// set the light at 'index' to become one of the preset
 	void set_preset_directional(int index);
 	void set_preset_point(int index);
@@ -114,9 +116,17 @@ public:
 	/* -------- !call this function to update lights in shaders! --------- */
 
 	// IMPORTANT: call this first before calling updateShader()
+	// IMPORTANT: make sure you call one of the update functions after using a set/rotate function in this class!
 	void initializeShader(GLuint shaderProgram);
 
+	// call this whenever you want to update all the light values in the shaderProgram 
 	void updateShader(GLuint shaderProgram);
+
+	// Call this whenever you want to update the light values of lights ONLY 
+	//		from start index, with num_lights number of lights. 
+	// You may use it for quickly updating only some lights that are modified, 
+	//      so that the shader performance is optimized.
+	bool partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights);
 	/* ------------------------------------------------------------------- */
 
 
