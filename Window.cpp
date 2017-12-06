@@ -144,8 +144,7 @@ void Window::initialize_objects()
 	// Create a test model
 	model = new Model("../cuboid.obj");
 	model->setCamera(currentCam);
-<<<<<<< HEAD
-=======
+
 
 	// create a test light
 	lights = Light();
@@ -153,7 +152,6 @@ void Window::initialize_objects()
 	lights.initializeShader(Shader_Model);
 	lights.updateShader(Shader_Model);
 	// --------------------------------------------------------------
->>>>>>> 45cccf2133aea11b23000ddead4e53faf8f80168
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -266,7 +264,7 @@ void Window::display_callback(GLFWwindow* window)
 		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
 	}
 
-	model1->draw(glm::mat4(1.0f));
+	//model1->draw(glm::mat4(1.0f));
 
 	glfwPollEvents();
 
