@@ -45,7 +45,8 @@ std::vector<std::string> faces
 const char* window_title = "GLFW Starter Project";
 
 Model * model;
-
+Model * model1;
+Model * model2;
 int keyPressed;
 int shiftPressed;
 // On some systems you need to change this to the absolute path
@@ -135,8 +136,9 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// Create a test model
-	model = new Model("../BirthdayCake_v2.mtl");
+	model = new Model("../cuboid.obj");
 	model->setCamera(currentCam);
+
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -245,8 +247,10 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-	model->draw(glm::mat4(1.0f));
-
+	for (int j = 0; j < 6; j++) {
+		model1->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
+	}
+	
 	glfwPollEvents();
 
 	// Swap buffers
