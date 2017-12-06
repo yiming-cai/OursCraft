@@ -116,11 +116,11 @@ void Window::initialize_objects()
 	goRight = goLeft = goUp = goDown = goForward = goBackward = 0;
 	showCoordinate = 0;
 	loadAllShader();
-//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
+	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
 	for (int i = -3; i <= 3; ++i)
 		for (int j = -3; j <= 3; ++j) {
 			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
-			cube = new Cube(idCount++,1,3);
+			cube = new Cube(idCount++, 1, 3);
 			cube->setPosition(i, GROUND_LEVEL - 1, j);
 			objectList.push_back(cube);
 		}
@@ -137,9 +137,7 @@ void Window::initialize_objects()
 
 	// Create a test model
 	model = new Model("../cuboid.obj");
-	//model = new Model("../BirthdayCake_v2.obj");
 	model->setCamera(currentCam);
-
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -252,6 +250,7 @@ void Window::display_callback(GLFWwindow* window)
 		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
 	}
 
+	model1->draw(glm::mat4(1.0f));
 
 	glfwPollEvents();
 
