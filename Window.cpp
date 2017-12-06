@@ -44,8 +44,13 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
+// ------------ FOR TESTING ONLY ------------
 Model * model;
 Light lights;
+//-------------------------------------------
+
+Model * model1;
+Model * model2;
 
 int keyPressed;
 int shiftPressed;
@@ -135,8 +140,10 @@ void Window::initialize_objects()
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 
+	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
-	model = new Model("../BirthdayCake_v2.obj");
+	model = new Model("../cuboid.obj");
+	//model = new Model("../BirthdayCake_v2.obj");
 	model->setCamera(currentCam);
 
 	// create a test light
@@ -144,6 +151,7 @@ void Window::initialize_objects()
 	lights.presetInit();
 	lights.initializeShader(Shader_Model);
 	lights.updateShader(Shader_Model);
+	// --------------------------------------------------------------
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -252,8 +260,10 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-	model->draw( glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,5.0f,0.0f)));
-	model->draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 5.0f, 0.0f)));
+	for (int j = 0; j < 6; j++) {
+		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
+	}
+
 
 	glfwPollEvents();
 
