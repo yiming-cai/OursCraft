@@ -22,6 +22,7 @@ Model::Model(std::string p_filepath)
 	if (importObj(filepath))
 	{
 		genVAOsAndUniformBuffer(scene);
+		setBoundingBox(scene);
 	}
 	std::cerr << "\nLoaded " << myMeshes.size() << " meshes!" << std::endl;
 }
@@ -218,7 +219,6 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 
 		myMeshes.push_back(aMesh);
 	}
-
 }
 
 void Model::initShader(GLuint shaderProgram)
@@ -244,7 +244,7 @@ void Model::render(GLuint shaderProgram)
 		// Now send these values to the shader program
 		glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 		glUniformMatrix4fv(uView, 1, GL_FALSE, &V[0][0]);
-		glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
+		glUniformMatrix4fv(uModel, 1, GL_FALSE, &modelMatrix[0][0]);
 		glUniform3fv(uCam, 1, &(camera->camera_pos[0]) );
 
 		// Now draw the cube. We simply need to bind the VAO associated with it.
@@ -260,7 +260,7 @@ void Model::render(GLuint shaderProgram)
 
 void Model::draw(glm::mat4 C, GLuint shaderProgram)
 {
-	model = C;
+	modelMatrix = C * scale_matrix;
 	render(shaderProgram);
 }
 
@@ -272,4 +272,111 @@ void Model::update()
 void Model::setCamera(Camera * cam)
 {
 	camera = cam;
+}
+
+std::vector<glm::vec3> Model::getBoundingPlanes()
+{
+	std::vector<glm::vec3> planes(12);
+	planes[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], 0.0f, 0.0f, 0.0f) );
+	planes[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 0.0f, 0.0f, 0.0f) );
+	planes[POINT_BOTTOM] = glm::vec3(modelMatrix * glm::vec4(0.0f, AABB[MODEL_Y_MIN], 0.0f, 0.0f) );
+	planes[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, AABB[MODEL_Y_MAX], 0.0f, 0.0f) );
+	planes[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, AABB[MODEL_Z_MIN], 0.0f) );
+	planes[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, AABB[MODEL_Z_MAX], 0.0f) );
+
+	std::vector<glm::vec3> refPoints_a(12);			// using a bit more memory, but doesn't rly matter
+	refPoints_a[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], 0.0f, -1.0f, 0.0f) );
+	refPoints_a[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 0.0f, -1.0f, 0.0f) );
+	refPoints_a[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(0.0f, AABB[MODEL_Y_MIN], -1.0f, 0.0f) );
+	refPoints_a[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(0.0f, AABB[MODEL_Y_MAX], -1.0f, 0.0f) );
+	refPoints_a[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, AABB[MODEL_Z_MIN], 0.0f) );
+	refPoints_a[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, AABB[MODEL_Z_MAX], 0.0f) );
+
+	std::vector<glm::vec3> refPoints_b(12);			// using a bit more memory, but doesn't rly matter
+	refPoints_b[POINT_LEFT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MIN], -1.0f, 0.0f, 0.0f) );
+	refPoints_b[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 1.0f, 0.0f, 0.0f) );
+	refPoints_b[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(1.0f, AABB[MODEL_Y_MIN], 0.0f, 0.0f) );
+	refPoints_b[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(-1.0f, AABB[MODEL_Y_MAX], 0.0f, 0.0f) );
+	refPoints_b[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, AABB[MODEL_Z_MIN], 0.0f) );
+	refPoints_b[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, AABB[MODEL_Z_MAX], 0.0f) );
+
+	// calculate the normals based on the cross products 
+	planes[NORMAL_LEFT] = glm::normalize( glm::cross( (refPoints_a[POINT_LEFT] - planes[POINT_LEFT]), (refPoints_b[POINT_LEFT] - planes[POINT_LEFT])) );
+	planes[NORMAL_RIGHT] = glm::normalize(glm::cross((refPoints_a[POINT_RIGHT] - planes[POINT_RIGHT]), (refPoints_b[POINT_RIGHT] - planes[POINT_RIGHT])));
+	planes[NORMAL_BOTTOM] = glm::normalize(glm::cross((refPoints_a[POINT_BOTTOM] - planes[POINT_BOTTOM]), (refPoints_b[POINT_BOTTOM] - planes[POINT_BOTTOM])));
+	planes[NORMAL_TOP] = glm::normalize(glm::cross((refPoints_a[POINT_TOP] - planes[POINT_TOP]), (refPoints_b[POINT_TOP] - planes[POINT_TOP])));
+	planes[NORMAL_BACK] = glm::normalize(glm::cross((refPoints_a[POINT_BACK] - planes[POINT_BACK]), (refPoints_b[POINT_BACK] - planes[POINT_BACK])));
+	planes[NORMAL_FRONT] = glm::normalize(glm::cross((refPoints_a[POINT_FRONT] - planes[POINT_FRONT]), (refPoints_b[POINT_FRONT] - planes[POINT_FRONT])));
+
+	return planes;
+}
+
+void Model::centerAndScale(float scale)
+{
+	float x_offset = (AABB[MODEL_X_MIN] + AABB[MODEL_X_MAX]) / -2.0f;
+	float y_offset = (AABB[MODEL_Y_MIN] + AABB[MODEL_Y_MAX]) / -2.0f;
+	float z_offset = (AABB[MODEL_Z_MIN] + AABB[MODEL_Z_MAX]) / -2.0f;
+	
+	glm::mat4 mat = glm::translate(glm::mat4(1.0f), glm::vec3(x_offset, y_offset, z_offset));
+	std::vector<float> temp;
+	temp.push_back(AABB[MODEL_X_MIN] + x_offset);
+	temp.push_back(AABB[MODEL_X_MAX] + x_offset);
+	temp.push_back(AABB[MODEL_Y_MIN] + y_offset);
+	temp.push_back(AABB[MODEL_Y_MAX] + y_offset);
+	temp.push_back(AABB[MODEL_Z_MIN] + z_offset);
+	temp.push_back(AABB[MODEL_Z_MAX] + z_offset);
+
+	float max = 0.0f;
+	for (const float p : temp)
+	{
+		if (abs(p) > max)
+		{
+			max = abs(p);
+		}
+	}
+
+	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale / max / 2.0f )) * mat;
+}
+
+void Model::setBoundingBox(const aiScene * sc)
+{
+	AABB = { FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN };
+
+	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
+	{
+		const aiMesh* mesh = sc->mMeshes[n];
+
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		{
+			//x = p[0];
+			//y = p[1];
+			//z = p[2];
+			const aiVector3D p = mesh->mVertices[i];
+
+			if (p[0] < AABB[MODEL_X_MIN])
+			{
+				AABB[MODEL_X_MIN] = p[0];
+			}
+			if (p[0] > AABB[MODEL_X_MAX])
+			{
+				AABB[MODEL_X_MAX] = p[0];
+			}
+			if (p[1] < AABB[MODEL_Y_MIN])
+			{
+				AABB[MODEL_Y_MIN] = p[1];
+			}
+			if (p[1] > AABB[MODEL_Y_MAX])
+			{
+				AABB[MODEL_Y_MAX] = p[1];
+			}
+			if (p[2] < AABB[MODEL_Z_MIN])
+			{
+				AABB[MODEL_Z_MIN] = p[2];
+			}
+			if (p[2] > AABB[MODEL_Z_MAX])
+			{
+				AABB[MODEL_Z_MAX] = p[2];
+			}
+		}
+	}
 }

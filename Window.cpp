@@ -145,7 +145,7 @@ void Window::initialize_objects()
 	model = new Model("../cuboid.obj");
 	model->setCamera(currentCam);
 	model->initShader(Shader_Model);
-
+	model->centerAndScale(1.0f);
 
 	// create a test light
 	lights = Light();

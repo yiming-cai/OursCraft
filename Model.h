@@ -9,40 +9,27 @@
 #include <map>
 #include "Node.h"
 #include "Camera.h"
+#include <limits.h>
+#include <math.h>
 
 /*
  * source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
  */
 
-struct MyMaterial {
-
-	float diffuse[4];
-	float ambient[4];
-	float specular[4];
-	float emissive[4];
-	float shininess;
-	int texCount;
-};
-
-// Information to render each assimp node
-struct MyMesh {
-
-	GLuint vao;
-	GLuint vbo;
-	GLuint ebo;
-	GLuint nbo;
-	GLuint texIndex;
-	GLuint uniformBlockIndex;
-	int numFaces;
-};
-
 extern glm::mat4 P;
 extern glm::mat4 V;
-extern GLuint Shader_Model;
 
 class Model
 {
-public:
+private:
+	// import obj: initialiates the scene
+	bool importObj(const std::string& path);
+
+	//void genBuffers();
+	//void delBuffers();
+
+	// Generate the VAO and Buffers
+	void genVAOsAndUniformBuffer(const aiScene *sc);
 
 	// For mapping texture IDs
 	std::map<std::string, GLuint> textureIdMap;
@@ -64,27 +51,71 @@ public:
 	// camera
 	Camera * camera = nullptr;
 
+	// bounding box
+	void setBoundingBox(const aiScene * sc);
+
+	// define the AABB values, in this format:
+	// AABB stands for Axis-aligned minimum bounding box
+	// AABB[0] : minimum x value
+	// AABB[1] : maximum x value
+	// AABB[2] : minimum y value
+	// AABB[3] : maximum y value
+	// AABB[4] : minimum z value
+	// AABB[5] : maximum z value
+	std::vector<float> AABB;
+
+	// this is the matrix that can be used to scale the model to desired scale
+	glm::mat4 scale_matrix = glm::mat4(1.0f);
+
+public:
+
+	// use these when accessing values of getMinMaxValues()
+	const static int MODEL_X_MIN = 0;
+	const static int MODEL_X_MAX = 1;
+	const static int MODEL_Y_MIN = 2;
+	const static int MODEL_Y_MAX = 3;
+	const static int MODEL_Z_MIN = 4;
+	const static int MODEL_Z_MAX = 5;
+
+	// use these when accessing the values of getBoundingPlanes()
+	// for example: std::vector<glm::vec3> planes = model->getBoundingPlanes();
+	//		planes[NORMAL_LEFT] is the normal of the left plane in glm::vec3 format
+	//		planes[POINT_FRONT] is a point on the front plane in glm::vec3 format
+	const static int NORMAL_LEFT = 0;
+	const static int POINT_LEFT = 1;
+	const static int NORMAL_RIGHT = 2;
+	const static int POINT_RIGHT = 3;
+	const static int NORMAL_BOTTOM = 4;
+	const static int POINT_BOTTOM = 5;
+	const static int NORMAL_TOP = 6;
+	const static int POINT_TOP = 7;
+	const static int NORMAL_BACK = 8;
+	const static int POINT_BACK = 9;
+	const static int NORMAL_FRONT = 10;
+	const static int POINT_FRONT = 11;
+
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
 	~Model();
 
-	// import obj: initialiates the scene
-	bool importObj(const std::string& path);
-
-	//void genBuffers();
-	//void delBuffers();
-
-	// Generate the VAO and Buffers
-	void genVAOsAndUniformBuffer(const aiScene *sc);
-
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
-
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	
 	void initShader(GLuint shaderProgram);
 	void render(GLuint shaderProgram);
 	void draw(glm::mat4 C, GLuint shaderProgram);
 	void update();
 
 	void setCamera(Camera * cam);
+
+	// note that these values are in object coordinates
+	std::vector<float> getMinMaxValues() { return AABB; }
+
+	// this function will return the bounding planes in world
+	//	coordinates. Note that all normal vectors will point outwards
+	std::vector< glm::vec3 > getBoundingPlanes();
+
+	void centerAndScale(float scale);
+	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
 };
 
 

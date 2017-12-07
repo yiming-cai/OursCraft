@@ -61,4 +61,26 @@ struct LightParameters
 	int PADDING;
 };
 
+struct MyMaterial {
+
+	float diffuse[4];
+	float ambient[4];
+	float specular[4];
+	float emissive[4];
+	float shininess;
+	int texCount;
+};
+
+// Information to render each assimp node
+struct MyMesh {
+
+	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	GLuint nbo;
+	GLuint texIndex;
+	GLuint uniformBlockIndex;
+	int numFaces;
+};
+
 #endif
