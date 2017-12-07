@@ -11,28 +11,34 @@
 #include "Camera.h"
 #include <limits.h>
 #include <math.h>
+#include <set>
 
-/*
- * source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
- */
 
 extern glm::mat4 P;
 extern glm::mat4 V;
 
+/*
+* author: Yiming Cai
+* source: various opengl references and stack overflow, and tutorials with links below
+* date: 12/5/2017
+*/
 class Model
 {
 private:
 	// import obj: initialiates the scene
+	// Source: http://assimp.org
 	bool importObj(const std::string& path);
 
 	//void genBuffers();
 	//void delBuffers();
 
 	// Generate the VAO and Buffers
+	// source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
 	void genVAOsAndUniformBuffer(const aiScene *sc);
 
 	// For mapping texture IDs
 	std::map<std::string, GLuint> textureIdMap;
+	std::set<GLuint> IDs;
 
 	// Location in the shader
 	const static int vertexLoc = 0;
@@ -66,6 +72,10 @@ private:
 
 	// this is the matrix that can be used to scale the model to desired scale
 	glm::mat4 scale_matrix = glm::mat4(1.0f);
+
+	// each corresponds to one of the mesh, same first index
+	std::vector< std::vector<float> > texCoordsArrays;
+	std::vector< std::vector<unsigned int> > faceArrays;
 
 public:
 

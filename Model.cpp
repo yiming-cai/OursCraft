@@ -107,14 +107,18 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 
 		// create array with faces
 		// have to convert from Assimp format to array
-		unsigned int *faceArray;
-		faceArray = (unsigned int *)malloc(sizeof(unsigned int) * mesh->mNumFaces * 3);
+		//unsigned int *faceArray;
+		//faceArray = (unsigned int *)malloc(sizeof(unsigned int) * mesh->mNumFaces * 3);
+		unsigned int face_size = mesh->mNumFaces * 3;
+		faceArrays.push_back( std::vector<unsigned int> (face_size) );
+		int latest = faceArrays.size() - 1;
+		
 		unsigned int faceIndex = 0;
 
 		for (unsigned int t = 0; t < mesh->mNumFaces; ++t) {
 			const aiFace* face = &mesh->mFaces[t];
 
-			memcpy(&faceArray[faceIndex], face->mIndices, 3 * sizeof(unsigned int));
+			memcpy(&faceArrays[latest][faceIndex], face->mIndices, 3 * sizeof(unsigned int));
 			faceIndex += 3;
 		}
 		aMesh.numFaces = sc->mMeshes[n]->mNumFaces;
@@ -126,7 +130,7 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		// buffer for faces
 		glGenBuffers(1, &aMesh.ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, aMesh.ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh->mNumFaces * 3, faceArray, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * face_size, &(faceArrays[latest][0]), GL_STATIC_DRAW);
 
 		// buffer for vertex positions
 		if (mesh->HasPositions()) {
@@ -148,18 +152,26 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 
 		// buffer for vertex texture coordinates
 		if (mesh->HasTextureCoords(0)) {
-			float *texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
+			//float * texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
+			texCoordsArrays.push_back( std::vector<float>(2 * mesh->mNumVertices) );
+			int curr_i = texCoordsArrays.size() - 1;
 			for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
 
-				texCoords[k * 2] = mesh->mTextureCoords[0][k].x;
-				texCoords[k * 2 + 1] = mesh->mTextureCoords[0][k].y;
+				texCoordsArrays[curr_i][k * 2] = mesh->mTextureCoords[0][k].x;
+				texCoordsArrays[curr_i][k * 2 + 1] = mesh->mTextureCoords[0][k].y;
 
 			}
 			glGenBuffers(1, &buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->mNumVertices, texCoords, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->mNumVertices, & (texCoordsArrays[curr_i][0]), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(texCoordLoc);
 			glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, 0, 0, 0);
+
+			std::cerr << "TEXTURE FOUND!" << std::endl;
+		}
+		else
+		{
+			std::cerr << "TEXTURE NOT FOUND!" << std::endl;
 		}
 
 		// unbind buffers
@@ -170,16 +182,28 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		// create material uniform buffer
 		aiMaterial *mtl = sc->mMaterials[mesh->mMaterialIndex];
 
+		/* ---------------------- Find texture id of the mesh ----------------------------------- */
 		aiString texPath;	//contains filename of texture
-		if (AI_SUCCESS == mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath)) {
+		if (mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) ) 
+		{
 			//bind texture
-			unsigned int texId = textureIdMap[texPath.data];
+			unsigned int texId = rand();
+			while (IDs.find(texId) != IDs.end())
+			{
+				texId = rand();
+			}
+			IDs.insert(texId);
+			textureIdMap.emplace(texPath.data, texId);
+
 			aMesh.texIndex = texId;
 			aMat.texCount = 1;
+			std::cerr << textureIdMap[texPath.data] << std::endl;
 		}
 		else
 			aMat.texCount = 0;
+		/* --------------------------------------------------------------------------------------- */
 
+		/* -------------------------For parsing material properties -------------------------------- */
 		float c[4];
 		set_float4(c, 0.8f, 0.8f, 0.8f, 1.0f);
 		aiColor4D diffuse;
@@ -209,10 +233,13 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		unsigned int max;
 		aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
 		aMat.shininess = shininess;
+		/* -------------------------------------------------------------------------------------------- */
 
+		/* ------------------------ Send the Material to shader ---------------------------------------- */
 		glGenBuffers(1, &(aMesh.uniformBlockIndex));
 		glBindBuffer(GL_UNIFORM_BUFFER, aMesh.uniformBlockIndex);
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(aMat), (void *)(&aMat), GL_STATIC_DRAW);
+		/* --------------------------------------------------------------------------------------------- */
 		
 		// unbind buffer
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);

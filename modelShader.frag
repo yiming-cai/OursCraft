@@ -36,6 +36,7 @@ const int NUM_LIGHTS = 16;
 // Note that you do not have access to the vertex shader's default output, gl_Position.
 in vec3 normal;
 in vec3 position;
+in vec2 texCoord;
 
 // You can output many things. The first vec4 type output determines the color of the fragment
 out vec4 color;

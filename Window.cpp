@@ -142,7 +142,7 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
-	model = new Model("../cuboid.obj");
+	model = new Model("../ferrari/polygons.lwo");
 	model->setCamera(currentCam);
 	model->initShader(Shader_Model);
 	model->centerAndScale(1.0f);
