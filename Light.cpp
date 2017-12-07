@@ -53,6 +53,11 @@ void Light::update()
 	
 }
 
+void Light::setSeed(int seed)
+{
+	srand_seed = seed;
+}
+
 void Light::randInit()
 {
 	srand(srand_seed);

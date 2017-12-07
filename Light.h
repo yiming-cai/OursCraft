@@ -52,11 +52,16 @@ const static LightParameters SPOTLIGHT_PRESET =
 
 /*
  * author: Yiming Cai 
+ * source: various opengl references and stack overflow
+ * date: 12/5/2017
+ * note: make sure to call initCamera and initShader before draw() or render() 
+ *       if you don't want weird stuffs to happen 
  */
 class Light
 {
 private:
 
+	// helper function for rotating light direction
 	glm::vec3 localTrackBallMapping(double xpos, double ypos, int width, int height);
 
 	// 
@@ -82,7 +87,8 @@ private:
 	// a fixed seed for randomly initializing lights
 	int srand_seed = 20;
 
-	const static int LIGHT_UNIFORM_LOC = 5;
+	// the uniform block will be binded to this location
+	const static int LIGHT_UNIFORM_LOC = 7;
 
 	std::map<GLuint, GLuint> lightUniformBlocks;
 
@@ -103,9 +109,13 @@ public:
 
 	Light();
 	~Light();
+
+	// choose one initialization of your favor, otherwise everything will be pitch black
+	void setSeed(int seed);		// change the seed of our RNG 
 	void randInit();
 	void presetInit();
 
+	// this function does nothing right now...
 	void update();
 
 	// set the light at 'index' to become one of the preset
