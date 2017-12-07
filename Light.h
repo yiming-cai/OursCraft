@@ -44,7 +44,7 @@ const static LightParameters POINTLIGHT_PRESET =
 	glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),				// light intensity
 	glm::vec4(0),									// cone direction
 	0.25f,											// light attenuation
-	0.25f,											// ambient light coefficient
+	1.25f,											// ambient light coefficient
 	0.0f,											// cone angle
 	0.0f,											// spot exponent
 	1,												// light type, set to point light
@@ -59,7 +59,7 @@ const static LightParameters SPOTLIGHT_PRESET =
 	glm::vec4(0.0f, 0.0f, 2.0f, 1.0f),				// light intensity
 	glm::vec4(0, -1.0f, 0, 1.0f),					// cone direction
 	0.25f,											// light attenuation
-	0.25f,											// ambient light coefficient
+	0.55f,											// ambient light coefficient
 	15.0f/180.0f*glm::pi<float>(),					// cone angle, set to 1 radian (or 180/pi degrees)
 	32.0f,											// spot exponent
 	2,												// light type, set to spot light

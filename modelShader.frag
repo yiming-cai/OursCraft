@@ -172,13 +172,14 @@ void main()
 		// else if there is a texture.... MAKE IT RED FOR NOW 
 		else
 		{
-			c_mat = texture2D(tex, vec2(texCoord.x, 1-texCoord.y)) * max ( 0.0f, nDotL );
-			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess));
-			c_mat += .1f * dif * lights[light_i].ambientCoefficient * amb;
+			c_mat = dif * max ( 0.0f, nDotL ) ;
+			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess)) * .1f;
+			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
 
 		sum_of_colors += c_l * c_mat;
 	}
 
 	color = vec4(sum_of_colors.xyz, 1.0f);
+	color = texture2D(tex, vec2(texCoord.x, 1-texCoord.y)) * sum_of_colors;
 }
