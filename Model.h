@@ -11,7 +11,7 @@
 #include "Camera.h"
 #include <limits.h>
 #include <math.h>
-
+#include "BoundBox.h"
 /*
  * source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
  */
@@ -24,7 +24,6 @@ class Model
 private:
 	// import obj: initialiates the scene
 	bool importObj(const std::string& path);
-
 	//void genBuffers();
 	//void delBuffers();
 
@@ -68,6 +67,7 @@ private:
 	glm::mat4 scale_matrix = glm::mat4(1.0f);
 
 public:
+	 
 
 	// use these when accessing values of getMinMaxValues()
 	const static int MODEL_X_MIN = 0;
@@ -97,7 +97,7 @@ public:
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
 	~Model();
-
+	
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 	
 	void initShader(GLuint shaderProgram);
@@ -116,6 +116,7 @@ public:
 
 	void centerAndScale(float scale);
 	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
+
 };
 
 

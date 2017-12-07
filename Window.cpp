@@ -8,7 +8,7 @@ extern GLuint Shader_Skybox;
 extern GLuint Shader_Coordinate;
 extern GLuint Shader_Model;
 extern GLuint Shader_SimplePointer;
-
+extern GLuint Shader_BoundBox;
 
 std::vector<Object *> objectList;
 std::vector<Camera *> cameraList;
@@ -111,7 +111,7 @@ void Window::loadAllShader() {
 	Shader_Coordinate = LoadShaders(COORDINATE_VERTEX_SHADER_PATH, COORDINATE_FRAGMENT_SHADER_PATH);
 	Shader_Model = LoadShaders(MODEL_VERTEX_SHADER_PATH, MODEL_FRAGMENT_SHADER_PATH);
 	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
-	
+	Shader_BoundBox = LoadShaders(BOUNDBOX_VERTEX_SHADER_PATH,BOUNDBOX_FRAGMENT_SHADER_PATH);
 }
 
 void Window::initialize_objects()
@@ -265,8 +265,7 @@ void Window::display_callback(GLFWwindow* window)
 		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f), Shader_Model);
 	}
 
-	//model1->draw(glm::mat4(1.0f));
-
+	
 	glfwPollEvents();
 
 	// Swap buffers

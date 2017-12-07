@@ -38,7 +38,8 @@
 #define MODEL_FRAGMENT_SHADER_PATH "../modelShader.frag"
 #define SIMPLE_POINTER_VERTEX_SHADER_PATH "../simplePointerShader.vert"
 #define SIMPLE_POINTER_FRAGMENT_SHADER_PATH "../simplePointerShader.frag"
-
+#define BOUNDBOX_VERTEX_SHADER_PATH "../boundboxShader.vert"
+#define BOUNDBOX_FRAGMENT_SHADER_PATH "../boundboxShader.frag"
 #define CUBE_TEXTURE_NUM 8
 
 #define MOUSEPOS_INIT_VALUE -1999999
