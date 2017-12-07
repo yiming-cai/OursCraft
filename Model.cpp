@@ -99,8 +99,6 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 	struct MyMaterial aMat;
 	GLuint buffer;
 
-	glUniformBlockBinding(Shader_Model, glGetUniformBlockIndex(Shader_Model, "Material"), materialUniLoc);
-
 	// For each mesh
 	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
 	{
@@ -223,19 +221,24 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 
 }
 
-void Model::render()
+void Model::initShader(GLuint shaderProgram)
+{
+	glUniformBlockBinding(shaderProgram, glGetUniformBlockIndex(shaderProgram, "Material"), materialUniLoc);
+}
+
+void Model::render(GLuint shaderProgram)
 {
 	for (auto mesh : myMeshes)
 	{
-		glUseProgram(Shader_Model);
+		glUseProgram(shaderProgram);
 
 		// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 		// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 		// Get the location of the uniform variables "projection" and "modelview"
-		GLuint uProjection = glGetUniformLocation(Shader_Model, "projection");
-		GLuint uView = glGetUniformLocation(Shader_Model, "view");
-		GLuint uModel = glGetUniformLocation(Shader_Model, "model");
-		GLuint uCam = glGetUniformLocation(Shader_Model, "cam_pos");
+		GLuint uProjection = glGetUniformLocation(shaderProgram, "projection");
+		GLuint uView = glGetUniformLocation(shaderProgram, "view");
+		GLuint uModel = glGetUniformLocation(shaderProgram, "model");
+		GLuint uCam = glGetUniformLocation(shaderProgram, "cam_pos");
 
 		//printf("%f %f %f\n", k.x, k.y, k.z);
 		// Now send these values to the shader program
@@ -246,19 +249,19 @@ void Model::render()
 
 		// Now draw the cube. We simply need to bind the VAO associated with it.
 		glBindVertexArray(mesh.vao);
-		// bind material uniform
 		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, mesh.uniformBlockIndex, 0, sizeof(struct MyMaterial));
 		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 		glDrawElements(GL_TRIANGLES, mesh.numFaces * 3, GL_UNSIGNED_INT, 0);
 		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
 		glBindVertexArray(0);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 }
 
-void Model::draw(glm::mat4 C)
+void Model::draw(glm::mat4 C, GLuint shaderProgram)
 {
 	model = C;
-	render();
+	render(shaderProgram);
 }
 
 void Model::update()

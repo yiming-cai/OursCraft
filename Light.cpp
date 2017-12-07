@@ -87,6 +87,12 @@ void Light::randInit()
 				)
 			);
 
+			// randomly sets the ambient coefficient
+			setAbsoluteAmbientCoefficient(
+				i,
+				(float) (rand() % 1000) / 1000.0f
+			);
+
 			break;
 
 		case Light::TYPE_POINT:
@@ -97,9 +103,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 10.0f,
-					(float)(rand() % 100) / 10.0f,
-					(float)(rand() % 100) / 10.0f
+				(float)(rand() % 300) / 10.0f - 15.0f,
+					(float)(rand() % 300) / 10.0f,
+					(float)(rand() % 300) / 10.0f - 15.0f
 				)
 			);
 
@@ -112,6 +118,12 @@ void Light::randInit()
 					(float)(rand() % 100) / 40.0f,
 					(float)(rand() % 100) / 40.0f
 				)
+			);
+
+			// randomly sets the ambient coefficient
+			setAbsoluteAmbientCoefficient(
+				i,
+				(float)(rand() % 1000) / 1000.0f
 			);
 
 			break;
@@ -124,9 +136,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 10.0f,
-					(float)(rand() % 100) / 10.0f,
-					(float)(rand() % 100) / 10.0f
+				(float)(rand() % 200) / 10.0f - 10.0f,
+					(float)(rand() % 200) / 10.0f,
+					(float)(rand() % 300) / 10.0f - 10.0f
 				)
 			);
 
@@ -135,14 +147,14 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 40.0f,
-					(float)(rand() % 100) / 40.0f,
-					(float)(rand() % 100) / 40.0f
+				(float)(rand() % 100) / 20.0f,
+					(float)(rand() % 100) / 20.0f,
+					(float)(rand() % 100) / 20.0f
 				)
 			);
 
 			// make it point to the origin, or center of the map
-			setAbsoluteConeDirection(i, glm::vec3(0.0f) - getConeDirection(i));
+			setAbsoluteConeDirection(i, glm::vec3(0.0f) - getLightPosition(i));
 
 			// make it randomly wide, as wide as up to 120 degrees
 			setAbsoluteConeAngleDegrees(i, (float)(rand() % 120));
@@ -195,24 +207,26 @@ void Light::updateShader(GLuint shaderProgram)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-bool Light::partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights)
-{
-	if (start_index + num_lights > NUM_LIGHTS)
-	{
-		std::cerr << "Trying to update too many lights!" << std::endl;
-		return false;
-	}
-	glUseProgram(shaderProgram);
-	glBindBufferRange(GL_UNIFORM_BUFFER,				// type of buffer
-		LIGHT_UNIFORM_LOC,								// which uniform layout
-		lightUniformBlocks[shaderProgram],				// which program buffer
-		start_index * sizeof(LightParameters),			// where to start
-		num_lights * sizeof(LightParameters));			// size to send to buffer
-
-	glBufferSubData(GL_UNIFORM_BUFFER, start_index * sizeof(LightParameters), num_lights * sizeof(LightParameters), (void *)(&(lights[0])));
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	return true;
-}
+//bool Light::partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights)
+//{
+//	if (start_index + num_lights > NUM_LIGHTS)
+//	{
+//		std::cerr << "Trying to update too many lights!" << std::endl;
+//		return false;
+//	}
+//
+//	glUseProgram(shaderProgram);
+//	glBindBufferRange(
+//		GL_UNIFORM_BUFFER,								// type of buffer
+//		LIGHT_UNIFORM_LOC,								// which uniform layout
+//		lightUniformBlocks[shaderProgram],				// which program buffer
+//		start_index * sizeof(LightParameters),			// where to start
+//		num_lights * sizeof(LightParameters));			// size to send to buffer
+//
+//	glBufferSubData(GL_UNIFORM_BUFFER, start_index * sizeof(LightParameters), num_lights * sizeof(LightParameters), (void *)( &( lights[start_index]) ) );
+//	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+//	return true;
+//}
 
 LightParameters Light::getLight(int index) const
 {
@@ -258,6 +272,22 @@ void Light::toggleLight(int index)
 	else
 	{
 		turnLightOn(index);
+	}
+}
+
+void Light::turnAllLightOn()
+{
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		turnLightOn(i);
+	}
+}
+
+void Light::turnAllLightOff()
+{
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		turnLightOff(i);
 	}
 }
 

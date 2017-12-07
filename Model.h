@@ -40,7 +40,7 @@ extern glm::mat4 P;
 extern glm::mat4 V;
 extern GLuint Shader_Model;
 
-class Model : public Node
+class Model
 {
 public:
 
@@ -79,10 +79,9 @@ public:
 
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 5.0f, 5.0f));
 
-	void render();
-
-	//void recursive_render(const aiScene * sc, const aiNode * nd);
-	void draw(glm::mat4 C);
+	void initShader(GLuint shaderProgram);
+	void render(GLuint shaderProgram);
+	void draw(glm::mat4 C, GLuint shaderProgram);
 	void update();
 
 	void setCamera(Camera * cam);

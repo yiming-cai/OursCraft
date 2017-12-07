@@ -145,10 +145,11 @@ void Window::initialize_objects()
 	model = new Model("../cuboid.obj");
 	//model = new Model("../BirthdayCake_v2.obj");
 	model->setCamera(currentCam);
+	model->initShader(Shader_Model);
 
 	// create a test light
 	lights = Light();
-	lights.presetInit();
+	lights.randInit();
 	lights.initializeShader(Shader_Model);
 	lights.updateShader(Shader_Model);
 	// --------------------------------------------------------------
@@ -261,7 +262,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	// test draw model
 	for (int j = 0; j < 6; j++) {
-		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f));
+		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f), Shader_Model);
 	}
 
 
@@ -390,6 +391,7 @@ void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 
 }
 
+static bool light_toggle = false;
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	// Check for a key press
@@ -439,12 +441,37 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			pickStyle++;
 		}
 		if (key == GLFW_KEY_0) {
-			pickType = 0;
-			pickStyle = 0;
+			if (!light_toggle)
+			{
+				pickType = 0;
+				pickStyle = 0;
+			}
 		}
 		if (key == GLFW_KEY_1) {
-			pickType = 1;
-			pickStyle = 0;
+			if (!light_toggle)
+			{
+				pickType = 1;
+				pickStyle = 0;
+			}
+		}
+		if (key == GLFW_KEY_L)
+		{
+			light_toggle = !light_toggle;
+			std::cerr << "Enter light selection mode!" << std::endl;
+		}
+		if (light_toggle && key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
+		{
+			int index = key - GLFW_KEY_0;
+			lights.toggleLight(index);
+			lights.updateShader(Shader_Model);
+			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index)==1)?"on":"off") << "!" << std::endl;
+		}
+		if (light_toggle && key >= GLFW_KEY_F1 && key <= GLFW_KEY_F6)
+		{
+			int index = key - GLFW_KEY_F1 + 10;
+			lights.toggleLight(index);
+			lights.updateShader(Shader_Model);
+			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index) == 1) ? "on" : "off") << "!" << std::endl;
 		}
 	}
 	if (action == GLFW_RELEASE) {

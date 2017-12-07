@@ -7,7 +7,7 @@
 
 const static LightParameters DIRECTIONAL_PRESET =
 {
-	glm::normalize(glm::vec4(-1.0f,-1.0f,-1.0f, 0.0f)),	// light direction
+	glm::vec4(glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)), 1.0f),	// light direction
 	glm::vec4(1.0f,0.0f,0.0f,1.0f),					// light intensity
 	glm::vec4(0),									// cone direction
 	0.0f,											// light attenuation
@@ -37,12 +37,12 @@ const static LightParameters POINTLIGHT_PRESET =
 
 const static LightParameters SPOTLIGHT_PRESET =
 {
-	glm::vec4(0, 0.0f, 5.0f, 0),					// light position
-	glm::vec4(0.0f, 0.0f, 1.0f, 1.0f),				// light intensity
+	glm::vec4(0, 20.0f, 0.0f, 0),					// light position
+	glm::vec4(0.0f, 0.0f, 2.0f, 1.0f),				// light intensity
 	glm::vec4(0, -1.0f, 0, 1.0f),					// cone direction
 	0.25f,											// light attenuation
 	0.25f,											// ambient light coefficient
-	1.0f,											// cone angle, set to 1 radian (or 180/pi degrees)
+	15.0f/180.0f*glm::pi<float>(),					// cone angle, set to 1 radian (or 180/pi degrees)
 	32.0f,											// spot exponent
 	2,												// light type, set to spot light
 	1,												// attenuation type, set to linear
@@ -96,8 +96,8 @@ public:
 	const static int ATTENUATION_LINEAR = 1;
 	const static int ATTENUATION_QUADRATIC = 2;
 
-	const static int STATUS_ON = 0;
-	const static int STATUS_OFF = 1;
+	const static int STATUS_OFF = 0;
+	const static int STATUS_ON = 1;
 
 	const static unsigned int NUM_LIGHTS = 16;
 
@@ -126,7 +126,8 @@ public:
 	//		from start index, with num_lights number of lights. 
 	// You may use it for quickly updating only some lights that are modified, 
 	//      so that the shader performance is optimized.
-	bool partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights);
+	// NOTE: DEPRECATED/WILL NOT WORK! JUST USE updateShader() instead!
+	// bool partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights);
 	/* ------------------------------------------------------------------- */
 
 
@@ -160,6 +161,9 @@ public:
 	void turnLightOff(int index);
 
 	void toggleLight(int index);
+
+	void turnAllLightOn();
+	void turnAllLightOff();
 	/* -------------------------------------------------------------- */
 
 
