@@ -1,20 +1,44 @@
 #pragma once
+
 #include <assimp/Importer.hpp>		// C++ importer interface
 #include <assimp/postprocess.h>		// Post processing flags
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/mesh.h>
-#include "Util.h"
 #include <iostream>
 #include <fstream>
 #include <map>
-#include "Node.h"
-#include "Camera.h"
 #include <limits.h>
 #include <math.h>
 #include <set>
 
+#include "Util.h"
+#include "Camera.h"
+#include "BoundBox.h"
+
 extern glm::mat4 P;
 extern glm::mat4 V;
+
+struct MyMaterial {
+
+	float diffuse[4];
+	float ambient[4];
+	float specular[4];
+	float emissive[4];
+	float shininess;
+	int texCount;
+};
+
+// Information to render each assimp node
+struct MyMesh {
+
+	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	GLuint nbo;
+	GLuint texIndex;
+	GLuint uniformBlockIndex;
+	int numFaces;
+};
 
 /*
 * author: Yiming Cai
@@ -75,6 +99,8 @@ private:
 	// each corresponds to one of the mesh, same first index
 	std::vector< std::vector<float> > texCoordsArrays;
 	std::vector< std::vector<unsigned int> > faceArrays;
+
+	BoundBox * box;
 
 public:
 

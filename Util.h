@@ -1,5 +1,4 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#pragma once
 
 #define GLFW_INCLUDE_GLEXT
 #ifdef __APPLE__
@@ -45,43 +44,3 @@
 #define MOUSEPOS_INIT_VALUE -1999999
 #define CAMERA_MOVE_STRIP 0.1
 #define GROUND_LEVEL 0
-
-struct LightParameters
-{
-	glm::vec4 position; // also used as direction for directional light
-	glm::vec4 intensities; // a.k.a the color of the light
-	glm::vec4 coneDirection; // only needed for spotlights
-
-	float attenuation; // only needed for point and spotlights
-	float ambientCoefficient; // how strong the light ambience should be... 0 if there's no ambience (background reflection) at all
-	float coneAngle; // only needed for spotlights
-	float exponent; // cosine exponent for how light tapers off
-	int type; // specify the type of the light (directional, spotlight, point light)
-	int attenuationType; // specify the type of attenuation to use
-	int status;			// 0 for turning off the light, 1 for turning on the light
-	int PADDING;
-};
-
-struct MyMaterial {
-
-	float diffuse[4];
-	float ambient[4];
-	float specular[4];
-	float emissive[4];
-	float shininess;
-	int texCount;
-};
-
-// Information to render each assimp node
-struct MyMesh {
-
-	GLuint vao;
-	GLuint vbo;
-	GLuint ebo;
-	GLuint nbo;
-	GLuint texIndex;
-	GLuint uniformBlockIndex;
-	int numFaces;
-};
-
-#endif

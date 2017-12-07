@@ -1,9 +1,7 @@
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#pragma once
 
 #include "Util.h"
 #include "shader.h"
-#include "OBJObject.h"
 #include "Cube.h"
 #include "Skybox.h"
 #include "Rotate.h"
@@ -38,4 +36,3 @@ public:
 	static void loadAllShader();
 };
 
-#endif

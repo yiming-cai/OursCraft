@@ -5,6 +5,24 @@
 #include <map>
 #include <iostream>
 
+
+struct LightParameters
+{
+	glm::vec4 position; // also used as direction for directional light
+	glm::vec4 intensities; // a.k.a the color of the light
+	glm::vec4 coneDirection; // only needed for spotlights
+
+	float attenuation; // only needed for point and spotlights
+	float ambientCoefficient; // how strong the light ambience should be... 0 if there's no ambience (background reflection) at all
+	float coneAngle; // only needed for spotlights
+	float exponent; // cosine exponent for how light tapers off
+	int type; // specify the type of the light (directional, spotlight, point light)
+	int attenuationType; // specify the type of attenuation to use
+	int status;			// 0 for turning off the light, 1 for turning on the light
+	int PADDING;
+};
+
+
 const static LightParameters DIRECTIONAL_PRESET =
 {
 	glm::vec4(glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)), 1.0f),	// light direction
@@ -291,4 +309,3 @@ public:
 	bool rotateConeDirectionDegrees(int index, float angle, glm::vec3 axis);
 	/* ------------------------------------------------------------------------------------ */
 };
-

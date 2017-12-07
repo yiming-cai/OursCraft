@@ -1,7 +1,5 @@
-#ifndef _BOUNDBOX_H_
-#define _BOUNDBOX_H_
+#pragma once
 #include "Util.h"
-#include "Window.h"
 
 #define GLFW_INCLUDE_GLEXT
 
@@ -53,5 +51,3 @@ public:
 		{ -1.0, -1.0, -1.0 },{ 1.0, -1.0, -1.0 },{ 1.0,  1.0, -1.0 },{ -1.0,  1.0, -1.0 }
 	};
 };
-
-#endif
