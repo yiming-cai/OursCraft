@@ -13,7 +13,7 @@
 
 layout (location = 0) in vec3 position_in;
 layout (location = 1) in vec3 normal_in;
-layout (location = 2) in vec2 texture_in;
+layout (location = 2) in vec3 texture_in;
 
 // Uniform variables can be updated by fetching their location and passing values to that location
 uniform mat4 projection;
@@ -33,5 +33,5 @@ void main()
     gl_Position = projection * view * model * vec4(position_in, 1.0);
     normal = normal_in;
 	position = position_in;
-	texCoord = texture_in;
+	texCoord = texture_in.xy;
 }

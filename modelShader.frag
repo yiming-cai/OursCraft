@@ -32,6 +32,8 @@ const int STATUS_ON = 1;
 const int NUM_LIGHTS = 16;
 // ----------------------------------------------------------------------------------------------------------------------------------
 
+uniform	sampler2D tex;
+
 // Inputs to the fragment shader are the outputs of the same name from the vertex shader.
 // Note that you do not have access to the vertex shader's default output, gl_Position.
 in vec3 normal;
@@ -170,7 +172,9 @@ void main()
 		// else if there is a texture.... MAKE IT RED FOR NOW 
 		else
 		{
-			c_mat = vec4(1.0f, 0, 0, 0);
+			c_mat = texture2D(tex, vec2(texCoord.x, 1-texCoord.y)) * max ( 0.0f, nDotL );
+			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess));
+			c_mat += .1f * dif * lights[light_i].ambientCoefficient * amb;
 		}
 
 		sum_of_colors += c_l * c_mat;

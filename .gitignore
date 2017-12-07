@@ -49,6 +49,8 @@ artifacts/
 *.ilk
 *.meta
 *.obj
+!cockle/common-cockle.obj
+!Gun/Handgun_obj.obj
 *.pch
 *.pdb
 *.pgc

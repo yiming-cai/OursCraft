@@ -14,6 +14,7 @@
 #include "Util.h"
 #include "Camera.h"
 #include "BoundBox.h"
+#include "stb_image.h"
 
 extern glm::mat4 P;
 extern glm::mat4 V;
@@ -58,6 +59,7 @@ private:
 	// Generate the VAO and Buffers
 	// source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
 	void genVAOsAndUniformBuffer(const aiScene *sc);
+	int loadGLTextures(const aiScene * sc);
 
 	// For mapping texture IDs
 	std::map<std::string, GLuint> textureIdMap;

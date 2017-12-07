@@ -21,10 +21,11 @@ Model::Model(std::string p_filepath)
 	filepath = p_filepath;
 	if (importObj(filepath))
 	{
+		loadGLTextures(scene);
 		genVAOsAndUniformBuffer(scene);
 		setBoundingBox(scene);
 	}
-	std::cerr << "\nLoaded " << myMeshes.size() << " meshes!" << std::endl;
+	std::cerr << "Loaded " << myMeshes.size() << " meshes!" << std::endl;
 }
 
 Model::~Model()
@@ -137,8 +138,8 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 			glGenBuffers(1, &aMesh.vbo);
 			glBindBuffer(GL_ARRAY_BUFFER, aMesh.vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * mesh->mNumVertices, mesh->mVertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+			glEnableVertexAttribArray(vertexLoc);
+			glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, 0, 0, 0);
 		}
 
 		// buffer for vertex normals
@@ -146,32 +147,20 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 			glGenBuffers(1, &aMesh.nbo);
 			glBindBuffer(GL_ARRAY_BUFFER, aMesh.nbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * mesh->mNumVertices, mesh->mNormals, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, 0);
+			glEnableVertexAttribArray(normalLoc);
+			glVertexAttribPointer(normalLoc, 3, GL_FLOAT, 0, 0, 0);
 		}
 
 		// buffer for vertex texture coordinates
 		if (mesh->HasTextureCoords(0)) {
 			//float * texCoords = (float *)malloc(sizeof(float) * 2 * mesh->mNumVertices);
-			texCoordsArrays.push_back( std::vector<float>(2 * mesh->mNumVertices) );
-			int curr_i = texCoordsArrays.size() - 1;
-			for (unsigned int k = 0; k < mesh->mNumVertices; ++k) {
-
-				texCoordsArrays[curr_i][k * 2] = mesh->mTextureCoords[0][k].x;
-				texCoordsArrays[curr_i][k * 2 + 1] = mesh->mTextureCoords[0][k].y;
-
-			}
 			glGenBuffers(1, &buffer);
 			glBindBuffer(GL_ARRAY_BUFFER, buffer);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * mesh->mNumVertices, & (texCoordsArrays[curr_i][0]), GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, mesh->mNumVertices * 3 * sizeof(GLfloat), mesh->mTextureCoords[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(texCoordLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
 			glEnableVertexAttribArray(texCoordLoc);
-			glVertexAttribPointer(texCoordLoc, 2, GL_FLOAT, 0, 0, 0);
 
-			std::cerr << "TEXTURE FOUND!" << std::endl;
-		}
-		else
-		{
-			std::cerr << "TEXTURE NOT FOUND!" << std::endl;
+			//std::cerr << "TEXTURE COORD FOUND!" << std::endl;
 		}
 
 		// unbind buffers
@@ -184,20 +173,14 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 
 		/* ---------------------- Find texture id of the mesh ----------------------------------- */
 		aiString texPath;	//contains filename of texture
-		if (mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath) ) 
+		if ( mtl->GetTextureCount(aiTextureType_DIFFUSE) > 0 ) 
 		{
-			//bind texture
-			unsigned int texId = rand();
-			while (IDs.find(texId) != IDs.end())
-			{
-				texId = rand();
-			}
-			IDs.insert(texId);
-			textureIdMap.emplace(texPath.data, texId);
+			mtl->GetTexture(aiTextureType_DIFFUSE, 0, &texPath);
 
+			//bind texture
+			unsigned int texId = textureIdMap[texPath.data];
 			aMesh.texIndex = texId;
 			aMat.texCount = 1;
-			std::cerr << textureIdMap[texPath.data] << std::endl;
 		}
 		else
 			aMat.texCount = 0;
@@ -248,6 +231,102 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 	}
 }
 
+int Model::loadGLTextures(const aiScene * sc)
+{
+		bool success;
+
+		/* initialization of DevIL */
+		//ilInit();
+
+		///* scan scene's materials for textures */
+		//for (unsigned int m = 0; m<scene->mNumMaterials; ++m)
+		//{
+		//	aiString path;  // filename
+		//	for (int i = 0; i < scene->mMaterials[m]->GetTextureCount(aiTextureType_DIFFUSE); i++)
+		//	{
+		//		scene->mMaterials[m]->GetTexture(aiTextureType_DIFFUSE, i, &path);
+		//		
+		//		//fill map with textures, OpenGL image ids set to 0
+		//		textureIdMap[path.data] = 0;
+		//	}
+		//}
+
+		// For each mesh
+		for (unsigned int n = 0; n < sc->mNumMaterials; ++n)
+		{
+			const aiMaterial * mat = sc->mMaterials[n];
+
+			/* ---------------------- Find texture id of the mesh ----------------------------------- */
+			//std::cerr << "NONE texture: " << (int)mat->GetTextureCount(aiTextureType_NONE) << std::endl;
+			//std::cerr << "Diffused texture: " << (int)mat->GetTextureCount(aiTextureType_DIFFUSE) << std::endl;
+			//std::cerr << "Specular texture: " << (int)mat->GetTextureCount(aiTextureType_SPECULAR) << std::endl;
+			//std::cerr << "AMBIENT texture: " << (int)mat->GetTextureCount(aiTextureType_AMBIENT) << std::endl;
+			//std::cerr << "EMISSIVE texture: " << (int)mat->GetTextureCount(aiTextureType_EMISSIVE) << std::endl;
+			//std::cerr << "HEIGHT texture: " << (int)mat->GetTextureCount(aiTextureType_HEIGHT) << std::endl;
+			//std::cerr << "NORMALS texture: " << (int)mat->GetTextureCount(aiTextureType_NORMALS) << std::endl;
+			//std::cerr << "SHININESS texture: " << (int)mat->GetTextureCount(aiTextureType_SHININESS) << std::endl;
+			//std::cerr << "OPACITY texture: " << (int)mat->GetTextureCount(aiTextureType_OPACITY) << std::endl;
+			//std::cerr << "DISPLACEMENT texture: " << (int)mat->GetTextureCount(aiTextureType_DISPLACEMENT) << std::endl;
+			//std::cerr << "LIGHTMAP texture: " << (int)mat->GetTextureCount(aiTextureType_LIGHTMAP) << std::endl;
+			//std::cerr << "REFLECTION texture: " << (int)mat->GetTextureCount(aiTextureType_REFLECTION) << std::endl;
+			//std::cerr << "UNKNOWN texture: " << (int)mat->GetTextureCount(aiTextureType_UNKNOWN) << std::endl;
+			for (int i = 0; i < mat->GetTextureCount(aiTextureType_DIFFUSE); i++)
+			{
+				aiString texPath;
+				mat->GetTexture(aiTextureType_DIFFUSE, i, &texPath);
+				textureIdMap[texPath.data] = 0;
+			}
+		}
+
+		if (textureIdMap.size() > 0)
+		{
+			int numTextures = textureIdMap.size();
+			std::cerr << numTextures << std::endl;
+			std::vector<GLuint> textureIds(numTextures);
+			glGenTextures(numTextures, &(textureIds[0]));
+
+			// some stbi outputs
+			int width, height, nrChannels;
+			int found = filepath.find_last_of("/\\");
+			std::string path = filepath.substr(0,found+1);
+
+			auto itr = textureIdMap.begin();
+			for (int i = 0; itr != textureIdMap.end(); ++i, ++itr)
+			{
+				std::string filename = (*itr).first;
+
+				filename = path + filename;
+				std::cerr << "Trying to load texture file: " << filename << " of length " << filename.size() << std::endl;
+
+				(*itr).second = textureIds[i];
+
+				unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrChannels, 4);
+				if (data)
+				{
+					glBindTexture(GL_TEXTURE_2D, textureIds[i]);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					std::cerr << "Loaded texture!" << filename << std::endl;
+					stbi_image_free(data);
+				}
+				else
+				{
+					std::cerr << "wrong in load texture " << filename << std::endl;
+					stbi_image_free(data);
+				}
+			}
+
+			//return success;
+			return true;
+		}
+		
+		return false;
+}
+
 void Model::initShader(GLuint shaderProgram)
 {
 	glUniformBlockBinding(shaderProgram, glGetUniformBlockIndex(shaderProgram, "Material"), materialUniLoc);
@@ -255,6 +334,8 @@ void Model::initShader(GLuint shaderProgram)
 
 void Model::render(GLuint shaderProgram)
 {
+	if (scene == nullptr) return;
+
 	for (auto mesh : myMeshes)
 	{
 		glUseProgram(shaderProgram);
@@ -277,9 +358,12 @@ void Model::render(GLuint shaderProgram)
 		// Now draw the cube. We simply need to bind the VAO associated with it.
 		glBindVertexArray(mesh.vao);
 		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, mesh.uniformBlockIndex, 0, sizeof(struct MyMaterial));
+		// bind texture
+		glBindTexture(GL_TEXTURE_2D, mesh.texIndex );
 		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 		glDrawElements(GL_TRIANGLES, mesh.numFaces * 3, GL_UNSIGNED_INT, 0);
 		// Unbind the VAO when we're done so we don't accidentally draw extra stuff or tamper with its bound buffers
+
 		glBindVertexArray(0);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
@@ -287,6 +371,7 @@ void Model::render(GLuint shaderProgram)
 
 void Model::draw(glm::mat4 C, GLuint shaderProgram)
 {
+	if (scene == nullptr) return;
 	modelMatrix = C * scale_matrix;
 	render(shaderProgram);
 }
@@ -340,6 +425,8 @@ std::vector<glm::vec3> Model::getBoundingPlanes()
 
 void Model::centerAndScale(float scale)
 {
+	if (scene == nullptr) return;
+
 	float x_offset = (AABB[MODEL_X_MIN] + AABB[MODEL_X_MAX]) / -2.0f;
 	float y_offset = (AABB[MODEL_Y_MIN] + AABB[MODEL_Y_MAX]) / -2.0f;
 	float z_offset = (AABB[MODEL_Z_MIN] + AABB[MODEL_Z_MAX]) / -2.0f;
