@@ -11,10 +11,10 @@
 #include "Camera.h"
 #include <limits.h>
 #include <math.h>
-#include "BoundBox.h"
+
 /*
- * source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
- */
+* source: http://www.lighthouse3d.com/cg-topics/code-samples/importing-3d-models-with-assimp/
+*/
 
 extern glm::mat4 P;
 extern glm::mat4 V;
@@ -24,6 +24,7 @@ class Model
 private:
 	// import obj: initialiates the scene
 	bool importObj(const std::string& path);
+
 	//void genBuffers();
 	//void delBuffers();
 
@@ -67,7 +68,6 @@ private:
 	glm::mat4 scale_matrix = glm::mat4(1.0f);
 
 public:
-	 
 
 	// Model matrix of the model, set it to whatever you prefer
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -80,10 +80,10 @@ public:
 	// IMPORTANT: call initShader(s) and initCamera(cam) before calling render(s) or draw(C,s)
 	void initShader(GLuint shaderProgram);
 	void setCamera(Camera * cam);
-	
+
 	void render(GLuint shaderProgram);
 	void draw(glm::mat4 C, GLuint shaderProgram);
-	
+
 	// dummy update method, does nothing in this case
 	void update();
 
@@ -95,12 +95,12 @@ public:
 	const static int MODEL_Y_MAX = 3;
 	const static int MODEL_Z_MIN = 4;
 	const static int MODEL_Z_MAX = 5;
-	
+
 	// note that these values are in object coordinates
 	std::vector<float> getMinMaxValues() { return AABB; }
 	/* ---------------------------------------------- */
-	
-	
+
+
 	/* ---------------------------------------------- */
 	// use these when accessing the values of getBoundingPlanes()
 	// for example: std::vector<glm::vec3> planes = model->getBoundingPlanes();
@@ -118,31 +118,19 @@ public:
 	const static int POINT_BACK = 9;
 	const static int NORMAL_FRONT = 10;
 	const static int POINT_FRONT = 11;
-<<<<<<< HEAD
 
-	// constructor, just takes in a file path
-	Model(std::string p_filepath);
-	~Model();
-	
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-=======
->>>>>>> ab4aa12c1224307ed3f608f55dabf7cefe64ad23
-	
 	// this function will return the bounding planes in world
 	//	coordinates. Note that all normal vectors will point outwards
 	std::vector< glm::vec3 > getBoundingPlanes();
 	/* ---------------------------------------------- */
-	
+
 	/* ---------------------------------------------- */
 	// make the model center, with its maximum xyz size set by scale
 	void centerAndScale(float scale);
 	// Turn off the scaling and return to original size/position
 	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
-<<<<<<< HEAD
-
-=======
 	/* ---------------------------------------------- */
-	
+
 	/* ---------------------------------------------- */
 	// Note that BBV stands for Bounding Box Vertex
 	// it is the indices of vertices returned by
@@ -155,11 +143,8 @@ public:
 	const static int BBV_BOTTOM_RIGHT_FAR = 5;
 	const static int BBV_TOP_RIGHT_FAR = 6;
 	const static int BBV_TOP_LEFT_FAR = 7;
-	
+
 	// get all the vertices of the bounding box
 	std::vector< glm::vec3 > getBoundingBoxVertices();
 	/* ---------------------------------------------- */
->>>>>>> ab4aa12c1224307ed3f608f55dabf7cefe64ad23
 };
-
-
