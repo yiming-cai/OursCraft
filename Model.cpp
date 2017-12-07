@@ -380,3 +380,22 @@ void Model::setBoundingBox(const aiScene * sc)
 		}
 	}
 }
+
+std::vector< glm::vec3 > Model::getBoundingBoxVertices()
+{
+	std::vector< glm::vec3 > points(8);
+	
+	// front face
+	points[BBV_BOTTOM_LEFT_NEAR] = glm::vec3(AABB[MODEL_X_MIN], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MAX]);
+	points[BBV_BOTTOM_RIGHT_NEAR] = glm::vec3(AABB[MODEL_X_MAX], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MAX]);
+	points[BBV_TOP_RIGHT_NEAR] = glm::vec3(AABB[MODEL_X_MAX], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MAX]);
+	points[BBV_TOP_LEFT_NEAR] = glm::vec3(AABB[MODEL_X_MIN], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MAX]);
+	
+	// back face 
+	points[BBV_BOTTOM_LEFT_FAR] = glm::vec3(AABB[MODEL_X_MIN], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MIN]);
+	points[BBV_BOTTOM_RIGHT_FAR] = glm::vec3(AABB[MODEL_X_MAX], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MIN]);
+	points[BBV_TOP_RIGHT_FAR] = glm::vec3(AABB[MODEL_X_MAX], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MIN]);
+	points[BBV_TOP_LEFT_FAR] = glm::vec3(AABB[MODEL_X_MIN], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MIN]);
+	
+	return points;
+}
