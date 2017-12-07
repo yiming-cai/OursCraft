@@ -75,6 +75,9 @@
     <ClInclude Include="..\SimplePointer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\BoundBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
@@ -137,6 +140,9 @@
     <ClCompile Include="..\SimplePointer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\BoundBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shader.frag">
@@ -176,5 +182,7 @@
     <None Include="..\simplePointerShader.vert">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\boundboxShader.frag" />
+    <None Include="..\boundboxShader.vert" />
   </ItemGroup>
 </Project>

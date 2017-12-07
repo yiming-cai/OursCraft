@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\BoundBox.h" />
     <ClInclude Include="..\Camera.h" />
     <ClInclude Include="..\Coordinate.h" />
     <ClInclude Include="..\Cube.h" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\BoundBox.cpp" />
     <ClCompile Include="..\Camera.cpp" />
     <ClCompile Include="..\Coordinate.cpp" />
     <ClCompile Include="..\Cube.cpp" />
@@ -63,6 +65,8 @@
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\boundboxShader.frag" />
+    <None Include="..\boundboxShader.vert" />
     <None Include="..\coordinateShader.frag" />
     <None Include="..\coordinateShader.vert" />
     <None Include="..\geometryShader.frag" />
@@ -82,7 +86,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EBF1E546-3F93-49DB-BD9A-B629C3C6DCB0}</ProjectGuid>
     <RootNamespace>GLFWStarterProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
