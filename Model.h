@@ -164,8 +164,16 @@ public:
 	// The returned vertices will be axis-orientated in world coordinates
 	std::vector< glm::vec3 > getAABBBoundingBoxVertices();
 
+	// Use this if you DON'T CARE about the computing power, it will take a lot longer to compute
+	// Good for static objects that only get transformed one time (don't call this in every single frame!!)
+	std::vector< glm::vec3 > getAABBTightestBoundingVertices();
+
 	// Use this if you just want the min and max xxyyzz values
 	std::vector< float > getAABBBoundingBoxMinMax();
+
+	// Use this if you don't care about the computing power, it will take a lot longer to compute
+	// Good for static objects that only get transformed one time
+	std::vector< float > getAABBTightestBoundingBoxMinMax();
 
 	// will return a pair: the sphere center in world coordinates, and the radius of the sphere
 	std::pair< glm::vec3, float > getBoundingSphere();

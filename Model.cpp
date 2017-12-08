@@ -474,6 +474,26 @@ std::vector<glm::vec3> Model::getAABBBoundingBoxVertices()
 	return std::vector<glm::vec3>();
 }
 
+std::vector<glm::vec3> Model::getAABBTightestBoundingVertices()
+{
+	std::vector< float > min_max_world_pairs_xyz = getAABBTightestBoundingBoxMinMax();
+	std::vector< glm::vec3 > points(8);
+
+	// front face
+	points[BBV_BOTTOM_LEFT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_BOTTOM_RIGHT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_TOP_RIGHT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_TOP_LEFT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+
+	// back face 
+	points[BBV_BOTTOM_LEFT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_BOTTOM_RIGHT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_TOP_RIGHT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_TOP_LEFT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+
+	return std::vector<glm::vec3>();
+}
+
 std::vector<float> Model::getAABBBoundingBoxMinMax()
 {
 	std::vector<glm::vec3> minmax = getOBBBoundingBoxVertices();
@@ -501,6 +521,51 @@ std::vector<float> Model::getAABBBoundingBoxMinMax()
 	ret[INDEX_Z_MAX] = z_val[z_val.size() - 1];
 
 	return ret;
+}
+
+std::vector<float> Model::getAABBTightestBoundingBoxMinMax()
+{
+	std::vector<float> min_max_temp = { FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN };
+
+	for (unsigned int n = 0; n < scene->mNumMeshes; ++n)
+	{
+		const aiMesh* mesh = scene->mMeshes[n];
+
+		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		{
+			const aiVector3D obj_p = mesh->mVertices[i];
+			glm::vec3 p(obj_p[0], obj_p[1], obj_p[2]);
+
+			// transform into world coordinates
+			p = glm::vec3(modelMatrix * glm::vec4(p, 0.0f));
+
+			if (p[0] < min_max_temp[INDEX_X_MIN])
+			{
+				min_max_temp[INDEX_X_MIN] = p[0];
+			}
+			if (p[0] > min_max_temp[INDEX_X_MAX])
+			{
+				min_max_temp[INDEX_X_MAX] = p[0];
+			}
+			if (p[1] < min_max_temp[INDEX_Y_MIN])
+			{
+				min_max_temp[INDEX_Y_MIN] = p[1];
+			}
+			if (p[1] > min_max_temp[INDEX_Y_MAX])
+			{
+				min_max_temp[INDEX_Y_MAX] = p[1];
+			}
+			if (p[2] < min_max_temp[INDEX_Z_MIN])
+			{
+				min_max_temp[INDEX_Z_MIN] = p[2];
+			}
+			if (p[2] > min_max_temp[INDEX_Z_MAX])
+			{
+				min_max_temp[INDEX_Z_MAX] = p[2];
+			}
+		}
+	}
+	return min_max_temp;
 }
 
 std::pair<glm::vec3, float> Model::getBoundingSphere()
