@@ -51,7 +51,7 @@ artifacts/
 *.obj
 !cockle/common-cockle.obj
 !Gun/Handgun_obj.obj
-!assets
+!assets/*
 *.pch
 *.pdb
 *.pgc
