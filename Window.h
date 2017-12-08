@@ -13,6 +13,7 @@
 #include "SimplePointer.h"
 #include "OBJObject.h"
 #include "Light.h"
+#include "LightDisplay.h"
 
 class Window
 {

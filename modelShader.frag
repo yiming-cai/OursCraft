@@ -57,7 +57,9 @@ layout (std140) uniform Material {
 	vec4 specular;
 	vec4 emissive;
 	float shininess;
+	float opacity;
 	int texCount;
+	int PADDING;
 };
 
 
@@ -165,7 +167,7 @@ void main()
 		if (texCount == 0)
 		{
 			c_mat = dif * max( 0.0f, nDotL );
-			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess));
+			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess)) * .5f;
 			c_mat += dif * lights[light_i].ambientCoefficient * amb;
 		}
 
@@ -173,13 +175,17 @@ void main()
 		else
 		{
 			c_mat = dif * max ( 0.0f, nDotL ) ;
-			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess)) * .1f;
+			c_mat += (nDotL == 0.0f) ? vec4(0.0f) : spec * max(0.0f, pow( dot(R_vec, e_vec), shininess)) * .5f;
 			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
 
 		sum_of_colors += c_l * c_mat;
 	}
 
-	color = vec4(sum_of_colors.xyz, 1.0f);
-	color = texture2D(tex, vec2(texCoord.x, 1-texCoord.y)) * sum_of_colors;
+	color = vec4(sum_of_colors.xyz, opacity);
+
+	if (texCount == 1)
+	{
+		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * sum_of_colors;
+	}
 }

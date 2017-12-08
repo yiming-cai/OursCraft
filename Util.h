@@ -35,6 +35,8 @@
 #define COORDINATE_FRAGMENT_SHADER_PATH "../coordinateShader.frag"
 #define MODEL_VERTEX_SHADER_PATH "../modelShader.vert"
 #define MODEL_FRAGMENT_SHADER_PATH "../modelShader.frag"
+#define DISPLAYLIGHT_VERTEX_SHADER_PATH "../displayLightShader.vert"
+#define DISPLAYLIGHT_FRAGMENT_SHADER_PATH "../displayLightShader.frag"
 #define SIMPLE_POINTER_VERTEX_SHADER_PATH "../simplePointerShader.vert"
 #define SIMPLE_POINTER_FRAGMENT_SHADER_PATH "../simplePointerShader.frag"
 #define BOUNDBOX_VERTEX_SHADER_PATH "../boundboxShader.vert"

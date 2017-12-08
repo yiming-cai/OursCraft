@@ -108,9 +108,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 300) / 10.0f - 15.0f,
-					(float)(rand() % 300) / 10.0f,
-					(float)(rand() % 300) / 10.0f - 15.0f
+				(float)(rand() % 100) / 10.0f - 5.0f,
+					(float)(rand() % 50) / 10.0f,
+					(float)(rand() % 100) / 10.0f - 5.0f
 				)
 			);
 
@@ -141,9 +141,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 200) / 10.0f - 10.0f,
-					(float)(rand() % 200) / 10.0f,
-					(float)(rand() % 300) / 10.0f - 10.0f
+				(float)(rand() % 100) / 10.0f - 5.0f,
+					(float)(rand() % 50) / 10.0f,
+					(float)(rand() % 100) / 10.0f - 5.0f
 				)
 			);
 
@@ -233,6 +233,36 @@ void Light::updateShader(GLuint shaderProgram)
 //	return true;
 //}
 
+std::vector<std::pair<glm::vec3, int>> Light::getAllPositionsAndTypes()
+{
+	std::vector<std::pair<glm::vec3, int>> ret;
+	for (int index = 0; index < NUM_LIGHTS; index++)
+	{
+		ret.push_back(std::make_pair(glm::vec3(getLightPosition(index)), getLightType(index))) ;
+	}
+	return ret;
+}
+
+std::vector<glm::vec3> Light::getAllConeDirections()
+{
+	std::vector<glm::vec3> ret;
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		ret.push_back(getConeDirection(i));
+	}
+	return ret;
+}
+
+std::vector<int> Light::getAllStatus()
+{
+	std::vector<int> ret;
+	for (int i = 0; i < NUM_LIGHTS; i++)
+	{
+		ret.push_back(getLightStatus(i));
+	}
+	return ret;
+}
+
 LightParameters Light::getLight(int index) const
 {
 	return lights[index];
@@ -298,11 +328,11 @@ void Light::turnAllLightOff()
 
 glm::vec3 Light::getLightDirection(int index) const
 {
-	if (lights[index].type != TYPE_DIRECTIONAL)
-	{
-		std::cerr << "Trying to get the position of non-directional light!" << std::endl;
-		//return glm::vec3(0.0f);
-	}
+	//if (lights[index].type != TYPE_DIRECTIONAL)
+	//{
+	//	std::cerr << "Trying to get the position of non-directional light!" << std::endl;
+	//	//return glm::vec3(0.0f);
+	//}
 	return glm::vec3(lights[index].position.x, lights[index].position.y, lights[index].position.z);
 }
 
@@ -349,11 +379,11 @@ bool Light::rotateLightDirection(int index, double p_xPos, double p_yPos, double
 
 glm::vec3 Light::getLightPosition(int index) const
 {
-	if (lights[index].type == TYPE_DIRECTIONAL)
-	{
-		std::cerr << "Trying to get the direction of directional light!" << std::endl;
-		//return glm::vec3(0.0f);
-	}
+	//if (lights[index].type == TYPE_DIRECTIONAL)
+	//{
+	//	std::cerr << "Trying to get the direction of directional light!" << std::endl;
+	//	//return glm::vec3(0.0f);
+	//}
 	return glm::vec3(lights[index].position.x, lights[index].position.y, lights[index].position.z);
 }
 
@@ -442,11 +472,11 @@ void Light::setRelativeAmbientCoefficient(int index, float offset)
 
 float Light::getConeAngle(int index) const
 {
-	if (lights[index].type != TYPE_SPOT)
-	{
-		std::cerr << "Trying to get the cone angle of non-spot light" << std::endl;
-		return 0.0f;
-	}
+	//if (lights[index].type != TYPE_SPOT)
+	//{
+	//	std::cerr << "Trying to get the cone angle of non-spot light" << std::endl;
+	//	return 0.0f;
+	//}
 	return lights[index].coneAngle;
 }
 
@@ -489,11 +519,11 @@ bool Light::setRelativeConeAngleDegrees(int index, float offset)
 
 float Light::getConeExponent(int index) const
 {
-	if (lights[index].type != TYPE_SPOT)
-	{
-		std::cerr << "Trying to get the exponent of non-spot light" << std::endl;
-		return 0.0f;
-	}
+	//if (lights[index].type != TYPE_SPOT)
+	//{
+	//	std::cerr << "Trying to get the exponent of non-spot light" << std::endl;
+	//	return 0.0f;
+	//}
 	return lights[index].exponent;;
 }
 
@@ -538,11 +568,11 @@ bool Light::setAttenuationType(int index, int attenuation_type)
 
 glm::vec3 Light::getConeDirection(int index) const
 {
-	if (lights[index].type != TYPE_SPOT)
-	{
-		std::cerr << "Trying to get the cone direction of non-spot light" << std::endl;
-		return glm::vec3(0.0f);
-	}
+	//if (lights[index].type != TYPE_SPOT)
+	//{
+	//	std::cerr << "Trying to get the cone direction of non-spot light" << std::endl;
+	//	return glm::vec3(0.0f);
+	//}
 	return glm::vec3(lights[index].coneDirection.x, lights[index].coneDirection.y, lights[index].coneDirection.z);
 }
 

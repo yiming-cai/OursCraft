@@ -78,6 +78,9 @@
     <ClInclude Include="..\BoundBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\LightDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
@@ -143,6 +146,9 @@
     <ClCompile Include="..\BoundBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\LightDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shader.frag">
@@ -184,5 +190,11 @@
     </None>
     <None Include="..\boundboxShader.frag" />
     <None Include="..\boundboxShader.vert" />
+    <None Include="..\displayLightShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\displayLightShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
