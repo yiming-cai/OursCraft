@@ -48,7 +48,7 @@ uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
 uniform vec3 cam_pos;
-
+uniform int current_light_index;
 
 // get the Material properties
 layout (std140) uniform Material {
@@ -71,7 +71,13 @@ layout (std140) uniform LightBlock {
 
 // main loop
 void main()
-{
+{	
+	if (lights[current_light_index].status == STATUS_OFF)
+	{
+		color = vec4(0);
+		return;
+	}
+
 	// records the sum of light colors;
 	vec4 sum_of_colors = vec4(0);
 
@@ -93,9 +99,8 @@ void main()
 	vec3 e_vec = cam_pos - vert;
 	e_vec = normalize(e_vec);
 
-	for (int light_i = 0; light_i < NUM_LIGHTS; light_i++)
-	{	
-		if (lights[light_i].status == STATUS_OFF) continue;
+	int light_i = current_light_index;
+	{
 
 		// direction of light relative to the vertex
 		vec3 surfaceToLight;
@@ -179,7 +184,7 @@ void main()
 			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
 
-		sum_of_colors += c_l * c_mat;
+		sum_of_colors += c_l * c_mat + normalize(lights[light_i].intensities) * 3.0f;
 	}
 
 	color = vec4(sum_of_colors.xyz, opacity);

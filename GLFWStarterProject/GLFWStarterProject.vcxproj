@@ -25,6 +25,7 @@
     <ClInclude Include="..\Cube.h" />
     <ClInclude Include="..\Geometry.h" />
     <ClInclude Include="..\Light.h" />
+    <ClInclude Include="..\LightDisplay.h" />
     <ClInclude Include="..\main.h" />
     <ClInclude Include="..\Model.h" />
     <ClInclude Include="..\Node.h" />
@@ -48,6 +49,7 @@
     <ClCompile Include="..\Cube.cpp" />
     <ClCompile Include="..\Geometry.cpp" />
     <ClCompile Include="..\Light.cpp" />
+    <ClCompile Include="..\LightDisplay.cpp" />
     <ClCompile Include="..\main.cpp" />
     <ClCompile Include="..\Model.cpp" />
     <ClCompile Include="..\Node.cpp" />
@@ -69,6 +71,8 @@
     <None Include="..\boundboxShader.vert" />
     <None Include="..\coordinateShader.frag" />
     <None Include="..\coordinateShader.vert" />
+    <None Include="..\displayLightShader.frag" />
+    <None Include="..\displayLightShader.vert" />
     <None Include="..\geometryShader.frag" />
     <None Include="..\geometryShader.vert" />
     <None Include="..\modelShader.frag" />

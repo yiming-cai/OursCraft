@@ -9,6 +9,7 @@ extern GLuint Shader_Coordinate;
 extern GLuint Shader_Model;
 extern GLuint Shader_SimplePointer;
 extern GLuint Shader_BoundBox;
+extern GLuint Shader_DisplayLight;
 
 std::vector<Object *> objectList;
 std::vector<Camera *> cameraList;
@@ -47,6 +48,7 @@ const char* window_title = "GLFW Starter Project";
 // ------------ FOR TESTING ONLY ------------
 Model * model;
 Light lights;
+LightDisplay * lightDisplay;
 //-------------------------------------------
 
 Model * model1;
@@ -110,6 +112,7 @@ void Window::loadAllShader() {
 	Shader_Skybox = LoadShaders(SKYBOX_VERTEX_SHADER_PATH, SKYBOX_FRAGMENT_SHADER_PATH);
 	Shader_Coordinate = LoadShaders(COORDINATE_VERTEX_SHADER_PATH, COORDINATE_FRAGMENT_SHADER_PATH);
 	Shader_Model = LoadShaders(MODEL_VERTEX_SHADER_PATH, MODEL_FRAGMENT_SHADER_PATH);
+	Shader_DisplayLight = LoadShaders(DISPLAYLIGHT_VERTEX_SHADER_PATH, DISPLAYLIGHT_FRAGMENT_SHADER_PATH);
 	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
 	Shader_BoundBox = LoadShaders(BOUNDBOX_VERTEX_SHADER_PATH,BOUNDBOX_FRAGMENT_SHADER_PATH);
 }
@@ -134,7 +137,7 @@ void Window::initialize_objects()
 	coordinate = new Coordinate(idCount++, 100);
 	centerRouter = new SimplePointer(idCount++, 0, 0, glm::vec3(1, 0, 0));
 	ray_dir = glm::vec3(0, 0.5, -1);
-	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture");
+	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture\n");
 
 	// Enables backface culling
 	//glEnable(GL_CULL_FACE);
@@ -142,16 +145,29 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
-	model = new Model("../gun/Handgun_obj.obj");
+	model = new Model("../cockle/common-cockle.obj");
 	model->setCamera(currentCam); 
 	model->initShader(Shader_Model);
-	model->centerAndScale(5.0f);
+	model->centerAndScale(1.0f);
+
+	// Enable depth buffering
+	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_DEPTH_TEST);
+
+	// Related to shaders and z value comparisons for the depth buffer
+	glDepthFunc(GL_LEQUAL);
+	// Set polygon drawing mode to fill front and back of each polygon
+	// You can also use the paramter of GL_LINE instead of GL_FILL to see wireframes
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// create a test light
 	lights = Light();
 	lights.randInit();
 	lights.initializeShader(Shader_Model);
 	lights.updateShader(Shader_Model);
+
+	lightDisplay = new LightDisplay(&lights, currentCam);
+	lightDisplay->initShader(Shader_DisplayLight);
 	// --------------------------------------------------------------
 }
 
@@ -264,7 +280,7 @@ void Window::display_callback(GLFWwindow* window)
 	for (int j = 0; j < 6; j++) {
 		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f), Shader_Model);
 	}
-
+	lightDisplay->render(Shader_DisplayLight);
 	
 	glfwPollEvents();
 
@@ -464,6 +480,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			int index = key - GLFW_KEY_0;
 			lights.toggleLight(index);
 			lights.updateShader(Shader_Model);
+			lightDisplay->update(Shader_DisplayLight);
 			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index)==1)?"on":"off") << "!" << std::endl;
 		}
 		if (light_toggle && key >= GLFW_KEY_F1 && key <= GLFW_KEY_F6)
@@ -471,6 +488,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			int index = key - GLFW_KEY_F1 + 10;
 			lights.toggleLight(index);
 			lights.updateShader(Shader_Model);
+			lightDisplay->update(Shader_DisplayLight);
 			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index) == 1) ? "on" : "off") << "!" << std::endl;
 		}
 	}

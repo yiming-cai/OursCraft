@@ -27,7 +27,9 @@ struct MyMaterial {
 	float specular[4];
 	float emissive[4];
 	float shininess;
+	float opacity;
 	int texCount;
+	int PADDING;
 };
 
 // Information to render each assimp node
@@ -117,7 +119,7 @@ public:
 
 	// render methods
 	// IMPORTANT: call initShader(s) and initCamera(cam) before calling render(s) or draw(C,s)
-	void initShader(GLuint shaderProgram);
+	void initShader(GLuint shaderProgram	);
 	void setCamera(Camera * cam);
 
 	void render(GLuint shaderProgram);
@@ -159,6 +161,10 @@ public:
 	const static int BBV_BOTTOM_RIGHT_FAR = 5;
 	const static int BBV_TOP_RIGHT_FAR = 6;
 	const static int BBV_TOP_LEFT_FAR = 7;
+
+	// Make sure you use the right model matrix if you are rendering/updating multiple objects with different model matrix
+	void setModelMatrix(glm::mat4 C) { modelMatrix = C; };
+	glm::mat4 getModelMatrix() const { return modelMatrix; }
 
 	// Use this for a correct AABB Bounding Box Vertices
 	// The returned vertices will be axis-orientated in world coordinates

@@ -108,6 +108,7 @@ private:
 	// the uniform block will be binded to this location
 	const static int LIGHT_UNIFORM_LOC = 7;
 
+	// don't try these.... its basically for matching light structs into different shader programs
 	std::map<GLuint, GLuint> lightUniformBlocks;
 
 public:
@@ -158,10 +159,19 @@ public:
 	// bool partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights);
 	/* ------------------------------------------------------------------- */
 
+	/* -------- get all light locations and type of light --------------- */
+	// used for rendering the lights themselves
+	std::vector< std::pair<glm::vec3, int> > getAllPositionsAndTypes();
+	std::vector< glm::vec3 > getAllConeDirections();
+	std::vector< int > getAllStatus();
+	/* ------------------------------------------------------------------- */
 
 	/* -------- try not to use these --------------- */
 	// get the light at the index
 	LightParameters getLight(int index) const;
+
+	// get a pointer that points to the light structs... can be dangerous!
+	LightParameters * getLightStructPointer() { return &lights[0]; }
 
 	// set the light at the index
 	void setLight(int index, LightParameters light);

@@ -26,6 +26,10 @@ Model::Model(std::string p_filepath)
 		setBoundingBox(scene);
 		setBoundingSphere();
 	}
+	else
+	{
+		std::cerr << "Failed to load " << filepath << std::endl;
+	}
 	std::cerr << "Loaded " << myMeshes.size() << " meshes!" << std::endl;
 }
 
@@ -52,8 +56,8 @@ bool Model::importObj(const std::string& path)
 		fin.close();
 	}
 	else {
-		std::cerr << ("Couldn't open file: %s\n", path.c_str());
-		std::cerr << ("%s\n", importer.GetErrorString());
+		std::cerr << ("Couldn't open file: %s\n", path.c_str()) << std::endl;
+		std::cerr << ("%s\n", importer.GetErrorString()) << std::endl;
 		return false;
 	}
 
@@ -70,7 +74,7 @@ bool Model::importObj(const std::string& path)
 	// If the import failed, report it
 	if (!scene)
 	{
-		std::cerr << ( importer.GetErrorString() );
+		std::cerr << (importer.GetErrorString()) << std::endl;
 		return false;
 	}
 	return true;
@@ -218,6 +222,10 @@ void Model::genVAOsAndUniformBuffer(const aiScene *sc) {
 		unsigned int max;
 		aiGetMaterialFloatArray(mtl, AI_MATKEY_SHININESS, &shininess, &max);
 		aMat.shininess = shininess;
+
+		float opacity = 1.0f;
+		aiGetMaterialFloatArray(mtl, AI_MATKEY_OPACITY, &opacity, &max);
+		aMat.opacity = opacity;
 		/* -------------------------------------------------------------------------------------------- */
 
 		/* ------------------------ Send the Material to shader ---------------------------------------- */
