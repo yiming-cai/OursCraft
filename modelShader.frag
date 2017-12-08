@@ -181,5 +181,5 @@ void main()
 	}
 
 	color = vec4(sum_of_colors.xyz, 1.0f);
-	color = texture2D(tex, vec2(texCoord.x, 1-texCoord.y)) * sum_of_colors;
+	color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * sum_of_colors;
 }

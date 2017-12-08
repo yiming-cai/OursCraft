@@ -10,6 +10,7 @@
 #include <limits.h>
 #include <math.h>
 #include <set>
+#include <algorithm>
 
 #include "Util.h"
 #include "Camera.h"
@@ -85,15 +86,16 @@ private:
 	// bounding box
 	void setBoundingBox(const aiScene * sc);
 
-	// define the AABB values, in this format:
-	// AABB stands for Axis-aligned minimum bounding box
-	// AABB[0] : minimum x value
-	// AABB[1] : maximum x value
-	// AABB[2] : minimum y value
-	// AABB[3] : maximum y value
-	// AABB[4] : minimum z value
-	// AABB[5] : maximum z value
-	std::vector<float> AABB;
+	// define the min_max_pairs_xyz values, in this format:
+	// min_max_pairs_xyz[0] : minimum x value
+	// min_max_pairs_xyz[1] : maximum x value
+	// min_max_pairs_xyz[2] : minimum y value
+	// min_max_pairs_xyz[3] : maximum y value
+	// min_max_pairs_xyz[4] : minimum z value
+	// min_max_pairs_xyz[5] : maximum z value
+	std::vector<float> min_max_pairs_xyz;
+	std::pair< glm::vec3, float > boundingSphereObjectCoord;
+	void setBoundingSphere();
 
 	// this is the matrix that can be used to scale the model to desired scale
 	glm::mat4 scale_matrix = glm::mat4(1.0f);
@@ -125,22 +127,55 @@ public:
 	void update();
 
 	/* ---------------------------------------------- */
-	// use these when accessing values of getMinMaxValues()
-	const static int MODEL_X_MIN = 0;
-	const static int MODEL_X_MAX = 1;
-	const static int MODEL_Y_MIN = 2;
-	const static int MODEL_Y_MAX = 3;
-	const static int MODEL_Z_MIN = 4;
-	const static int MODEL_Z_MAX = 5;
+	// use these when accessing values of getMinMaxValues() Note that these are in object coordinates
+	const static int INDEX_X_MIN = 0;
+	const static int INDEX_X_MAX = 1;
+	const static int INDEX_Y_MIN = 2;
+	const static int INDEX_Y_MAX = 3;
+	const static int INDEX_Z_MIN = 4;
+	const static int INDEX_Z_MAX = 5;
 
 	// note that these values are in object coordinates
-	std::vector<float> getMinMaxValues() { return AABB; }
+	std::vector<float> getMinMaxValues() { return min_max_pairs_xyz; }
 	/* ---------------------------------------------- */
 
 
 	/* ---------------------------------------------- */
-	// use these when accessing the values of getBoundingPlanes()
-	// for example: std::vector<glm::vec3> planes = model->getBoundingPlanes();
+	// make the model center (will be in world center if model = glm::mat4(1.0f) ), with its maximum xyz size set by scale
+	void centerAndScale(float scale);
+
+	// Turn off the scaling and return to original size/position
+	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
+	/* ---------------------------------------------- */
+
+
+	/* ----------------------------------------- */
+	// BBV = Bounding Box Vertex
+	const static int BBV_BOTTOM_LEFT_NEAR = 0;
+	const static int BBV_BOTTOM_RIGHT_NEAR = 1;
+	const static int BBV_TOP_RIGHT_NEAR = 2;
+	const static int BBV_TOP_LEFT_NEAR = 3;
+	const static int BBV_BOTTOM_LEFT_FAR = 4;
+	const static int BBV_BOTTOM_RIGHT_FAR = 5;
+	const static int BBV_TOP_RIGHT_FAR = 6;
+	const static int BBV_TOP_LEFT_FAR = 7;
+
+	// Use this for a correct AABB Bounding Box Vertices
+	// The returned vertices will be axis-orientated in world coordinates
+	std::vector< glm::vec3 > getAABBBoundingBoxVertices();
+
+	// Use this if you just want the min and max xxyyzz values
+	std::vector< float > getAABBBoundingBoxMinMax();
+
+	// will return a pair: the sphere center in world coordinates, and the radius of the sphere
+	std::pair< glm::vec3, float > getBoundingSphere();
+	/* ---------------------------------------- */
+
+
+	/* -------VVVV DEPRECATED, DO NOT USE (THESE ARE ACTUALLY TIGHT BOUNDING BOXES, NOT AABB) VVVVV--------- */
+	/* ---------------------------------------------- */
+	// use these when accessing the values of getOBBBoundingPlanes()
+	// for example: std::vector<glm::vec3> planes = model->getOBBBoundingPlanes();
 	//		planes[NORMAL_LEFT] is the normal of the left plane in glm::vec3 format
 	//		planes[POINT_FRONT] is a point on the front plane in glm::vec3 format
 	const static int NORMAL_LEFT = 0;
@@ -158,30 +193,16 @@ public:
 
 	// this function will return the bounding planes in world
 	//	coordinates. Note that all normal vectors will point outwards
-	std::vector< glm::vec3 > getBoundingPlanes();
-	/* ---------------------------------------------- */
-
-	/* ---------------------------------------------- */
-	// make the model center, with its maximum xyz size set by scale
-	void centerAndScale(float scale);
-	// Turn off the scaling and return to original size/position
-	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
+	std::vector< glm::vec3 > getOBBBoundingPlanes();
 	/* ---------------------------------------------- */
 
 	/* ---------------------------------------------- */
 	// Note that BBV stands for Bounding Box Vertex
-	// it is the indices of vertices returned by
-	// getBoundingBoxVertices()
-	const static int BBV_BOTTOM_LEFT_NEAR = 0;
-	const static int BBV_BOTTOM_RIGHT_NEAR = 1;
-	const static int BBV_TOP_RIGHT_NEAR = 2;
-	const static int BBV_TOP_LEFT_NEAR = 3;
-	const static int BBV_BOTTOM_LEFT_FAR = 4;
-	const static int BBV_BOTTOM_RIGHT_FAR = 5;
-	const static int BBV_TOP_RIGHT_FAR = 6;
-	const static int BBV_TOP_LEFT_FAR = 7;
+	//	it is the indices of vertices returned by
+	//	getOBBBoundingBoxVertices()
 
-	// get all the vertices of the bounding box
-	std::vector< glm::vec3 > getBoundingBoxVertices();
+	// get all the vertices of the bounding box. The box will be OBB, or Orientated Bounding Box
+	std::vector< glm::vec3 > getOBBBoundingBoxVertices();
 	/* ---------------------------------------------- */
+	/* --------------------------------------------------------------------------------------------------- */
 };

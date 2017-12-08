@@ -24,6 +24,7 @@ Model::Model(std::string p_filepath)
 		loadGLTextures(scene);
 		genVAOsAndUniformBuffer(scene);
 		setBoundingBox(scene);
+		setBoundingSphere();
 	}
 	std::cerr << "Loaded " << myMeshes.size() << " meshes!" << std::endl;
 }
@@ -63,7 +64,8 @@ bool Model::importObj(const std::string& path)
 		aiProcess_CalcTangentSpace |
 		aiProcess_Triangulate |
 		aiProcess_JoinIdenticalVertices |
-		aiProcess_SortByPType);
+		aiProcess_SortByPType |
+		aiProcess_FlipUVs);
 
 	// If the import failed, report it
 	if (!scene)
@@ -386,31 +388,31 @@ void Model::setCamera(Camera * cam)
 	camera = cam;
 }
 
-std::vector<glm::vec3> Model::getBoundingPlanes()
+std::vector<glm::vec3> Model::getOBBBoundingPlanes()
 {
 	std::vector<glm::vec3> planes(12);
-	planes[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], 0.0f, 0.0f, 0.0f) );
-	planes[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 0.0f, 0.0f, 0.0f) );
-	planes[POINT_BOTTOM] = glm::vec3(modelMatrix * glm::vec4(0.0f, AABB[MODEL_Y_MIN], 0.0f, 0.0f) );
-	planes[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, AABB[MODEL_Y_MAX], 0.0f, 0.0f) );
-	planes[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, AABB[MODEL_Z_MIN], 0.0f) );
-	planes[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, AABB[MODEL_Z_MAX], 0.0f) );
+	planes[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], 0.0f, 0.0f, 0.0f) );
+	planes[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], 0.0f, 0.0f, 0.0f) );
+	planes[POINT_BOTTOM] = glm::vec3(modelMatrix * glm::vec4(0.0f, min_max_pairs_xyz[INDEX_Y_MIN], 0.0f, 0.0f) );
+	planes[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, min_max_pairs_xyz[INDEX_Y_MAX], 0.0f, 0.0f) );
+	planes[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	planes[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4( 0.0f, 0.0f, min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
 
 	std::vector<glm::vec3> refPoints_a(12);			// using a bit more memory, but doesn't rly matter
-	refPoints_a[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], 0.0f, -1.0f, 0.0f) );
-	refPoints_a[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 0.0f, -1.0f, 0.0f) );
-	refPoints_a[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(0.0f, AABB[MODEL_Y_MIN], -1.0f, 0.0f) );
-	refPoints_a[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(0.0f, AABB[MODEL_Y_MAX], -1.0f, 0.0f) );
-	refPoints_a[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, AABB[MODEL_Z_MIN], 0.0f) );
-	refPoints_a[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, AABB[MODEL_Z_MAX], 0.0f) );
+	refPoints_a[POINT_LEFT] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], 0.0f, -1.0f, 0.0f) );
+	refPoints_a[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], 0.0f, -1.0f, 0.0f) );
+	refPoints_a[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(0.0f, min_max_pairs_xyz[INDEX_Y_MIN], -1.0f, 0.0f) );
+	refPoints_a[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(0.0f, min_max_pairs_xyz[INDEX_Y_MAX], -1.0f, 0.0f) );
+	refPoints_a[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	refPoints_a[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(1.0f, 0.0f, min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
 
 	std::vector<glm::vec3> refPoints_b(12);			// using a bit more memory, but doesn't rly matter
-	refPoints_b[POINT_LEFT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MIN], -1.0f, 0.0f, 0.0f) );
-	refPoints_b[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(AABB[MODEL_X_MAX], 1.0f, 0.0f, 0.0f) );
-	refPoints_b[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(1.0f, AABB[MODEL_Y_MIN], 0.0f, 0.0f) );
-	refPoints_b[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(-1.0f, AABB[MODEL_Y_MAX], 0.0f, 0.0f) );
-	refPoints_b[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, AABB[MODEL_Z_MIN], 0.0f) );
-	refPoints_b[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, AABB[MODEL_Z_MAX], 0.0f) );
+	refPoints_b[POINT_LEFT] = glm::vec3(modelMatrix *  glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], -1.0f, 0.0f, 0.0f) );
+	refPoints_b[POINT_RIGHT] = glm::vec3(modelMatrix *  glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], 1.0f, 0.0f, 0.0f) );
+	refPoints_b[POINT_BOTTOM] = glm::vec3(modelMatrix *  glm::vec4(1.0f, min_max_pairs_xyz[INDEX_Y_MIN], 0.0f, 0.0f) );
+	refPoints_b[POINT_TOP] = glm::vec3(modelMatrix *  glm::vec4(-1.0f, min_max_pairs_xyz[INDEX_Y_MAX], 0.0f, 0.0f) );
+	refPoints_b[POINT_BACK] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	refPoints_b[POINT_FRONT] = glm::vec3(modelMatrix *  glm::vec4(0.0f, -1.0f, min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
 
 	// calculate the normals based on the cross products 
 	planes[NORMAL_LEFT] = glm::normalize( glm::cross( (refPoints_a[POINT_LEFT] - planes[POINT_LEFT]), (refPoints_b[POINT_LEFT] - planes[POINT_LEFT])) );
@@ -427,18 +429,18 @@ void Model::centerAndScale(float scale)
 {
 	if (scene == nullptr) return;
 
-	float x_offset = (AABB[MODEL_X_MIN] + AABB[MODEL_X_MAX]) / -2.0f;
-	float y_offset = (AABB[MODEL_Y_MIN] + AABB[MODEL_Y_MAX]) / -2.0f;
-	float z_offset = (AABB[MODEL_Z_MIN] + AABB[MODEL_Z_MAX]) / -2.0f;
+	float x_offset = (min_max_pairs_xyz[INDEX_X_MIN] + min_max_pairs_xyz[INDEX_X_MAX]) / -2.0f;
+	float y_offset = (min_max_pairs_xyz[INDEX_Y_MIN] + min_max_pairs_xyz[INDEX_Y_MAX]) / -2.0f;
+	float z_offset = (min_max_pairs_xyz[INDEX_Z_MIN] + min_max_pairs_xyz[INDEX_Z_MAX]) / -2.0f;
 	
 	glm::mat4 mat = glm::translate(glm::mat4(1.0f), glm::vec3(x_offset, y_offset, z_offset));
 	std::vector<float> temp;
-	temp.push_back(AABB[MODEL_X_MIN] + x_offset);
-	temp.push_back(AABB[MODEL_X_MAX] + x_offset);
-	temp.push_back(AABB[MODEL_Y_MIN] + y_offset);
-	temp.push_back(AABB[MODEL_Y_MAX] + y_offset);
-	temp.push_back(AABB[MODEL_Z_MIN] + z_offset);
-	temp.push_back(AABB[MODEL_Z_MAX] + z_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_X_MIN] + x_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_X_MAX] + x_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_Y_MIN] + y_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_Y_MAX] + y_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_Z_MIN] + z_offset);
+	temp.push_back(min_max_pairs_xyz[INDEX_Z_MAX] + z_offset);
 
 	float max = 0.0f;
 	for (const float p : temp)
@@ -452,9 +454,68 @@ void Model::centerAndScale(float scale)
 	scale_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale / max / 2.0f )) * mat;
 }
 
+std::vector<glm::vec3> Model::getAABBBoundingBoxVertices()
+{
+	std::vector< float > min_max_world_pairs_xyz = getAABBBoundingBoxMinMax();
+	std::vector< glm::vec3 > points(8);
+
+	// front face
+	points[BBV_BOTTOM_LEFT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_BOTTOM_RIGHT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_TOP_RIGHT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+	points[BBV_TOP_LEFT_NEAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MAX], 0.0f));
+
+	// back face 
+	points[BBV_BOTTOM_LEFT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_BOTTOM_RIGHT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MIN], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_TOP_RIGHT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MAX], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+	points[BBV_TOP_LEFT_FAR] = glm::vec3(modelMatrix * glm::vec4(min_max_world_pairs_xyz[INDEX_X_MIN], min_max_world_pairs_xyz[INDEX_Y_MAX], min_max_world_pairs_xyz[INDEX_Z_MIN], 0.0f));
+
+	return std::vector<glm::vec3>();
+}
+
+std::vector<float> Model::getAABBBoundingBoxMinMax()
+{
+	std::vector<glm::vec3> minmax = getOBBBoundingBoxVertices();
+	std::vector<float> x_val, y_val, z_val;
+	for (auto& v : minmax)
+	{
+		v = glm::vec3( modelMatrix *  glm::vec4(v, 0.0f) );
+		x_val.push_back(v.x);
+		y_val.push_back(v.y);
+		z_val.push_back(v.z);
+	}
+
+	// sorts ascending order by default
+	std::sort(x_val.begin(), x_val.end());
+	std::sort(y_val.begin(), y_val.end());
+	std::sort(z_val.begin(), z_val.end());
+
+	std::vector<float> ret(6);
+	ret[INDEX_X_MIN] = x_val[0];
+	ret[INDEX_Y_MIN] = y_val[0];
+	ret[INDEX_Z_MIN] = z_val[0];
+
+	ret[INDEX_X_MAX] = x_val[x_val.size() - 1];
+	ret[INDEX_Y_MAX] = y_val[y_val.size() - 1];
+	ret[INDEX_Z_MAX] = z_val[z_val.size() - 1];
+
+	return ret;
+}
+
+std::pair<glm::vec3, float> Model::getBoundingSphere()
+{
+	std::pair< glm::vec3, float > boundingSphereWorldCoord;
+	boundingSphereObjectCoord.first = glm::vec3(modelMatrix * glm::vec4(boundingSphereObjectCoord.first, 1.0f));
+	boundingSphereWorldCoord.second = boundingSphereObjectCoord.second;
+
+	// check if we already ever found a bounding sphere
+	return boundingSphereWorldCoord;
+}
+
 void Model::setBoundingBox(const aiScene * sc)
 {
-	AABB = { FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN };
+	min_max_pairs_xyz = { FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN, FLT_MAX, FLT_MIN };
 
 	for (unsigned int n = 0; n < sc->mNumMeshes; ++n)
 	{
@@ -467,49 +528,78 @@ void Model::setBoundingBox(const aiScene * sc)
 			//z = p[2];
 			const aiVector3D p = mesh->mVertices[i];
 
-			if (p[0] < AABB[MODEL_X_MIN])
+			if (p[0] < min_max_pairs_xyz[INDEX_X_MIN])
 			{
-				AABB[MODEL_X_MIN] = p[0];
+				min_max_pairs_xyz[INDEX_X_MIN] = p[0];
 			}
-			if (p[0] > AABB[MODEL_X_MAX])
+			if (p[0] > min_max_pairs_xyz[INDEX_X_MAX])
 			{
-				AABB[MODEL_X_MAX] = p[0];
+				min_max_pairs_xyz[INDEX_X_MAX] = p[0];
 			}
-			if (p[1] < AABB[MODEL_Y_MIN])
+			if (p[1] < min_max_pairs_xyz[INDEX_Y_MIN])
 			{
-				AABB[MODEL_Y_MIN] = p[1];
+				min_max_pairs_xyz[INDEX_Y_MIN] = p[1];
 			}
-			if (p[1] > AABB[MODEL_Y_MAX])
+			if (p[1] > min_max_pairs_xyz[INDEX_Y_MAX])
 			{
-				AABB[MODEL_Y_MAX] = p[1];
+				min_max_pairs_xyz[INDEX_Y_MAX] = p[1];
 			}
-			if (p[2] < AABB[MODEL_Z_MIN])
+			if (p[2] < min_max_pairs_xyz[INDEX_Z_MIN])
 			{
-				AABB[MODEL_Z_MIN] = p[2];
+				min_max_pairs_xyz[INDEX_Z_MIN] = p[2];
 			}
-			if (p[2] > AABB[MODEL_Z_MAX])
+			if (p[2] > min_max_pairs_xyz[INDEX_Z_MAX])
 			{
-				AABB[MODEL_Z_MAX] = p[2];
+				min_max_pairs_xyz[INDEX_Z_MAX] = p[2];
 			}
 		}
 	}
 }
 
-std::vector< glm::vec3 > Model::getBoundingBoxVertices()
+void Model::setBoundingSphere()
+{
+	float radius = 0.0f;
+	glm::vec3 centers;
+	glm::vec3 offsets;
+	for (int i = 0; i < 3; i++)
+	{
+		centers[i] = (min_max_pairs_xyz[2 * i] + min_max_pairs_xyz[2 * i + 1])/2.0f;
+	}
+
+	std::vector<float> temp;
+	for (int i = 0; i < 3; i++)
+	{
+		temp.push_back(min_max_pairs_xyz[2 * i] - centers[i]);
+		temp.push_back(min_max_pairs_xyz[2 * i + 1] - centers[i]);
+	}
+
+	float rad = 0.0f;
+	for (const float p : temp)
+	{
+		if (abs(p) > rad)
+		{
+			rad = abs(p);
+		}
+	}
+
+	boundingSphereObjectCoord = std::make_pair(centers, rad);
+}
+
+std::vector< glm::vec3 > Model::getOBBBoundingBoxVertices()
 {
 	std::vector< glm::vec3 > points(8);
 	
 	// front face
-	points[BBV_BOTTOM_LEFT_NEAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MAX], 0.0f) );
-	points[BBV_BOTTOM_RIGHT_NEAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MAX], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MAX], 0.0f) );
-	points[BBV_TOP_RIGHT_NEAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MAX], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MAX], 0.0f) );
-	points[BBV_TOP_LEFT_NEAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MAX], 0.0f) );
+	points[BBV_BOTTOM_LEFT_NEAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], min_max_pairs_xyz[INDEX_Y_MIN], min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
+	points[BBV_BOTTOM_RIGHT_NEAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], min_max_pairs_xyz[INDEX_Y_MIN], min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
+	points[BBV_TOP_RIGHT_NEAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], min_max_pairs_xyz[INDEX_Y_MAX], min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
+	points[BBV_TOP_LEFT_NEAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], min_max_pairs_xyz[INDEX_Y_MAX], min_max_pairs_xyz[INDEX_Z_MAX], 0.0f) );
 	
 	// back face 
-	points[BBV_BOTTOM_LEFT_FAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MIN], 0.0f) );
-	points[BBV_BOTTOM_RIGHT_FAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MAX], AABB[MODEL_Y_MIN], AABB[MODEL_Z_MIN], 0.0f) );
-	points[BBV_TOP_RIGHT_FAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MAX], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MIN], 0.0f) );
-	points[BBV_TOP_LEFT_FAR] = glm::vec3( modelMatrix * glm::vec4(AABB[MODEL_X_MIN], AABB[MODEL_Y_MAX], AABB[MODEL_Z_MIN], 0.0f) );
+	points[BBV_BOTTOM_LEFT_FAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], min_max_pairs_xyz[INDEX_Y_MIN], min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	points[BBV_BOTTOM_RIGHT_FAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], min_max_pairs_xyz[INDEX_Y_MIN], min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	points[BBV_TOP_RIGHT_FAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MAX], min_max_pairs_xyz[INDEX_Y_MAX], min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
+	points[BBV_TOP_LEFT_FAR] = glm::vec3( modelMatrix * glm::vec4(min_max_pairs_xyz[INDEX_X_MIN], min_max_pairs_xyz[INDEX_Y_MAX], min_max_pairs_xyz[INDEX_Z_MIN], 0.0f) );
 	
 	return points;
 }
