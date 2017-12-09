@@ -25,8 +25,8 @@ struct LightParameters
 
 const static LightParameters DIRECTIONAL_PRESET =
 {
-	glm::vec4(glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)), 1.0f),	// light direction
-	glm::vec4(1.0f,0.0f,0.0f,1.0f),					// light intensity
+	glm::vec4(glm::normalize(glm::vec3(-1.0f,-1.0f,-1.0f)), 0.0f),	// light direction
+	glm::vec4(1.0f,0.0f,0.0f,0.0f),					// light intensity
 	glm::vec4(0),									// cone direction
 	0.0f,											// light attenuation
 	1.0f,											// ambient light coefficient
@@ -40,8 +40,8 @@ const static LightParameters DIRECTIONAL_PRESET =
 
 const static LightParameters POINTLIGHT_PRESET =
 {
-	glm::vec4(0, 5.0f, 0, 0),						// light position
-	glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),				// light intensity
+	glm::vec4(0, 5.0f, 0, 1.0f),					// light position
+	glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),				// light intensity
 	glm::vec4(0),									// cone direction
 	0.25f,											// light attenuation
 	1.25f,											// ambient light coefficient
@@ -55,9 +55,9 @@ const static LightParameters POINTLIGHT_PRESET =
 
 const static LightParameters SPOTLIGHT_PRESET =
 {
-	glm::vec4(0, 20.0f, 0.0f, 0),					// light position
-	glm::vec4(0.0f, 0.0f, 2.0f, 1.0f),				// light intensity
-	glm::vec4(0, -1.0f, 0, 1.0f),					// cone direction
+	glm::vec4(0, 20.0f, 0.0f, 1.0f),				// light position
+	glm::vec4(0.0f, 0.0f, 2.0f, 0.0f),				// light intensity
+	glm::vec4(0, -1.0f, 0, 0.0f),					// cone direction
 	0.25f,											// light attenuation
 	0.55f,											// ambient light coefficient
 	15.0f/180.0f*glm::pi<float>(),					// cone angle, set to 1 radian (or 180/pi degrees)
@@ -124,7 +124,7 @@ public:
 	const static int STATUS_OFF = 0;
 	const static int STATUS_ON = 1;
 
-	const static unsigned int NUM_LIGHTS = 16;
+	const static unsigned int NUM_LIGHTS = 20;
 
 	Light();
 	~Light();

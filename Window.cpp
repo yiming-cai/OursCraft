@@ -11,7 +11,7 @@ extern GLuint Shader_SimplePointer;
 extern GLuint Shader_BoundBox;
 extern GLuint Shader_DisplayLight;
 
-std::vector<Object *> objectList;
+std::vector<Object *> cubeList;
 std::vector<Camera *> cameraList;
 std::vector<Model *> domino;
 
@@ -35,12 +35,12 @@ SimplePointer *centerRouter;
 
 std::vector<std::string> faces
 {
-	"../assets/night skybox/3/Right.png",
-	"../assets/night skybox/3/Left.png",
-	"../assets/night skybox/3/Up.png",
-	"../assets/night skybox/3/Down.png",
-	"../assets/night skybox/3/Back.png",
-	"../assets/night skybox/3/Front.png"
+	"../assets/night skybox/2/Right.png",
+	"../assets/night skybox/2/Left.png",
+	"../assets/night skybox/2/Up.png",
+	"../assets/night skybox/2/Down.png",
+	"../assets/night skybox/2/Back.png",
+	"../assets/night skybox/2/Front.png"
 };
 
 
@@ -80,7 +80,7 @@ void Window::placeObject(int type, int *style)
 			if (*style < 0) *style = CUBE_TEXTURE_NUM - 1;
 			cube = new Cube(idCount++, 1, *style);
 			cube->setPosition(npos.x, npos.y, npos.z);
-			objectList.push_back(cube);
+			cubeList.push_back(cube);
 			break;
 		case 2:break;
 		default:break;
@@ -93,13 +93,13 @@ Object* Window::testForCollision(int *face) {
 	Object *obj = NULL;
 	float value = 999999;
 	int fff = 0;
-	for (int i = 0; i < objectList.size(); ++i) {
-		//objectList[i]->getId();
-		float j = objectList[i]->getCollisionValue(currentCam->camera_pos, ray_dir,&fff);
+	for (int i = 0; i < cubeList.size(); ++i) {
+		//cubeList[i]->getId();
+		float j = cubeList[i]->getCollisionValue(currentCam->camera_pos, ray_dir,&fff);
 		if (j > 0 && j < value) {
 			*face = fff;
 			value = j;
-			obj = objectList[i];
+			obj = cubeList[i];
 		}
 	}
 	if (obj) {
@@ -126,16 +126,18 @@ void Window::initialize_objects()
 	showCoordinate = 0;
 	loadAllShader();
 	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
-	for (int i = -3; i <= 3; ++i)
+	int min = -10, max = 10;
+	for (int i = min; i <= max; ++i)
 	{
-		for (int j = -3; j <= 3; ++j) 
+		for (int j = min; j <= max; ++j) 
 		{
 			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
 			cube = new Cube(idCount++, 1, 3);
-			cube->setPosition(i, GROUND_LEVEL - 1, j);
-			objectList.push_back(cube);
+			cube->setPosition(i, GROUND_LEVEL -1, j);
+			cubeList.push_back(cube);
 		}
 	}
+	bindedCubeVAO = false;
 
 	// toggle them to on
 	displayLightOnCube = 1;
@@ -151,34 +153,35 @@ void Window::initialize_objects()
 	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture\n");
 
 	// Enables backface culling
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
 	std::cout << "loading model......\n" << std::endl;
-	model = new Model( "../cuboid.obj");
+	model = new Model( "../cockle/common-cockle.obj");
+	model->centerAndScale(1.0f);
 	model->setModelMatrix(glm::mat4(1.0f));
-	model->setDominoBox();
-		model->setCamera(currentCam);
-		model->initShader(Shader_Model);
-		model->centerAndScale(1.0f);
+	model->setBoundingBox();
+	model->setCamera(currentCam);
+	model->initShader(Shader_Model);
 
-		std::cout << "loading model2......\n" << std::endl;
-		model2 = new Model("../cuboid.obj");
-		model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {0,0,0.5f})*model2->getUModelMatrix());
-		model2->setDominoBox();
-		model2->setCamera(currentCam);
-		model2->initShader(Shader_Model);
-		model2->centerAndScale(1.0f);
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
+
+	std::cout << "loading model2......\n" << std::endl;
+	model2 = new Model("../cuboid.obj");
+	model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {3.0f,0,0})*model2->getUModelMatrix());
+	model2->centerAndScale(1.0f);
+	model2->setBoundingBox();
+	model2->setCamera(currentCam);
+	model2->initShader(Shader_Model);
+
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+		{
 			{
-				{
-
-					std::cout << (model2->getUModelMatrix())[i][j];
-				}
+				std::cout << (model2->getUModelMatrix())[i][j];
 			}
+		}
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -292,6 +295,11 @@ void Window::idle_callback()
 	//fake the domino collision
 	int count = 0;
 
+
+	/* ---------Test only ----------------*/
+	model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	/* ----------------------------------- */
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -308,15 +316,17 @@ void Window::display_callback(GLFWwindow* window)
 	//draw skybox
 	skybox->draw(glm::mat4(1.0f));
 
-	// draw object
-	for (int i = 0; i < objectList.size();++i)
-		objectList[i]->draw(glm::mat4(1.0f));
-	
+	// draw cube!!!!!
+	drawingCube = true;
+	for (int i = 0; i < cubeList.size();++i)
+		cubeList[i]->draw(glm::mat4(1.0f));
+	bindedCubeVAO = false;
+	drawingCube = false;
 	
 	// test draw model
-	model->draw(model->getUModelMatrix(), Shader_Model);
+	model->render(Shader_Model);
 	
-	model2->draw(model2->getUModelMatrix(), Shader_Model);
+	model2->render(Shader_Model);
 
 	
 
@@ -341,9 +351,9 @@ void Window::mouseButton_callback(GLFWwindow* window, int button, int action, in
 	{
 		rightMousePressed = 1;
 		if (pickObject != NULL) {
-			for (int i = 0; i < objectList.size(); ++i) {
-				if (objectList[i]->getId() == pickObject->getId()) {
-					objectList.erase(objectList.begin() + i);
+			for (int i = 0; i < cubeList.size(); ++i) {
+				if (cubeList[i]->getId() == pickObject->getId()) {
+					cubeList.erase(cubeList.begin() + i);
 					break;
 				}
 			}

@@ -75,9 +75,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 100.0f,
-					(float)(rand() % 100) / 100.0f,
-					(float)(rand() % 100) / 100.0f
+				(float)(rand() % 200) / 100.0f - 1.0f,
+					(float)(rand() % 200) / 100.0f - 1.0f,
+					(float)(rand() % 200) / 100.0f - 1.0f
 				)
 			);
 
@@ -351,7 +351,7 @@ bool Light::setAbsoluteLightDirection(int index, glm::vec3 direction)
 		std::cerr << "Trying to set the position of non-directional light!" << std::endl;
 		return false;
 	}
-	lights[index].position = glm::vec4(direction,1.0f);
+	lights[index].position = glm::vec4(direction,0.0f);
 	return true;
 }
 
@@ -402,7 +402,7 @@ bool Light::setAbsoluteLightPosition(int index, glm::vec3 position)
 		std::cerr << "Trying to set the direction of directional light!" << std::endl;
 		return false;
 	}
-	lights[index].position = glm::vec4(position,0.0f);
+	lights[index].position = glm::vec4(position,1.0f);
 	return true;
 }
 
@@ -424,7 +424,7 @@ glm::vec3 Light::getLightIntensity(int index) const
 
 void Light::setAbsoluteLightIntensity(int index, glm::vec3 intensity)
 {
-	lights[index].intensities = glm::vec4(intensity,1.0f);
+	lights[index].intensities = glm::vec4(intensity,0.0f);
 }
 
 void Light::setRelativeLightIntensity(int index, glm::vec3 offset)
@@ -434,10 +434,6 @@ void Light::setRelativeLightIntensity(int index, glm::vec3 offset)
 
 float Light::getAttenuation(int index) const
 {
-	if (lights[index].type == TYPE_DIRECTIONAL)
-	{
-		return 1.0f;
-	}
 	return lights[index].attenuation;
 }
 
@@ -591,7 +587,7 @@ bool Light::setAbsoluteConeDirection(int index, glm::vec3 cone_dir)
 		std::cerr << "Trying to set the cone direction of non-spot light" << std::endl;
 		return false;
 	}
-	lights[index].coneDirection = glm::vec4( glm::normalize(cone_dir), 1.0f);
+	lights[index].coneDirection = glm::vec4( glm::normalize(cone_dir), 0.0f);
 	return true;
 }
 
@@ -603,7 +599,7 @@ bool Light::rotateConeDirection(int index, float angle, glm::vec3 axis)
 		return false;
 	}
 
-	glm::vec4 temp = glm::vec4( glm::normalize(-1.0f * glm::vec3(lights[index].coneDirection)), 1.0f );
+	glm::vec4 temp = glm::vec4( glm::normalize(-1.0f * glm::vec3(lights[index].coneDirection)), 0.0f );
 	
 	// trying to rotate the spot to look at
 	temp = glm::rotate(glm::mat4(1.0f), angle, axis) * temp;

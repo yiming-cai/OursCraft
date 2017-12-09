@@ -1,6 +1,5 @@
 #include "Geometry.h"
 
-
 void Geometry::draw(glm::mat4 C) {
 
 	glUseProgram(shader);
@@ -24,10 +23,22 @@ void Geometry::draw(glm::mat4 C) {
 	glUniform3fv(uCam, 1, &cam_pos[0]);
 	glUniform1i(sel, selected);
 
-	glBindVertexArray(VAO);
-	if(haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	// optimization: to avoid buffering same vao all the time
+	// !!note, don't use this unless you are drawing the same object over and over again
+	// Basically, it is expensive to keep on binding and unbinding VAO, so we reduce that
+	if (!drawingCube)
+	{
+		glBindVertexArray(VAO);
+	}
+	else if (!bindedCubeVAO)
+	{
+		glBindVertexArray(VAO);
+		bindedCubeVAO = true;
+	}
+	if (haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glBindVertexArray(0);
+	//glBindVertexArray(0);
+
 	if (haveTexture)
 	{
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");

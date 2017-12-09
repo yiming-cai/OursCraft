@@ -24,6 +24,7 @@ public:
 	void update();
 	void spin(float deg);
 	bool check_collision(BoundBox * other);
+	void setVertices(std::vector <glm::vec3> newVertices);
 	std::vector<GLfloat> x_list;
 	std::vector<GLfloat> y_list;
 	std::vector<GLfloat> z_list;
@@ -44,7 +45,7 @@ public:
 	};
 
 	
-	GLfloat vertices[8][3] = {
+	std::vector<glm::vec3> vertices = {
 		// "Front" vertices
 		{ -1.0, -1.0,  1.0 },{ 1.0, -1.0,  1.0 },{ 1.0,  1.0,  1.0 },{ -1.0,  1.0,  1.0 },
 		// "Back" vertices

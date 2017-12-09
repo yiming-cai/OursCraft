@@ -171,7 +171,7 @@ void main()
 			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
 
-		sum_of_colors += c_l * c_mat;
+		sum_of_colors += max( vec4(0), c_l * c_mat );
 	}
 
 	color = vec4(sum_of_colors.xyz, opacity) * normalize(lights[light_i].intensities);

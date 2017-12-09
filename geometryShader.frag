@@ -177,9 +177,8 @@ void main()
 			c_mat +=  spec * max(0.0f, pow( dot(R_vec, e_vec), shininess)) * .5f;
 			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
-
-		if ( length(c_l) > 0 )
-			sum_of_colors += c_l * c_mat;
+		
+		sum_of_colors += max( vec4(0), c_l * c_mat );
 	}
 
 	color = color * vec4(sum_of_colors.xyz, 1.0f);

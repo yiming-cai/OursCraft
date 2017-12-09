@@ -14,7 +14,7 @@ BoundBox::BoundBox()
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0][0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(GLfloat),(GLvoid*)0); glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -39,7 +39,7 @@ BoundBox::BoundBox(float x, float y, float z)
 	glGenBuffers(1, &EBO);
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0][0], GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3 * sizeof(GLfloat),(GLvoid*)0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -58,6 +58,7 @@ BoundBox::~BoundBox()
 
 void BoundBox::draw(GLuint shaderProgram)
 {
+	glDisable(GL_CULL_FACE);
 	glm::mat4 modelview = V * toWorld;
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
@@ -74,6 +75,7 @@ void BoundBox::draw(GLuint shaderProgram)
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	glEnable(GL_CULL_FACE);
 }
 
 bool BoundBox::check_collision(BoundBox * other) {
@@ -135,6 +137,14 @@ bool BoundBox::check_collision(BoundBox * other) {
 	}
 }
 
+void BoundBox::setVertices(std::vector<glm::vec3> newVertices)
+{
+	vertices = newVertices; 
+	update();
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(glm::vec3), &vertices[0][0]);
+}
+
 void BoundBox::update()
 {
 	x_list.clear();
@@ -150,6 +160,8 @@ void BoundBox::update()
 	std::sort(this->x_list.begin(), this->x_list.end());
 	std::sort(this->y_list.begin(), this->y_list.end());
 	std::sort(this->z_list.begin(), this->z_list.end());
+
+
 }
 
 void BoundBox::spin(float deg)

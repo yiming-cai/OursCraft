@@ -2,6 +2,9 @@
 #define _GEOMETRY_H_
 
 #include "Object.h"
+#include "Util.h"
+extern bool bindedCubeVAO;
+extern bool drawingCube;
 
 class Geometry:public Object {
 protected:
@@ -11,6 +14,7 @@ protected:
 	GLuint textureID;
 
 public:
+
 	void draw(glm::mat4 C);
 	void update();
 	void setSelected() {

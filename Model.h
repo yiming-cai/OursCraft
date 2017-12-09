@@ -86,7 +86,7 @@ private:
 	Camera * camera = nullptr;
 
 	// bounding box
-	void setBoundingBox(const aiScene * sc);
+	void setMinMaxObjectCoord(const aiScene * sc);
 
 	// define the min_max_pairs_xyz values, in this format:
 	// min_max_pairs_xyz[0] : minimum x value
@@ -116,7 +116,7 @@ private:
 public:
 
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
-	void setDominoBox();
+	void setBoundingBox();
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
@@ -168,7 +168,7 @@ public:
 	const static int BBV_TOP_LEFT_FAR = 7;
 
 	// Make sure you use the right model matrix if you are rendering/updating multiple objects with different model matrix
-	void setModelMatrix(glm::mat4 C) { modelMatrix = C * scale_matrix; unscaledModelMatrix = C; };
+	void setModelMatrix(glm::mat4 C) { modelMatrix = C * scale_matrix; unscaledModelMatrix = C; setBoundingBox(); };
 	glm::mat4 getModelMatrix() const { return modelMatrix; }
 	glm::mat4 getUModelMatrix() const { return unscaledModelMatrix; }
 	// Use this for a correct AABB Bounding Box Vertices
