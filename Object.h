@@ -13,7 +13,7 @@ protected:
 	glm::mat4 toWorld;
 	int nameID;
 	GLuint VAO, VBO, NBO, CBO, EBO;
-	GLuint uProjection, uModelview;
+	GLuint uProjection, uModel, uView;
 	GLfloat *boundBoxV, *boundBoxN;
 public:
 	virtual void draw(glm::mat4 C) = 0;

@@ -212,6 +212,14 @@ void Light::updateShader(GLuint shaderProgram)
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
+void Light::updateAllShader()
+{
+	for (auto it : lightUniformBlocks)
+	{
+		updateShader(it.first);
+	}
+}
+
 //bool Light::partialUpdateShader(GLuint shaderProgram, int start_index, int num_lights)
 //{
 //	if (start_index + num_lights > NUM_LIGHTS)

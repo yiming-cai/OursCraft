@@ -24,6 +24,7 @@ private:
 	std::vector< std::pair<glm::vec3, int> > positions_and_types;
 	std::vector< glm::vec3 > coneDirections;
 	std::vector< int > lightStatus;
+	bool needUpdate = false;
 
 public:
 	LightDisplay(Light * light, Camera * cam);
