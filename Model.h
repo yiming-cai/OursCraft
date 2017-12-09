@@ -102,6 +102,12 @@ private:
 	// this is the matrix that can be used to scale the model to desired scale
 	glm::mat4 scale_matrix = glm::mat4(1.0f);
 
+	// Model matrix of the model, set it to whatever you prefer
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+	// Unscaled matrix of the model
+	glm::mat4 unscaledModelMatrix = glm::mat4(1.0f);
+
 	// each corresponds to one of the mesh, same first index
 	std::vector< std::vector<float> > texCoordsArrays;
 	std::vector< std::vector<unsigned int> > faceArrays;
@@ -110,8 +116,7 @@ private:
 public:
 
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
-	// Model matrix of the model, set it to whatever you prefer
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
@@ -119,7 +124,7 @@ public:
 
 	// render methods
 	// IMPORTANT: call initShader(s) and initCamera(cam) before calling render(s) or draw(C,s)
-	void initShader(GLuint shaderProgram	);
+	void initShader(GLuint shaderProgram );
 	void setCamera(Camera * cam);
 
 	void render(GLuint shaderProgram);
@@ -163,8 +168,8 @@ public:
 	const static int BBV_TOP_LEFT_FAR = 7;
 
 	// Make sure you use the right model matrix if you are rendering/updating multiple objects with different model matrix
-	void setModelMatrix(glm::mat4 C) { modelMatrix = C; };
-	glm::mat4 getModelMatrix() const { return modelMatrix; }
+	void setModelMatrix(glm::mat4 C) { modelMatrix = C * scale_matrix; unscaledModelMatrix = C; };
+	glm::mat4 getModelMatrix() const { return unscaledModelMatrix; }
 
 	// Use this for a correct AABB Bounding Box Vertices
 	// The returned vertices will be axis-orientated in world coordinates

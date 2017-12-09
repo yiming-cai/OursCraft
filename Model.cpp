@@ -386,6 +386,7 @@ void Model::draw(glm::mat4 C, GLuint shaderProgram)
 {
 	if (scene == nullptr) return;
 	modelMatrix = C * scale_matrix;
+	unscaledModelMatrix = C;
 	render(shaderProgram);
 }
 
