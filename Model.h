@@ -152,7 +152,7 @@ public:
 	void centerAndScale(float scale);
 
 	// Turn off the scaling and return to original size/position
-	void turnOffScale() { scale_matrix = glm::mat4(1.0f); }
+	void turnOffScale() { scale_matrix = glm::mat4(1.0f); modelMatrix = unscaledModelMatrix;  }
 	/* ---------------------------------------------- */
 
 
