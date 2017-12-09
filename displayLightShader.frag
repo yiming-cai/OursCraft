@@ -72,11 +72,11 @@ layout (std140) uniform LightBlock {
 // main loop
 void main()
 {	
-	if (lights[current_light_index].status == STATUS_OFF)
-	{
-		color = vec4(0);
-		return;
-	}
+	//if (lights[current_light_index].status == STATUS_OFF)
+	//{
+	//	color = vec4(0);
+	//	return;
+	//}
 
 	// records the sum of light colors;
 	vec4 sum_of_colors = vec4(0);
@@ -99,6 +99,7 @@ void main()
 	vec3 e_vec = cam_pos - vert;
 	e_vec = normalize(e_vec);
 
+	// only loop through the light one time
 	int light_i = current_light_index;
 	{
 
@@ -145,24 +146,10 @@ void main()
 
 		// find the angle between the normal and the light vectors
 		nDotL = dot( normal_world, surfaceToLight );
+		if (lights[light_i].type == TYPE_POINT) nDotL = -1.0f * nDotL;
 
 		// find the light intensity after attenuation
-		if (lights[light_i].type == TYPE_DIRECTIONAL || lights[light_i].type == TYPE_POINT)
-		{
-			c_l = lights[light_i].intensities / (1.0f + attenuation_val);
-		}
-		else if (lights[light_i].type == TYPE_SPOT)
-		{
-			float lxd = dot(lightToSurface, lights[light_i].coneDirection.xyz);
-			if (lxd <= cos( lights[light_i].coneAngle )) 
-			{
-				c_l = vec4(0.0f);
-			}
-			else
-			{
-				c_l = vec4(lights[light_i].intensities.xyz * pow(lxd, lights[light_i].exponent) / (1.0f + attenuation_val), 1.0f);
-			}
-		}
+		c_l = lights[light_i].intensities / (1.0f + attenuation_val);
 
 		// find the R vector, the direction of reflected ray
 		R_vec = lightToSurface - (2 * dot(lightToSurface, normal_world)) * normal_world;
@@ -184,13 +171,13 @@ void main()
 			c_mat += dif * lights[light_i].ambientCoefficient * amb * .1f;
 		}
 
-		sum_of_colors += c_l * c_mat + normalize(lights[light_i].intensities) * 3.0f;
+		sum_of_colors += c_l * c_mat;
 	}
 
-	color = vec4(sum_of_colors.xyz, opacity);
+	color = vec4(sum_of_colors.xyz, opacity) * normalize(lights[light_i].intensities);
 
 	if (texCount == 1)
 	{
-		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * sum_of_colors;
+		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * color;
 	}
 }

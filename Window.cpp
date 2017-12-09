@@ -22,6 +22,7 @@ int leftMousePressed,rightMousePressed;
 int pickObjectFace;
 int showCoordinate;
 int goRight, goLeft, goUp, goDown, goForward, goBackward;
+int displayLightOnCube;
 float mouseX, mouseY;
 glm::vec3 ray_dir;
 Object* pickObject = NULL;
@@ -34,12 +35,12 @@ SimplePointer *centerRouter;
 
 std::vector<std::string> faces
 {
-	"../assets/right.jpg",
-	"../assets/left.jpg",
-	"../assets/top.jpg",
-	"../assets/bottom.jpg",
-	"../assets/back.jpg",
-	"../assets/front.jpg"
+	"../assets/night skybox/3/Right.png",
+	"../assets/night skybox/3/Left.png",
+	"../assets/night skybox/3/Up.png",
+	"../assets/night skybox/3/Down.png",
+	"../assets/night skybox/3/Back.png",
+	"../assets/night skybox/3/Front.png"
 };
 
 
@@ -126,12 +127,22 @@ void Window::initialize_objects()
 	loadAllShader();
 	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
 	for (int i = -3; i <= 3; ++i)
-		for (int j = -3; j <= 3; ++j) {
+	{
+		for (int j = -3; j <= 3; ++j) 
+		{
 			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
 			cube = new Cube(idCount++, 1, 3);
 			cube->setPosition(i, GROUND_LEVEL - 1, j);
 			objectList.push_back(cube);
 		}
+	}
+
+	// toggle them to on
+	displayLightOnCube = 1;
+	glUseProgram(Shader_Geometry);
+	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+	glUniform1i(temp, displayLightOnCube);
+
 	skybox = new Skybox(idCount++, 1000, &faces);
 	currentCam = new Camera(idCount++, glm::vec3(0, 1, 0), glm::vec3(0, 1, -1), glm::vec3(0, 1, 0));
 	coordinate = new Coordinate(idCount++, 100);
@@ -169,10 +180,14 @@ void Window::initialize_objects()
 	lights = Light();
 	lights.randInit();
 	lights.initializeShader(Shader_Model);
-	lights.updateShader(Shader_Model);
+	lights.initializeShader(Shader_Geometry);
+	//lights.turnAllLightOn();
+	lights.updateAllShader();
+
 
 	lightDisplay = new LightDisplay(&lights, currentCam);
 	lightDisplay->initShader(Shader_DisplayLight);
+	lightDisplay->update(Shader_DisplayLight);
 	// --------------------------------------------------------------
 }
 
@@ -462,6 +477,12 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		if (key == GLFW_KEY_C) {
 			showCoordinate = -showCoordinate + 1;
 		}
+		if (key == GLFW_KEY_T) {
+			glUseProgram(Shader_Geometry);
+			displayLightOnCube = (displayLightOnCube == 1 ? 0 : 1);
+			GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+			glUniform1i(temp, displayLightOnCube);
+		}
 		if (key == GLFW_KEY_I) {
 			pickStyle--;
 		}
@@ -485,13 +506,13 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		if (key == GLFW_KEY_L)
 		{
 			light_toggle = !light_toggle;
-			std::cerr << "Enter light selection mode!" << std::endl;
+			std::cerr << (light_toggle ? "Enter light selection mode!" : "Exiting light selection mode!") << std::endl;
 		}
 		if (light_toggle && key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
 		{
 			int index = key - GLFW_KEY_0;
 			lights.toggleLight(index);
-			lights.updateShader(Shader_Model);
+			lights.updateAllShader();
 			lightDisplay->update(Shader_DisplayLight);
 			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index)==1)?"on":"off") << "!" << std::endl;
 		}
@@ -499,7 +520,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			int index = key - GLFW_KEY_F1 + 10;
 			lights.toggleLight(index);
-			lights.updateShader(Shader_Model);
+			lights.updateAllShader();
 			lightDisplay->update(Shader_DisplayLight);
 			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index) == 1) ? "on" : "off") << "!" << std::endl;
 		}

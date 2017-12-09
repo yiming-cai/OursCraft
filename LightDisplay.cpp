@@ -48,30 +48,34 @@ void LightDisplay::update(GLuint shaderProgram)
 	positions_and_types = lights->getAllPositionsAndTypes();
 	coneDirections = lights->getAllConeDirections();
 	lightStatus = lights->getAllStatus();
-	lights->updateShader(shaderProgram);
+	needUpdate = true;
 }
 
 void LightDisplay::render(GLuint shaderProgram)
 {
+	if (needUpdate)
+	{
+		lights->updateShader(shaderProgram);
+	}
+
 	if (camera == nullptr || lights == nullptr)
 	{
 		std::cerr << "Didn't initialize camera and lights" << std::endl;
 		return;
 	}
-	glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	int i = 0;
 	for (auto const& pair : positions_and_types)
 	{
-
 		glm::vec3 position = pair.first;
 		int type = pair.second;
 		
-		//if (lightStatus[i] == Light::STATUS_OFF)
-		//{
-		//	glUniform1i(light_loc[shaderProgram], 1);
-		//	i++;
-		//	continue;
-		//}
+		if (lightStatus[i] == Light::STATUS_OFF || type == Light::TYPE_DIRECTIONAL)
+		{
+			glUniform1i(light_loc[shaderProgram], i);
+			i++;
+			continue;
+		}
 
 		glUniform1i(light_loc[shaderProgram], i);
 
@@ -81,9 +85,15 @@ void LightDisplay::render(GLuint shaderProgram)
 		}
 		else if (type == Light::TYPE_SPOT)
 		{
-			spotLight->draw( glm::translate(glm::mat4(1.0f), position), shaderProgram);
+			glm::vec3 defaultAxis = glm::vec3(0, -1.0f, 0);
+			glm::vec3 axis = glm::cross(defaultAxis, glm::normalize(coneDirections[i]));
+			float angle = acos(glm::dot(defaultAxis, glm::normalize(coneDirections[i])));
+			glm::mat4 rot = glm::rotate(glm::mat4(1.0f), angle, axis);
+			spotLight->draw( glm::translate(glm::mat4(1.0f), position) * rot, shaderProgram);
 		}
 		i++;
+
 	}
-	glDisable(GL_BLEND); 
+	glUniform1i(light_loc[shaderProgram], 0);
+	//glDisable(GL_BLEND); 
 }

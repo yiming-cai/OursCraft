@@ -20,7 +20,7 @@ GLfloat Cube::cubeBoundBoxV[72] = {
 	0,0,-1, 0,1,-1, 1,1,-1, 1,0,-1,		// back face clockwise
 
 	0,0,-1, 0,0,0, 0,1,0, 0,1,-1,		// left face clockwise
-	1,0,-1, 1,1,-1, 1,1,0, 1,0,0,		// right face clockwise
+	1,0,-1, 1,1,-1, 1,1,0, 1,0,0,		// right face counterclockwise
 
 	0,1,0, 1,1,0, 1,1,-1, 0,1,-1,		// top face counterclockwise
 	0,0,0, 0,0,-1, 1,0,-1,  1,0,0		// bottom face clockwise
@@ -48,7 +48,7 @@ GLfloat Cube::cubeVertices[108] = {
 	0,0,-1, 0,0,0, 0,1,0, 
 	0,1,0, 0,1,-1, 0,0,-1,		// left face clockwise
 	1,0,-1, 1,1,-1, 1,1,0, 
-	1,1,0, 1,0,0, 1,0,-1,		// right face clockwise
+	1,1,0, 1,0,0, 1,0,-1,		// right face counterclockwise
 
 	0,1,0, 1,1,0, 1,1,-1, 
 	1,1,-1, 0,1,-1, 0,1,0,		// top face counterclockwise

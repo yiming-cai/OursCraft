@@ -9,6 +9,7 @@ protected:
 	int selected;
 	int haveTexture;
 	GLuint textureID;
+
 public:
 	void draw(glm::mat4 C);
 	void update();

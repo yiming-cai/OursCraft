@@ -103,7 +103,7 @@ private:
 	std::vector<LightParameters> lights;
 
 	// a fixed seed for randomly initializing lights
-	int srand_seed = 20;
+	int srand_seed = 16;
 
 	// the uniform block will be binded to this location
 	const static int LIGHT_UNIFORM_LOC = 7;
@@ -150,6 +150,7 @@ public:
 
 	// call this whenever you want to update all the light values in the shaderProgram 
 	void updateShader(GLuint shaderProgram);
+	void updateAllShader();
 
 	// Call this whenever you want to update the light values of lights ONLY 
 	//		from start index, with num_lights number of lights. 

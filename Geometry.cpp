@@ -4,19 +4,26 @@
 void Geometry::draw(glm::mat4 C) {
 
 	glUseProgram(shader);
-	glm::mat4 modelview = V * C * toWorld;
+	glm::mat4 model = C * toWorld;
+	glm::vec3 cam_pos = glm::vec3(V[0][3],V[1][3],V[2][3]);
+
 	//glm::vec4 temp = glm::vec4(vertices[6], vertices[7], vertices[8], 1.0f);
 	uProjection = glGetUniformLocation(shader, "projection");
-	uModelview = glGetUniformLocation(shader, "modelview");
+	uModel = glGetUniformLocation(shader, "model");
+	uView = glGetUniformLocation(shader, "view");
 	GLuint sel = glGetUniformLocation(shader, "selected");
+	GLuint uCam = glGetUniformLocation(shader, "cam_pos");
 	if (haveTexture)
 	{
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");
 		glUniform1i(haveT,haveTexture);
 	}
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
-	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
+	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
+	glUniformMatrix4fv(uView, 1, GL_FALSE, &V[0][0]);
+	glUniform3fv(uCam, 1, &cam_pos[0]);
 	glUniform1i(sel, selected);
+
 	glBindVertexArray(VAO);
 	if(haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
