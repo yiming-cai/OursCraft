@@ -163,6 +163,14 @@ void Window::initialize_objects()
 		model->centerAndScale(1.0f);
 		model2 = new Model("../cuboid.obj");
 		model->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,2.0f })*glm::mat4(1.0f));
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < 4; j++)
+			{
+				{
+
+					std::cout << (model2->getModelMatrix())[i][j];
+				}
+			}
 		model2->setCamera(currentCam);
 		model2->initShader(Shader_Model);
 		model2->centerAndScale(1.0f);
@@ -277,6 +285,10 @@ void Window::idle_callback()
 
 	// init intersection
 	pickObject = testForCollision(&pickObjectFace);
+
+	//fake the domino collision
+	int count = 0;
+
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -299,7 +311,7 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-	model->draw(model->getModelMatrix(), Shader_Model);
+	model->draw(glm::mat4(1.0f), Shader_Model);
 	
 	model2->draw(model2->getModelMatrix() , Shader_Model);
 
