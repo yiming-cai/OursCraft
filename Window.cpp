@@ -159,7 +159,7 @@ void Window::initialize_objects()
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
 	std::cout << "loading model......\n" << std::endl;
-	model = new Model( "../cockle/common-cockle.obj");
+	model = new Model( "../cuboid.obj");
 	model->centerAndScale(1.0f);
 	model->setModelMatrix(glm::mat4(1.0f));
 	model->setBoundingBox();
