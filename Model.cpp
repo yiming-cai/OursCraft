@@ -47,7 +47,7 @@ Model::~Model()
 
 void Model::setDominoBox() {
 	//test box
-	bounding_box->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f)) * this->getUModelMatrix();
+	bounding_box->toWorld = this->getUModelMatrix()* glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f));
 	bounding_box->update();
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
