@@ -116,7 +116,7 @@ private:
 public:
 
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
-
+	void setDominoBox();
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
@@ -169,8 +169,8 @@ public:
 
 	// Make sure you use the right model matrix if you are rendering/updating multiple objects with different model matrix
 	void setModelMatrix(glm::mat4 C) { modelMatrix = C * scale_matrix; unscaledModelMatrix = C; };
-	glm::mat4 getModelMatrix() const { return unscaledModelMatrix; }
-
+	glm::mat4 getModelMatrix() const { return modelMatrix; }
+	glm::mat4 getUModelMatrix() const { return unscaledModelMatrix; }
 	// Use this for a correct AABB Bounding Box Vertices
 	// The returned vertices will be axis-orientated in world coordinates
 	std::vector< glm::vec3 > getAABBBoundingBoxVertices();

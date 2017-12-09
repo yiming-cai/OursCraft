@@ -17,15 +17,13 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 
 Model::Model(std::string p_filepath) {
 	filepath = p_filepath;
+	
 	if (importObj(filepath))
 	{
 		loadGLTextures(scene);
 		genVAOsAndUniformBuffer(scene);
 		setBoundingBox(scene);
 		setBoundingSphere();
-		//test box
-		bounding_box->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f)) * this->modelMatrix;
-		bounding_box->update();
 	}
 	else
 	{
@@ -45,6 +43,20 @@ Model::~Model()
 		glDeleteTextures(1, &(myMeshes[i].texIndex));
 		glDeleteBuffers(1, &(myMeshes[i].uniformBlockIndex));
 	}
+}
+
+void Model::setDominoBox() {
+	//test box
+	bounding_box->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f)) * this->getUModelMatrix();
+	bounding_box->update();
+	for (int i = 0; i < 4; i++)
+		for (int j = 0; j < 4; j++)
+		{
+			{
+
+				std::cout << (bounding_box->toWorld)[i][j];
+			}
+		}
 }
 
 /*
