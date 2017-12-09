@@ -1,5 +1,4 @@
 #include "Model.h"
-
 void set_float4(float f[4], float a, float b, float c, float d)
 {
 	f[0] = a;
@@ -16,8 +15,7 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 	f[3] = c->a;
 }
 
-Model::Model(std::string p_filepath)
-{
+Model::Model(std::string p_filepath) {
 	filepath = p_filepath;
 	if (importObj(filepath))
 	{
@@ -25,6 +23,29 @@ Model::Model(std::string p_filepath)
 		genVAOsAndUniformBuffer(scene);
 		setBoundingBox(scene);
 		setBoundingSphere();
+	}
+	else
+	{
+		std::cerr << "Failed to load " << filepath << std::endl;
+	}
+	std::cerr << "Loaded " << myMeshes.size() << " meshes!" << std::endl;
+}
+
+
+Model::Model(glm::mat4 modelM, std::string p_filepath)
+{
+	filepath = p_filepath;
+	if (importObj(filepath))
+	{
+		this->modelMatrix = modelM;
+		loadGLTextures(scene);
+		genVAOsAndUniformBuffer(scene);
+		setBoundingBox(scene);
+		setBoundingSphere();
+		
+			bounding_box->toWorld = glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f)) * this->modelMatrix;
+			bounding_box->update();
+		
 	}
 	else
 	{

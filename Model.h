@@ -106,15 +106,16 @@ private:
 	std::vector< std::vector<float> > texCoordsArrays;
 	std::vector< std::vector<unsigned int> > faceArrays;
 
-	BoundBox * box;
 
 public:
 
+	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
 	// Model matrix of the model, set it to whatever you prefer
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
+	Model(glm::mat4 modelMatrix, std::string p_filepath);
 	~Model();
 
 	// render methods

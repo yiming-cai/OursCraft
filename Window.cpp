@@ -13,7 +13,7 @@ extern GLuint Shader_DisplayLight;
 
 std::vector<Object *> objectList;
 std::vector<Camera *> cameraList;
-
+std::vector<Model *> domino;
 
 int pickType = 0;
 int pickStyle = 0;
@@ -145,11 +145,16 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
-	model = new Model("../cockle/common-cockle.obj");
-	model->setCamera(currentCam); 
-	model->initShader(Shader_Model);
-	model->centerAndScale(1.0f);
-
+		model = new Model(glm::mat4(1.0f),"../cuboid.obj");
+		model->setCamera(currentCam);
+		model->initShader(Shader_Model);
+		model->centerAndScale(1.0f);
+		model2 = new Model(glm::translate(glm::mat4(1.0f), { 0,0,2.0f })*glm::mat4(1.0f),"../cuboid.obj");
+		model2->setCamera(currentCam);
+		model2->initShader(Shader_Model);
+		model2->centerAndScale(1.0f);
+		
+	
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -277,11 +282,18 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-	for (int j = 0; j < 6; j++) {
-		model->draw(glm::translate(glm::mat4(1.0f), { 0,1,j })*glm::mat4(1.0f), Shader_Model);
-	}
+		model->draw(model->modelMatrix, Shader_Model);
+		model2->draw(model2->modelMatrix , Shader_Model);
+
+
 	lightDisplay->render(Shader_DisplayLight);
 	
+	glUseProgram(Shader_BoundBox);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	model->bounding_box->draw(Shader_BoundBox);
+	model2->bounding_box->draw(Shader_BoundBox);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 	glfwPollEvents();
 
 	// Swap buffers
