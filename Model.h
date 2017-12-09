@@ -115,7 +115,6 @@ public:
 
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
-	Model(glm::mat4 modelMatrix, std::string p_filepath);
 	~Model();
 
 	// render methods

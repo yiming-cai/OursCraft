@@ -156,11 +156,13 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
-		model = new Model(glm::mat4(1.0f),"../cuboid.obj");
+	model = new Model( "../cuboid.obj");
+	model->setModelMatrix(glm::mat4(1.0f));
 		model->setCamera(currentCam);
 		model->initShader(Shader_Model);
 		model->centerAndScale(1.0f);
-		model2 = new Model(glm::translate(glm::mat4(1.0f), { 0,0,2.0f })*glm::mat4(1.0f),"../cuboid.obj");
+		model2 = new Model("../cuboid.obj");
+		model->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,2.0f })*glm::mat4(1.0f));
 		model2->setCamera(currentCam);
 		model2->initShader(Shader_Model);
 		model2->centerAndScale(1.0f);
@@ -297,8 +299,9 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// test draw model
-		model->draw(model->modelMatrix, Shader_Model);
-		model2->draw(model2->modelMatrix , Shader_Model);
+	model->draw(model->getModelMatrix(), Shader_Model);
+	
+	model2->draw(model2->getModelMatrix() , Shader_Model);
 
 
 	lightDisplay->render(Shader_DisplayLight);
