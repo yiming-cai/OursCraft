@@ -51,6 +51,20 @@ void Model::setBoundingBox() {
 	//bounding_box->setVertices(getAABBBoundingBoxVertices());
 }
 
+
+bool Model::checkBounds(Model * other) {
+	bool collide = false;
+	bool return_collide = false;
+	//maybe update
+
+	return return_collide;
+}
+
+
+
+
+
+
 /*
  * source: http://www.assimp.org
  */

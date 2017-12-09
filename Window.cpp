@@ -163,15 +163,17 @@ void Window::initialize_objects()
 	model->centerAndScale(1.0f);
 	model->setModelMatrix(glm::mat4(1.0f));
 	model->setBoundingBox();
+	model->bounding_box->update();
 	model->setCamera(currentCam);
 	model->initShader(Shader_Model);
 
 
 	std::cout << "loading model2......\n" << std::endl;
 	model2 = new Model("../cuboid.obj");
-	model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {3.0f,0,0})*model2->getUModelMatrix());
+	model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {0,0,0.5f})*model2->getUModelMatrix());
 	model2->centerAndScale(1.0f);
 	model2->setBoundingBox();
+	model2->bounding_box->update();
 	model2->setCamera(currentCam);
 	model2->initShader(Shader_Model);
 
@@ -294,11 +296,16 @@ void Window::idle_callback()
 
 	//fake the domino collision
 	int count = 0;
-
+	if (!model->bounding_box->check_collision(model2->bounding_box)) {
+		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+	}
+	else {
+		//model2->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+	}
 
 	/* ---------Test only ----------------*/
-	model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
-	model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	/* ----------------------------------- */
 }
 

@@ -117,7 +117,7 @@ public:
 
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
 	void setBoundingBox();
-
+	bool checkBounds(Model * other);
 	// constructor, just takes in a file path
 	Model(std::string p_filepath);
 	~Model();
