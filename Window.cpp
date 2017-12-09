@@ -156,26 +156,29 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
+	std::cout << "loading model......\n" << std::endl;
 	model = new Model( "../cuboid.obj");
 	model->setModelMatrix(glm::mat4(1.0f));
+	model->setDominoBox();
 		model->setCamera(currentCam);
 		model->initShader(Shader_Model);
 		model->centerAndScale(1.0f);
+
+		std::cout << "loading model2......\n" << std::endl;
 		model2 = new Model("../cuboid.obj");
-		model->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,2.0f })*glm::mat4(1.0f));
+		model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {0,0,0.5f})*model2->getUModelMatrix());
+		model2->setDominoBox();
+		model2->setCamera(currentCam);
+		model2->initShader(Shader_Model);
+		model2->centerAndScale(1.0f);
 		for (int i = 0; i < 4; i++)
 			for (int j = 0; j < 4; j++)
 			{
 				{
 
-					std::cout << (model2->getModelMatrix())[i][j];
+					std::cout << (model2->getUModelMatrix())[i][j];
 				}
 			}
-		model2->setCamera(currentCam);
-		model2->initShader(Shader_Model);
-		model2->centerAndScale(1.0f);
-		
-	
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -309,18 +312,20 @@ void Window::display_callback(GLFWwindow* window)
 	for (int i = 0; i < objectList.size();++i)
 		objectList[i]->draw(glm::mat4(1.0f));
 	
-
-	// test draw model
-	model->draw(glm::mat4(1.0f), Shader_Model);
 	
-	model2->draw(model2->getModelMatrix() , Shader_Model);
+	// test draw model
+	model->draw(model->getUModelMatrix(), Shader_Model);
+	
+	model2->draw(model2->getUModelMatrix(), Shader_Model);
 
+	
 
 	lightDisplay->render(Shader_DisplayLight);
 	
 	glUseProgram(Shader_BoundBox);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	model->bounding_box->draw(Shader_BoundBox);
+	
 	model2->bounding_box->draw(Shader_BoundBox);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
