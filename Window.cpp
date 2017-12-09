@@ -22,6 +22,7 @@ int leftMousePressed,rightMousePressed;
 int pickObjectFace;
 int showCoordinate;
 int goRight, goLeft, goUp, goDown, goForward, goBackward;
+int displayLightOnCube;
 float mouseX, mouseY;
 glm::vec3 ray_dir;
 Object* pickObject = NULL;
@@ -137,10 +138,10 @@ void Window::initialize_objects()
 	}
 
 	// toggle them to on
-	for (int i = 0; i < objectList.size(); i++)
-	{
-		((Geometry *)(objectList[i]))->toggleLight();
-	}
+	displayLightOnCube = 1;
+	glUseProgram(Shader_Geometry);
+	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+	glUniform1i(temp, displayLightOnCube);
 
 	skybox = new Skybox(idCount++, 1000, &faces);
 	currentCam = new Camera(idCount++, glm::vec3(0, 1, 0), glm::vec3(0, 1, -1), glm::vec3(0, 1, 0));
@@ -465,10 +466,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			showCoordinate = -showCoordinate + 1;
 		}
 		if (key == GLFW_KEY_T) {
-			for (int i = 0; i < objectList.size(); i++)
-			{
-				((Geometry *)(objectList[i]))->toggleLight();
-			}
+			glUseProgram(Shader_Geometry);
+			displayLightOnCube = (displayLightOnCube == 1 ? 0 : 1);
+			GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+			glUniform1i(temp, displayLightOnCube);
 		}
 		if (key == GLFW_KEY_I) {
 			pickStyle--;

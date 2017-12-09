@@ -13,7 +13,6 @@ void Geometry::draw(glm::mat4 C) {
 	uView = glGetUniformLocation(shader, "view");
 	GLuint sel = glGetUniformLocation(shader, "selected");
 	GLuint uCam = glGetUniformLocation(shader, "cam_pos");
-	GLuint uDisableLight = glGetUniformLocation(shader, "disableLight");
 	if (haveTexture)
 	{
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");
@@ -24,7 +23,7 @@ void Geometry::draw(glm::mat4 C) {
 	glUniformMatrix4fv(uView, 1, GL_FALSE, &V[0][0]);
 	glUniform3fv(uCam, 1, &cam_pos[0]);
 	glUniform1i(sel, selected);
-	glUniform1i(uDisableLight, disableLight);
+
 	glBindVertexArray(VAO);
 	if(haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 	glDrawArrays(GL_TRIANGLES, 0, 36);

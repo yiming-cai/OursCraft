@@ -9,7 +9,6 @@ protected:
 	int selected;
 	int haveTexture;
 	GLuint textureID;
-	int disableLight = 0;
 
 public:
 	void draw(glm::mat4 C);
@@ -17,7 +16,6 @@ public:
 	void setSelected() {
 		selected = 1;
 	}
-	void toggleLight() { disableLight = (disableLight == 0 ? 1 : 0); }
 };
 
 
