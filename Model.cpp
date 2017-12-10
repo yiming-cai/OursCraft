@@ -413,6 +413,14 @@ void Model::update()
 	setModelMatrix( glm::rotate(getUModelMatrix(), 1.0f*glm::pi<float>()/180.0f, glm::vec3(1.0f,1.0f,0.0f)) );
 }
 
+glm::vec3 Model::getPosition()
+{
+	glm::vec3 pos((min_max_pairs_xyz[INDEX_X_MIN] + min_max_pairs_xyz[INDEX_X_MAX]) / 2.0f,
+		(min_max_pairs_xyz[INDEX_Y_MIN] + min_max_pairs_xyz[INDEX_Y_MAX]) / 2.0f,
+		(min_max_pairs_xyz[INDEX_Z_MIN] + min_max_pairs_xyz[INDEX_Z_MAX]) / 2.0f);
+	return glm::vec3(modelMatrix * glm::vec4(pos, 1.0f));
+}
+
 void Model::setCamera(Camera * cam)
 {
 	camera = cam;

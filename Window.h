@@ -14,6 +14,7 @@
 #include "OBJObject.h"
 #include "Light.h"
 #include "LightDisplay.h"
+#include "Sound.h"
 #include <iostream>
 class Window
 {

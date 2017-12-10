@@ -50,6 +50,7 @@ const char* window_title = "GLFW Starter Project";
 Model * model;
 Light lights;
 LightDisplay * lightDisplay;
+Sound * sound;
 //-------------------------------------------
 
 Model * model1;
@@ -206,6 +207,10 @@ void Window::initialize_objects()
 	lightDisplay = new LightDisplay(&lights, currentCam);
 	lightDisplay->initShader(Shader_DisplayLight);
 	lightDisplay->update(Shader_DisplayLight);
+
+	sound = new Sound(currentCam);
+	sound->list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
+	sound->generateBuffer("../assets/sounds/Crash-Cymbal-1.wav");
 	// --------------------------------------------------------------
 }
 

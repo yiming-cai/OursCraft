@@ -132,6 +132,7 @@ public:
 
 	// dummy update method, does nothing in this case
 	void update();
+	glm::vec3 getPosition();
 
 	/* ---------------------------------------------- */
 	// use these when accessing values of getMinMaxValues() Note that these are in object coordinates
