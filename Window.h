@@ -14,7 +14,12 @@
 #include "OBJObject.h"
 #include "Light.h"
 #include "LightDisplay.h"
+#include "Sound.h"
 #include <iostream>
+#include <chrono>
+#include <thread>
+#include <Windows.h>
+
 class Window
 {
 public:

@@ -50,6 +50,8 @@ const char* window_title = "GLFW Starter Project";
 Model * model;
 Light lights;
 LightDisplay * lightDisplay;
+Sound * sound;
+ALuint source;
 //-------------------------------------------
 
 Model * model1;
@@ -215,6 +217,31 @@ void Window::initialize_objects()
 	lightDisplay = new LightDisplay(&lights, currentCam);
 	lightDisplay->initShader(Shader_DisplayLight);
 	lightDisplay->update(Shader_DisplayLight);
+
+	// create a new sound object to control the sounds
+	sound = new Sound(currentCam);
+
+	// generate buffers for sound data. Make sure they are 16bit, stereo or mono, otherwise might not be compatible
+	// For accurate sound effects, USE MONO 16bits sound files only. Covert your music file to WAV 16bit mono !!!
+	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
+	ALuint buf2 = sound->generateBuffer("../assets/sounds/song.wav");
+	std::cerr << "Generated sound buffer " << buf << std::endl;
+
+	// generate sound sources, or the objects that can generate sound. The input is the location of the sound
+	source = sound->generateSource(glm::vec3(-10.0f,0,0));
+	ALuint source2 = sound->generateSource(glm::vec3(1.0f));
+	std::cerr << "Generated sound source " << source << std::endl;
+	
+
+	sound->bindSourceToBuffer(source, buf);
+	sound->bindSourceToBuffer(source2, buf2);
+	// Testing playing multiple sources
+	sound->playSound(source);
+	sound->setSourceLooping(source, true);
+	//Sleep(100);
+	//sound->playSound(source2);
+
+	std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	// --------------------------------------------------------------
 }
 
@@ -317,11 +344,12 @@ void Window::idle_callback()
 		}
 	}
 
-
 	/* ---------Test only ----------------*/
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	//std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	/* ----------------------------------- */
+	sound->updateListener();
 }
 
 void Window::display_callback(GLFWwindow* window)
