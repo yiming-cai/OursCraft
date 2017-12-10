@@ -58,7 +58,7 @@ LightDisplay * lightDisplay;
 
 Model * model1;
 Model * model2;
-
+Sound * sound;
 
 
 int keyPressed;
@@ -220,8 +220,6 @@ void Window::initialize_objects()
 		domino.push_back(model1);
 
 	}
-	
-
 
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -384,9 +382,9 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// draw water;
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	water->draw(glm::mat4(1.0f));
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// test draw model
 	//model->render(Shader_Model);
 	
@@ -396,10 +394,6 @@ void Window::display_callback(GLFWwindow* window)
 	{
 		domino[i]->render(Shader_Model);
 	}
-
-	
-	
-
 	lightDisplay->render(Shader_DisplayLight);
 	
 	glUseProgram(Shader_BoundBox);

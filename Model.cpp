@@ -29,7 +29,7 @@ Model::Model(std::string p_filepath) {
 	{
 		std::cerr << "Failed to load " << filepath << std::endl;
 	}
-	std::cerr << "Loaded " << myMeshes.size() << " meshes!" << std::endl;
+	std::cerr << filepath << ": loaded " << myMeshes.size() << " meshes!" << std::endl;
 }
 
 
@@ -366,11 +366,10 @@ void Model::initShader(GLuint shaderProgram)
 void Model::render(GLuint shaderProgram)
 {
 	if (scene == nullptr) return;
+	glUseProgram(shaderProgram);
 
 	for (auto mesh : myMeshes)
 	{
-		glUseProgram(shaderProgram);
-
 		// We need to calcullate this because modern OpenGL does not keep track of any matrix other than the viewport (D)
 		// Consequently, we need to forward the projection, view, and model matrices to the shader programs
 		// Get the location of the uniform variables "projection" and "modelview"

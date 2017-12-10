@@ -16,6 +16,7 @@
 #include "LightDisplay.h"
 #include "Water.h"
 #include "Fog.h"
+#include "Sound.h"
 
 #include <iostream>
 class Window
