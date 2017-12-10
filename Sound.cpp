@@ -8,7 +8,7 @@ void Sound::updateListener()
 	ALfloat listenerOri[] = {at[0],at[1],at[2],up[0],up[1],up[2]};
 
 	alListener3f(AL_POSITION, pos[0], pos[1], pos[2]);
-	alListener3f(AL_VELOCITY, 0, 0, 0);
+	alListener3f(AL_VELOCITY, 0.0f, 0, 0);
 	alListenerfv(AL_ORIENTATION, listenerOri);
 }
 

@@ -55,7 +55,11 @@ public:
 	// use this for updating the velocity of the source (or object)
 	void updateSourceVelocity(ALuint source, glm::vec3 velocity);
 
-	//void updateSour
+	// 0 for silent, 1 by default, 1 * 2^n for linear sound adjustment. Every n means ~6dB gain/loss
+	void updateSourceGain(ALuint source, float gain);
+
+	// 1 by default, increase it to make sharper sounds
+	void updateSourcePitch(ALuint source, float pitch);
 
 	// use this if you want the Sound to loop
 	void setSourceLooping(ALuint source, bool shouldLoop);

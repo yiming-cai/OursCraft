@@ -218,22 +218,28 @@ void Window::initialize_objects()
 	lightDisplay->initShader(Shader_DisplayLight);
 	lightDisplay->update(Shader_DisplayLight);
 
+	// create a new sound object to control the sounds
 	sound = new Sound(currentCam);
-	ALuint buf = sound->generateBuffer("../assets/sounds/song.wav");
+
+	// generate buffers for sound data. Make sure they are 16bit, stereo or mono, otherwise might not be compatible
+	// For accurate sound effects, USE MONO 16bits sound files only. Covert your music file to WAV 16bit mono !!!
+	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
 	ALuint buf2 = sound->generateBuffer("../assets/sounds/song.wav");
 	std::cerr << "Generated sound buffer " << buf << std::endl;
 
-	source = sound->generateSource(glm::vec3(0));
+	// generate sound sources, or the objects that can generate sound. The input is the location of the sound
+	source = sound->generateSource(glm::vec3(-10.0f,0,0));
 	ALuint source2 = sound->generateSource(glm::vec3(1.0f));
 	std::cerr << "Generated sound source " << source << std::endl;
 	
+
 	sound->bindSourceToBuffer(source, buf);
 	sound->bindSourceToBuffer(source2, buf2);
 	// Testing playing multiple sources
 	sound->playSound(source);
 	sound->setSourceLooping(source, true);
-	Sleep(100);
-	sound->playSound(source2);
+	//Sleep(100);
+	//sound->playSound(source2);
 
 	std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	// --------------------------------------------------------------
