@@ -22,7 +22,6 @@ public:
 
 	void draw(GLuint shaderProgram);
 	void update();
-	void spin(float deg);
 	bool check_collision(BoundBox * other);
 	void setVertices(std::vector <glm::vec3> newVertices);
 	std::vector<GLfloat> x_list;

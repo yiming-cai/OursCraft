@@ -164,8 +164,4 @@ void BoundBox::update()
 
 }
 
-void BoundBox::spin(float deg)
-{
-	toWorld = toWorld * glm::rotate(glm::mat4(1.0f), 1.0f / 180.0f * glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
-}
 

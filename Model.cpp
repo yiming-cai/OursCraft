@@ -46,9 +46,9 @@ Model::~Model()
 }
 
 void Model::setBoundingBox() {
-	bounding_box->toWorld = this->getUModelMatrix()* glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f));
-	bounding_box->update();
-	//bounding_box->setVertices(getAABBBoundingBoxVertices());
+	//bounding_box->toWorld = this->getUModelMatrix()* glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f));
+	//bounding_box->update();
+	bounding_box->setVertices(getOBBBoundingBoxVertices());
 }
 
 
