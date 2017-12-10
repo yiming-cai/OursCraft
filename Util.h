@@ -41,8 +41,11 @@
 #define SIMPLE_POINTER_FRAGMENT_SHADER_PATH "../simplePointerShader.frag"
 #define BOUNDBOX_VERTEX_SHADER_PATH "../boundboxShader.vert"
 #define BOUNDBOX_FRAGMENT_SHADER_PATH "../boundboxShader.frag"
+#define WATER_VERTEX_SHADER_PATH "../waterShader.vert"
+#define WATER_FRAGMENT_SHADER_PATH "../waterShader.frag"
 #define CUBE_TEXTURE_NUM 8
 
+#define WATER_HEIGHT 0.2
 #define MOUSEPOS_INIT_VALUE -1999999
-#define CAMERA_MOVE_STRIP 0.1
+#define CAMERA_MOVE_STRIP 0.2
 #define GROUND_LEVEL -1

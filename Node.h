@@ -12,6 +12,7 @@ extern GLuint Shader_Skybox;
 extern GLuint Shader_Coordinate;
 extern GLuint Shader_Model;
 extern GLuint Shader_SimplePointer;
+extern GLuint Shader_Water;
 
 class Node {
 protected:

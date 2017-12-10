@@ -43,6 +43,7 @@ in vec3 TexCoords;
 in vec3 position;
 in vec3 normal;
 
+
 uniform mat4 projection;
 uniform mat4 model;
 uniform mat4 view;
@@ -52,6 +53,13 @@ uniform int haveTexture;
 uniform samplerCube textureBox;
 uniform vec3 cam_pos;
 uniform int disableLight;
+
+// this is for the fog
+uniform int disableFog;
+uniform vec3 fog_color;
+uniform float fog_end;
+uniform float fog_start;
+uniform vec3 fog_pos;
 
 out vec4 color;
 
@@ -68,7 +76,18 @@ void main()
 	if(haveTexture == 1) color = texture(textureBox,TexCoords);
 	if (disableLight == 1)
 	{
-		return;
+		if(disableFog == 1) {
+			return;
+		}
+		else if(disableFog == 0) {
+			vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
+			delta.y = 0;
+			float fog_f = (fog_end - sqrt(dot(delta,delta))) / (fog_end - fog_start);
+			if(fog_f  < 0) fog_f = 0;
+			if(fog_f  > 1.0) fog_f  = 1.0;
+			color = fog_f  * color + vec4((1.0 - fog_f) * fog_color,0.0f);
+			return;
+		}
 	}
 
 	// records the sum of light colors;
@@ -182,10 +201,16 @@ void main()
 	}
 
 	color = color * vec4(sum_of_colors.xyz, 1.0f);
-
+	if(disableFog == 0) {
+		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
+		delta.y = 0;
+		float fog_f = (fog_end - sqrt(dot(delta,delta))) / (fog_end - fog_start);
+		if(fog_f  < 0) fog_f  = 0;
+		if(fog_f  > 1.0) fog_f  = 1.0;
+		color = fog_f  * color + vec4((1.0 - fog_f ) * fog_color,0.0f);
+	}
 	if (haveTexture == 1)
 	{
 		//color = texture(textureBox, TexCoords) * color;
 	}
-
 }

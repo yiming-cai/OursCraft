@@ -63,10 +63,20 @@ layout (std140) uniform Material {
 };
 
 
+// init fog
+uniform int disableFog;
+uniform vec3 fog_color;
+uniform float fog_end;
+uniform float fog_start;
+uniform vec3 fog_pos;
+
+
 // get the array of lights
 layout (std140) uniform LightBlock {
 	Light lights[NUM_LIGHTS];
 };
+
+
 
 
 // main loop
@@ -187,5 +197,14 @@ void main()
 	if (texCount == 1)
 	{
 		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * sum_of_colors;
+	}
+
+	if(disableFog == 0) {
+		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
+		delta.y = 0;
+		float fog_f = (fog_end - sqrt(dot(delta,delta))) / (fog_end - fog_start);
+		if(fog_f  < 0) fog_f  = 0;
+		if(fog_f  > 1.0) fog_f  = 1.0;
+		color = fog_f  * color + vec4((1.0 - fog_f ) * fog_color,0.0f);
 	}
 }

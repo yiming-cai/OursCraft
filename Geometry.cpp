@@ -36,7 +36,7 @@ void Geometry::draw(glm::mat4 C) {
 		bindedCubeVAO = true;
 	}
 	if (haveTexture) glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, verticesLen / 3);
 	//glBindVertexArray(0);
 
 	if (haveTexture)

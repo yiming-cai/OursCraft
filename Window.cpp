@@ -1,6 +1,5 @@
 #include "Window.h"
 
-
 extern glm::mat4 P;
 extern glm::mat4 V;
 extern GLuint Shader_Geometry; 
@@ -10,6 +9,7 @@ extern GLuint Shader_Model;
 extern GLuint Shader_SimplePointer;
 extern GLuint Shader_BoundBox;
 extern GLuint Shader_DisplayLight;
+extern GLuint Shader_Water;
 
 std::vector<Object *> cubeList;
 std::vector<Camera *> cameraList;
@@ -19,6 +19,7 @@ int pickType = 0;
 int pickStyle = 0;
 int idCount = 0;
 int leftMousePressed,rightMousePressed;
+int disableFog;
 int pickObjectFace;
 int showCoordinate;
 int goRight, goLeft, goUp, goDown, goForward, goBackward;
@@ -32,6 +33,8 @@ Skybox *skybox;
 Camera *currentCam;
 Coordinate *coordinate;
 SimplePointer *centerRouter;
+Fog *fog;
+Water *water;
 
 std::vector<std::string> faces
 {
@@ -44,6 +47,7 @@ std::vector<std::string> faces
 };
 
 
+
 const char* window_title = "GLFW Starter Project";
 
 // ------------ FOR TESTING ONLY ------------
@@ -54,6 +58,8 @@ LightDisplay * lightDisplay;
 
 Model * model1;
 Model * model2;
+
+
 
 int keyPressed;
 int shiftPressed;
@@ -116,6 +122,7 @@ void Window::loadAllShader() {
 	Shader_DisplayLight = LoadShaders(DISPLAYLIGHT_VERTEX_SHADER_PATH, DISPLAYLIGHT_FRAGMENT_SHADER_PATH);
 	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
 	Shader_BoundBox = LoadShaders(BOUNDBOX_VERTEX_SHADER_PATH,BOUNDBOX_FRAGMENT_SHADER_PATH);
+	Shader_Water = LoadShaders(WATER_VERTEX_SHADER_PATH, WATER_FRAGMENT_SHADER_PATH);
 }
 
 void Window::initialize_objects()
@@ -124,7 +131,9 @@ void Window::initialize_objects()
 	mouseX = mouseY = MOUSEPOS_INIT_VALUE;
 	goRight = goLeft = goUp = goDown = goForward = goBackward = 0;
 	showCoordinate = 0;
+	disableFog = 1;
 	loadAllShader();
+
 	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
 	int min = -10, max = 10;
 	for (int i = min; i <= max; ++i)
@@ -132,7 +141,7 @@ void Window::initialize_objects()
 		for (int j = min; j <= max; ++j) 
 		{
 			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
-			cube = new Cube(idCount++, 1, 3);
+			cube = new Cube(idCount++, 1, 0);
 			cube->setPosition(i, GROUND_LEVEL -1, j);
 			cubeList.push_back(cube);
 		}
@@ -144,17 +153,38 @@ void Window::initialize_objects()
 	glUseProgram(Shader_Geometry);
 	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
 	glUniform1i(temp, displayLightOnCube);
-
+	glUseProgram(Shader_Water);
+	temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+	glUniform1i(temp, displayLightOnCube);
+	// init skybox
 	skybox = new Skybox(idCount++, 1000, &faces);
+
+	// init cam;
 	currentCam = new Camera(idCount++, glm::vec3(0, 1, 0), glm::vec3(0, 1, -1), glm::vec3(0, 1, 0));
+
+	// init cor;
 	coordinate = new Coordinate(idCount++, 100);
+
+	// init pointer
 	centerRouter = new SimplePointer(idCount++, 0, 0, glm::vec3(1, 0, 0));
 	ray_dir = glm::vec3(0, 0.5, -1);
+
+	// init fog
+	fog = new Fog(glm::vec3(0.2, 0.2, 0.2), currentCam, 2, 15, 0.1);
+	fog->addShader(Shader_Geometry);
+	fog->addShader(Shader_DisplayLight);
+	fog->addShader(Shader_Model);
+	fog->addShader(Shader_Water);
+	fog->fogUpdate(disableFog);
 	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture\n");
 
+
+	// init water;
+	water = new Water(idCount++, 100, 100, 0.2, 0, 1, 0);
+	water->setPosition(0, 0, -15);
 	// Enables backface culling
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
@@ -208,6 +238,7 @@ void Window::initialize_objects()
 	lights.randInit();
 	lights.initializeShader(Shader_Model);
 	lights.initializeShader(Shader_Geometry);
+	lights.initializeShader(Shader_Water);
 	//lights.turnAllLightOn();
 	lights.updateAllShader();
 
@@ -317,7 +348,12 @@ void Window::idle_callback()
 		}
 	}
 
+	// fog
+	fog->fogUpdate(disableFog);
 
+
+	//water 
+	water->waterUpdate();
 	/* ---------Test only ----------------*/
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
@@ -338,6 +374,7 @@ void Window::display_callback(GLFWwindow* window)
 	//draw skybox
 	skybox->draw(glm::mat4(1.0f));
 
+
 	// draw cube!!!!!
 	drawingCube = true;
 	for (int i = 0; i < cubeList.size();++i)
@@ -345,6 +382,11 @@ void Window::display_callback(GLFWwindow* window)
 	bindedCubeVAO = false;
 	drawingCube = false;
 	
+
+	// draw water;
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	water->draw(glm::mat4(1.0f));
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// test draw model
 	//model->render(Shader_Model);
 	
@@ -355,6 +397,7 @@ void Window::display_callback(GLFWwindow* window)
 		domino[i]->render(Shader_Model);
 	}
 
+	
 	
 
 	lightDisplay->render(Shader_DisplayLight);
@@ -543,6 +586,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			displayLightOnCube = (displayLightOnCube == 1 ? 0 : 1);
 			GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
 			glUniform1i(temp, displayLightOnCube);
+		}
+		if (key == GLFW_KEY_F) {
+			disableFog = -disableFog + 1;
+			
 		}
 		if (key == GLFW_KEY_I) {
 			pickStyle--;

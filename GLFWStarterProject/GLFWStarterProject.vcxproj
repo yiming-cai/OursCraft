@@ -23,6 +23,7 @@
     <ClInclude Include="..\Camera.h" />
     <ClInclude Include="..\Coordinate.h" />
     <ClInclude Include="..\Cube.h" />
+    <ClInclude Include="..\Fog.h" />
     <ClInclude Include="..\Geometry.h" />
     <ClInclude Include="..\Light.h" />
     <ClInclude Include="..\LightDisplay.h" />
@@ -40,6 +41,7 @@
     <ClInclude Include="..\Transform.h" />
     <ClInclude Include="..\Translate.h" />
     <ClInclude Include="..\Util.h" />
+    <ClInclude Include="..\Water.h" />
     <ClInclude Include="..\Window.h" />
   </ItemGroup>
   <ItemGroup>
@@ -47,6 +49,7 @@
     <ClCompile Include="..\Camera.cpp" />
     <ClCompile Include="..\Coordinate.cpp" />
     <ClCompile Include="..\Cube.cpp" />
+    <ClCompile Include="..\Fog.cpp" />
     <ClCompile Include="..\Geometry.cpp" />
     <ClCompile Include="..\Light.cpp" />
     <ClCompile Include="..\LightDisplay.cpp" />
@@ -64,6 +67,7 @@
     <ClCompile Include="..\Transform.cpp" />
     <ClCompile Include="..\Translate.cpp" />
     <ClCompile Include="..\Util.cpp" />
+    <ClCompile Include="..\Water.cpp" />
     <ClCompile Include="..\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +87,8 @@
     <None Include="..\simplePointerShader.vert" />
     <None Include="..\skyboxShader.frag" />
     <None Include="..\skyboxShader.vert" />
+    <None Include="..\waterShader.frag" />
+    <None Include="..\waterShader.vert" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -90,7 +96,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EBF1E546-3F93-49DB-BD9A-B629C3C6DCB0}</ProjectGuid>
     <RootNamespace>GLFWStarterProject</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

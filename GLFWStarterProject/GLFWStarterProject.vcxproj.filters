@@ -81,6 +81,12 @@
     <ClInclude Include="..\LightDisplay.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Fog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Water.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\main.cpp">
@@ -149,6 +155,12 @@
     <ClCompile Include="..\LightDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Fog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\shader.frag">
@@ -194,6 +206,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\displayLightShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\waterShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\waterShader.frag">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
