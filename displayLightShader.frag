@@ -63,7 +63,7 @@ layout (std140) uniform Material {
 };
 
 
-// init fog
+// this is for the fog
 uniform int disableFog;
 uniform vec3 fog_color;
 uniform float fog_end;
@@ -181,12 +181,13 @@ void main()
 		sum_of_colors += max( vec4(0), c_l * c_mat );
 	}
 
-	color = vec4(sum_of_colors.xyz, opacity) * normalize(lights[light_i].intensities);
+	color = vec4(sum_of_colors.xyz, opacity) * vec4(normalize(lights[light_i].intensities.xyz), 1.0);
 
 	if (texCount == 1)
 	{
 		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * color;
 	}
+
 	if(disableFog == 0) {
 		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
 		delta.y = 0;
