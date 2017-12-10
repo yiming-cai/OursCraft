@@ -127,7 +127,7 @@ bool BoundBox::check_collision(BoundBox * other) {
 	}
 
 	// Checks for collision
-	if (x_collides && y_collides & z_collides) {
+	if (x_collides && y_collides && z_collides) {
 		this->collision = true;
 		other->collision = true;
 		return true;
