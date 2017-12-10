@@ -11,6 +11,14 @@
 #include <iostream>
 #include <set>
 
+struct SoundAttributes
+{
+	short * data;
+	int size;
+	int frequency;
+	ALenum format;
+};
+
 class Sound
 {
 private:
@@ -21,7 +29,7 @@ private:
 	std::set<ALuint> allGeneratedSources;
 	std::set<ALuint> allGeneratedBuffers;
 	std::map<ALuint, ALuint> bindedSources;
-	std::vector< std::vector<short> > soundBuffers;
+	std::map< std::string, SoundAttributes > soundBuffers;
 
 public:
 
@@ -33,7 +41,7 @@ public:
 
 	// for checking and printing out any errors
 	// return true if there is indeed an error
-	bool checkError();
+	bool checkError(std::string comment);
 
 	// for updating sound listener to current camera context
 	void updateListener();
@@ -46,6 +54,9 @@ public:
 
 	// use this for updating the velocity of the source (or object)
 	void updateSourceVelocity(ALuint source, glm::vec3 velocity);
+
+	// use this if you want the Sound to loop
+	void setSourceLooping(ALuint source, bool shouldLoop);
 
 	// generate a new buffer for the sound file specified by the filepath
 	// will return null and print an error message if there's any errors

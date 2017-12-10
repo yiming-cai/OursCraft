@@ -51,6 +51,7 @@ Model * model;
 Light lights;
 LightDisplay * lightDisplay;
 Sound * sound;
+ALuint source;
 //-------------------------------------------
 
 Model * model1;
@@ -218,8 +219,22 @@ void Window::initialize_objects()
 	lightDisplay->update(Shader_DisplayLight);
 
 	sound = new Sound(currentCam);
-	sound->list_audio_devices(alcGetString(NULL, ALC_DEVICE_SPECIFIER));
-	sound->generateBuffer("../assets/sounds/Crash-Cymbal-1.wav");
+	ALuint buf = sound->generateBuffer("../assets/sounds/song.wav");
+	ALuint buf2 = sound->generateBuffer("../assets/sounds/song.wav");
+	std::cerr << "Generated sound buffer " << buf << std::endl;
+
+	source = sound->generateSource(glm::vec3(0));
+	ALuint source2 = sound->generateSource(glm::vec3(1.0f));
+	std::cerr << "Generated sound source " << source << std::endl;
+	
+	sound->bindSourceToBuffer(source, buf);
+	sound->bindSourceToBuffer(source2, buf2);
+	// Testing playing multiple sources
+	sound->playSound(source);
+	Sleep(100);
+	sound->playSound(source2);
+
+	std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	// --------------------------------------------------------------
 }
 
@@ -322,11 +337,12 @@ void Window::idle_callback()
 		}
 	}
 
-
 	/* ---------Test only ----------------*/
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
+	//std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	/* ----------------------------------- */
+	sound->updateListener();
 }
 
 void Window::display_callback(GLFWwindow* window)
