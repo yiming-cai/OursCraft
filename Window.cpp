@@ -159,6 +159,7 @@ void Window::initialize_objects()
 
 	// ------------------FOR TESTING ONLY ---------------------
 	// Create a test model
+	/**
 	std::cout << "loading model......\n" << std::endl;
 	model = new Model( "../cuboid.obj");
 	model->centerAndScale(1.0f);
@@ -177,14 +178,22 @@ void Window::initialize_objects()
 	model2->bounding_box->update();
 	model2->setCamera(currentCam);
 	model2->initShader(Shader_Model);
+	**/
+	for (int i = 0; i < 8; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,0.5f*i })*model1->getUModelMatrix());
+		model1->centerAndScale(1.0f);
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+		domino.push_back(model1);
 
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
-		{
-			{
-				std::cout << (model2->getUModelMatrix())[i][j];
-			}
-		}
+	}
+	
+
+
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_DEPTH_TEST);
@@ -301,12 +310,18 @@ void Window::idle_callback()
 
 	//fake the domino collision
 	int count = 0;
-	if (!model->bounding_box->check_collision(model2->bounding_box)) {
-		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+	bool collision = false;
+	for (int i = 0; i < 7; i++)
+	{
+		if (!domino[i]->bounding_box->check_collision(domino[i+1]->bounding_box)) {
+			domino[i]->setModelMatrix(glm::rotate(domino[i]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+			
+		}
+		else {
+			
+		}
 	}
-	else {
-		//model2->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
-	}
+
 
 	/* ---------Test only ----------------*/
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
@@ -336,9 +351,14 @@ void Window::display_callback(GLFWwindow* window)
 	drawingCube = false;
 	
 	// test draw model
-	model->render(Shader_Model);
+	//model->render(Shader_Model);
 	
-	model2->render(Shader_Model);
+	//model2->render(Shader_Model);
+
+	for (int i = 0; i < 8; i++)
+	{
+		domino[i]->render(Shader_Model);
+	}
 
 	
 
@@ -346,9 +366,13 @@ void Window::display_callback(GLFWwindow* window)
 	
 	glUseProgram(Shader_BoundBox);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	model->bounding_box->draw(Shader_BoundBox);
+	for (int i = 0; i < 8; i++)
+	{
+		domino[i]->bounding_box->draw(Shader_BoundBox);
+	}
+	//model->bounding_box->draw(Shader_BoundBox);
 	
-	model2->bounding_box->draw(Shader_BoundBox);
+	//model2->bounding_box->draw(Shader_BoundBox);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	glfwPollEvents();
