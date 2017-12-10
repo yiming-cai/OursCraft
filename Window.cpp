@@ -236,10 +236,10 @@ void Window::initialize_objects()
 	sound->bindSourceToBuffer(source, buf);
 	sound->bindSourceToBuffer(source2, buf2);
 	// Testing playing multiple sources
-	sound->playSound(source);
+	sound->playSourceSound(source);
 	sound->setSourceLooping(source, true);
 	//Sleep(100);
-	//sound->playSound(source2);
+	//sound->playSourceSound(source2);
 
 	std::cerr << (sound->isSourcePlaying(source) ? "Sound file is playing!" : "ERROR! Sound file is not playing") << std::endl;
 	// --------------------------------------------------------------

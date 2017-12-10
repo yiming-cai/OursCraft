@@ -182,7 +182,7 @@ void Sound::bindSourceToBuffer(ALuint source, ALuint buffer)
 	bindedSources[source] = buffer;
 }
 
-void Sound::playSound(ALuint source)
+void Sound::playSourceSound(ALuint source)
 {
 	if (allGeneratedSources.find(source) == allGeneratedSources.end())
 	{
@@ -190,6 +190,36 @@ void Sound::playSound(ALuint source)
 		return;
 	}
 	alSourcePlay(source);
+}
+
+void Sound::pauseSourceSound(ALuint source)
+{
+	if (allGeneratedSources.find(source) == allGeneratedSources.end())
+	{
+		std::cerr << "This source does not exist!" << std::endl;
+		return;
+	}
+	alSourcePause(source);
+}
+
+void Sound::stopSourceSound(ALuint source)
+{
+	if (allGeneratedSources.find(source) == allGeneratedSources.end())
+	{
+		std::cerr << "This source does not exist!" << std::endl;
+		return;
+	}
+	alSourceStop(source);
+}
+
+void Sound::rewindSourceSound(ALuint source)
+{
+	if (allGeneratedSources.find(source) == allGeneratedSources.end())
+	{
+		std::cerr << "This source does not exist!" << std::endl;
+		return;
+	}
+	alSourceRewind(source);
 }
 
 bool Sound::isSourcePlaying(ALuint source)

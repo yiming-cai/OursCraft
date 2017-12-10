@@ -72,7 +72,13 @@ public:
 	void bindSourceToBuffer(ALuint source, ALuint buffer);
 
 	// play the sound in the last binded buffer to this source
-	void playSound(ALuint source);
+	void playSourceSound(ALuint source);
+
+	void pauseSourceSound(ALuint source);
+
+	void stopSourceSound(ALuint source);
+
+	void rewindSourceSound(ALuint source);
 
 	// check if the current source is still playing the sound
 	bool isSourcePlaying(ALuint source);
