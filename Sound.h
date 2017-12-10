@@ -55,6 +55,8 @@ public:
 	// use this for updating the velocity of the source (or object)
 	void updateSourceVelocity(ALuint source, glm::vec3 velocity);
 
+	//void updateSour
+
 	// use this if you want the Sound to loop
 	void setSourceLooping(ALuint source, bool shouldLoop);
 

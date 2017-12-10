@@ -53,6 +53,26 @@ void Sound::updateSourceVelocity(ALuint source, glm::vec3 velocity)
 	alSource3f(source, AL_VELOCITY, velocity[0], velocity[1], velocity[2]);
 }
 
+void Sound::updateSourceGain(ALuint source, float gain)
+{
+	if (allGeneratedSources.find(source) == allGeneratedSources.end())
+	{
+		std::cerr << "This source does not exist!" << std::endl;
+		return;
+	}
+	alSourcef(source, AL_POSITION, gain);
+}
+
+void Sound::updateSourcePitch(ALuint source, float pitch)
+{
+	if (allGeneratedSources.find(source) == allGeneratedSources.end())
+	{
+		std::cerr << "This source does not exist!" << std::endl;
+		return;
+	}
+	alSourcef(source, AL_POSITION, pitch);
+}
+
 void Sound::setSourceLooping(ALuint source, bool shouldLoop)
 {
 	if (allGeneratedSources.find(source) == allGeneratedSources.end())

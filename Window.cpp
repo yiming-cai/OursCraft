@@ -231,6 +231,7 @@ void Window::initialize_objects()
 	sound->bindSourceToBuffer(source2, buf2);
 	// Testing playing multiple sources
 	sound->playSound(source);
+	sound->setSourceLooping(source, true);
 	Sleep(100);
 	sound->playSound(source2);
 
