@@ -45,7 +45,10 @@
 #define WATER_FRAGMENT_SHADER_PATH "../waterShader.frag"
 #define CUBE_TEXTURE_NUM 8
 
-#define WATER_HEIGHT 0.2
+#define WATER_HEIGHT 1
 #define MOUSEPOS_INIT_VALUE -1999999
-#define CAMERA_MOVE_STRIP 0.2
+#define CAMERA_MOVE_STRIP 0.4
 #define GROUND_LEVEL -1
+
+#define VIEW_WIDTH 1280
+#define VIEW_HEIGHT 720

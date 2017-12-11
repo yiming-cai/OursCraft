@@ -19,5 +19,8 @@ public:
 	void setSelected() {
 
 	}
+	GLuint getTexture() {
+		return texture;
+	}
 	
 };

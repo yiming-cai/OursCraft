@@ -13,13 +13,15 @@ out vec3 positionColor;
 out vec2 TexCoords;
 out vec3 position;
 out vec3 normal;
-
+out vec3 inverseNormal;
 
 void main()
 {
     gl_Position = projection *  view * model * vec4(position_in, 1.0);
 	position = position_in;
 	normal = normal_in;
+
+	inverseNormal = mat3(transpose(inverse(model))) * normal_in;	
 	TexCoords = vec2(position_in.x / size,position_in.z / size);
 	positionColor = color;
 }

@@ -50,7 +50,7 @@ uniform mat4 view;
 
 uniform int selected;
 uniform int haveTexture;
-uniform sampler2D textureBox;
+
 uniform vec3 cam_pos;
 uniform int disableLight;
 
@@ -60,6 +60,13 @@ uniform vec3 fog_color;
 uniform float fog_end;
 uniform float fog_start;
 uniform vec3 fog_pos;
+
+// for water shading;
+in vec3 inverseNormal;
+uniform sampler2D textureBox;
+uniform sampler2D textureReflection;
+uniform samplerCube textureFraction;
+uniform float size;
 
 out vec4 color;
 
@@ -73,8 +80,16 @@ void main()
 	}
 
 	color = vec4(positionColor.x,positionColor.y,positionColor.z, 1.0f);
-	if(haveTexture == 1) color = texture(textureBox,TexCoords);
-	color.w = 0.5f;
+	if(haveTexture == 1)  { 
+		
+		vec4 color_ma = texture(textureBox, TexCoords);
+		vec3 i = normalize(vec3(model * vec4(position,1.0f)) - cam_pos);
+		vec3 r = reflect(i, normalize(inverseNormal));
+		vec4 color_fr = vec4(texture(textureFraction,r).rgb,1.0);
+		vec4 color_re = texture(textureReflection,vec2((-TexCoords.x),(-TexCoords.y)));
+		color = mix(mix(color_ma,color_re,0.2),color_fr,0.5);
+	}
+	//color.w = 0.5f;
 	if (disableLight == 1)
 	{
 		if(disableFog == 1) {
@@ -87,6 +102,7 @@ void main()
 			if(fog_f  < 0) fog_f = 0;
 			if(fog_f  > 1.0) fog_f  = 1.0;
 			color = fog_f  * color + vec4((1.0 - fog_f) * fog_color,0.0f);
+			color.w = 1;
 			return;
 		}
 	}
@@ -209,6 +225,7 @@ void main()
 		if(fog_f  < 0) fog_f  = 0;
 		if(fog_f  > 1.0) fog_f  = 1.0;
 		color = fog_f  * color + vec4((1.0 - fog_f ) * fog_color,0.0f);
+		color.w = 1;
 	}
 	if (haveTexture == 1)
 	{

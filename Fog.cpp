@@ -36,7 +36,7 @@ void Fog::addShader(GLuint shader)
 void Fog::fogUpdate(int available)
 {
 	GLuint pos;
-	if (tempend <= start) rate = fabs(rate);
+	if (tempend <= start + 0.2) rate = fabs(rate);
 	if (tempend >= end) rate = -fabs(rate);
 	tempend += rate;
 	for (int i = 0; i < shaderList->size(); ++i) {
