@@ -11,7 +11,7 @@ extern GLuint Shader_BoundBox;
 extern GLuint Shader_DisplayLight;
 extern GLuint Shader_Water;
 
-std::vector<Object *> cubeList;
+std::vector<Cube *> cubeList;
 std::vector<Camera *> cameraList;
 std::vector<Model *> domino;
 
@@ -60,7 +60,7 @@ LightDisplay * lightDisplay;
 Model * model1;
 Model * model2;
 Sound * sound;
-
+Util util;
 
 int keyPressed;
 int shiftPressed;
@@ -415,7 +415,9 @@ void Window::mouseButton_callback(GLFWwindow* window, int button, int action, in
 		if (pickObject != NULL) {
 			for (int i = 0; i < cubeList.size(); ++i) {
 				if (cubeList[i]->getId() == pickObject->getId()) {
+					Cube * ptr = cubeList[i];
 					cubeList.erase(cubeList.begin() + i);
+					delete ptr;
 					break;
 				}
 			}
@@ -629,6 +631,140 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			lights.updateAllShader();
 			lightDisplay->update(Shader_DisplayLight);
 			std::cerr << "Light " << index << " is turned " << ((lights.getLightStatus(index) == 1) ? "on" : "off") << "!" << std::endl;
+		}
+
+		// use ctrl + f1 to f12 to save to 12 different file locations
+		// disabled when light mode is on
+		if ( (mods & GLFW_MOD_CONTROL) != 0)
+		{
+			if (!light_toggle && key >= GLFW_KEY_F1 && key <= GLFW_KEY_F12)
+			{
+				int file = key - GLFW_KEY_F1 + 1;
+				std::stringstream str;
+				str << "#IDCOUNT" << "," << idCount << std::endl;
+				str << "#STARTCUBE" << std::endl;
+				for (int i = 0; i < cubeList.size(); i++)
+				{
+					CubeInfo info = cubeList[i]->getCubeInfo();
+					str << info.id << ","
+						<< info.position.x << ","
+						<< info.position.y << ","
+						<< info.position.z << ","
+						<< info.size << ","
+						<< info.textureId << ","
+						<< info.color.x << ","
+						<< info.color.y << ","
+						<< info.color.z << std::endl;
+				}
+				str << "#ENDCUBE" << std::endl;
+
+				std::stringstream filename ;
+				filename << OUTPUTFILELOCATION << file;
+				std::ofstream out(filename.str(), std::ofstream::out);
+				out << str.str();
+
+				// For recording the light status
+				str << "#STARTLIGHT" << std::endl;
+				lights.writeToFile(out);
+				str << "#ENDLIGHT" << std::endl;
+
+				out.close();
+				std::cout << "Successfully saved to " << filename.str() << "!" << std::endl;
+			}
+		}
+
+		// use shift + f1 to f12 to load from 12 different locations
+		// disabled in light mode
+		if ((mods & GLFW_MOD_SHIFT) != 0)
+		{
+			if (!light_toggle && key >= GLFW_KEY_F1 && key <= GLFW_KEY_F12)
+			{
+				int file = key - GLFW_KEY_F1 + 1;
+				std::stringstream filename;
+				filename << OUTPUTFILELOCATION << file;
+				std::ifstream in(filename.str(), std::ofstream::in);
+				if (!in.is_open())
+				{
+					std::cerr << "Invalid file! Please make a save file first" << std::endl;
+					return;
+				}
+
+				for (int i = 0; i < cubeList.size(); i++)
+				{
+					delete cubeList[i];
+				}
+				cubeList.clear();
+				std::cerr << (cubeList.size() == 0 ? "Cleared cube list!" : "Failed to clear cube list!") << std::endl;
+
+				std::string line;
+				bool readingCube = false;
+				bool readingLight = false;
+				Cube * cube_temp;
+				while (std::getline(in, line))
+				{
+					std::vector<std::string> tokens = util.split(line, ',');
+					if (tokens[0] == "#IDCOUNT")
+					{
+						int count = std::stoi(tokens[1], nullptr);
+						idCount = count;
+						std::cerr << "load id count: " << idCount << std::endl;
+					}
+					else if (tokens[0] == "#STARTCUBE")
+					{
+						std::cerr << "start to read cube lines..." << std::endl;
+						readingCube = true;
+					}
+					else if (tokens[0] == "#ENDCUBE")
+					{
+						std::cerr << "stop to read cube lines..." << std::endl;
+						readingCube = false;
+					}
+					else if (tokens[0] == "#STARTLIGHT")
+					{
+						readingLight = true;
+					}
+					else if (tokens[0] == "#ENDLIGHT")
+					{
+						readingLight = false;
+					}
+					else if (readingCube)
+					{
+						int id = std::stoi(tokens[FILE_INDEX_ID], nullptr);
+						//if (id == -1) continue;
+						float pos_x = std::stof(tokens[FILE_INDEX_POS_X], nullptr);
+						float pos_y = std::stof(tokens[FILE_INDEX_POS_Y], nullptr);
+						float pos_z = std::stof(tokens[FILE_INDEX_POS_Z], nullptr);
+						float size = std::stof(tokens[FILE_INDEX_SIZE], nullptr);
+						int texId = std::stoi(tokens[FILE_INDEX_TEXTUREID], nullptr);
+						float color_x = std::stof(tokens[FILE_INDEX_COLOR_X], nullptr);
+						float color_y = std::stof(tokens[FILE_INDEX_COLOR_Y], nullptr);
+						float color_z = std::stof(tokens[FILE_INDEX_COLOR_Z], nullptr);
+						if (texId != -1)
+						{
+							cube_temp = new Cube(id, size, texId);
+							cube_temp->setPosition(pos_x, pos_y, pos_z);
+							cubeList.push_back(cube_temp);
+						}
+						else
+						{
+							cube_temp = new Cube(id, size, glm::vec3(color_x, color_y, color_z));
+							cube_temp->setPosition(pos_x, pos_y, pos_z);
+							cubeList.push_back(cube_temp);
+						}
+					}
+					else if (readingLight)
+					{
+						lights.readFromFile(in);
+					}
+					else
+					{
+						std::cerr << "Unknown file line: " << line << std::endl;
+					}
+				}
+
+				std::cout << "Successfully loaded from " << filename.str() << "!" << std::endl;
+				
+			}
 		}
 	}
 	if (action == GLFW_RELEASE) {
