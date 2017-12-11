@@ -19,9 +19,22 @@
 #include "Sound.h"
 
 #include <iostream>
+#include <sstream>
+#include <fstream>
+
 class Window
 {
 public:
+
+	const static int FILE_INDEX_ID = 0;
+	const static int FILE_INDEX_POS_X = 1;
+	const static int FILE_INDEX_POS_Y = 2;
+	const static int FILE_INDEX_POS_Z = 3;
+	const static int FILE_INDEX_SIZE = 4;
+	const static int FILE_INDEX_TEXTUREID = 5;
+	const static int FILE_INDEX_COLOR_X = 6;
+	const static int FILE_INDEX_COLOR_Y = 7;
+	const static int FILE_INDEX_COLOR_Z = 8;
 
 	static int width;
 	static int height;

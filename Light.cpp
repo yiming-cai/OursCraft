@@ -281,6 +281,16 @@ void Light::setLight(int index, LightParameters light)
 	lights[index] = light;
 }
 
+void Light::writeToFile(std::ofstream& out)
+{
+
+}
+
+void Light::readFromFile(std::ifstream& in)
+{
+
+}
+
 int Light::getLightType(int index) const
 {
 	return lights[index].type;

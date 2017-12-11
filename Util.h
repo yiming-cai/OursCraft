@@ -14,6 +14,9 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 #define MAX(a,b) ((a) < (b) ? (b) : (a))
@@ -43,6 +46,7 @@
 #define BOUNDBOX_FRAGMENT_SHADER_PATH "../boundboxShader.frag"
 #define WATER_VERTEX_SHADER_PATH "../waterShader.vert"
 #define WATER_FRAGMENT_SHADER_PATH "../waterShader.frag"
+#define OUTPUTFILELOCATION "../savefile.dat"
 #define CUBE_TEXTURE_NUM 8
 
 #define WATER_HEIGHT 1
@@ -52,3 +56,11 @@
 
 #define VIEW_WIDTH 1280
 #define VIEW_HEIGHT 720
+
+// used for defining some useful functions
+class Util
+{
+public:
+	// just a lil split function
+	std::vector<std::string> split(const std::string &s, char delim);
+};

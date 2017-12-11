@@ -99,6 +99,12 @@ GLuint Cube::loadTexture(int pos)
 
 }
 Cube::Cube(int id, float size, glm::vec3 color) {
+
+	info.id = id;
+	info.size = size;
+	info.color = color;
+	info.textureId = -1;
+
 	this->id = id;
 	this->selected = 0;
 	this->haveTexture = 0;
@@ -147,6 +153,11 @@ Cube::Cube(int id, float size, glm::vec3 color) {
 
 Cube::Cube(int id, float size, int textureSeq)
 {
+	info.id = id;
+	info.size = size;
+	info.color = glm::vec3(0);
+	info.textureId = textureSeq;
+
 	this->id = id;
 	this->selected = 0;
 	this->haveTexture = 1;

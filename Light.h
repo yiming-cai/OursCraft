@@ -4,7 +4,9 @@
 #include <stdlib.h>     /* srand, rand */
 #include <map>
 #include <iostream>
-
+#include <fstream>
+#include <sstream>
+#include <iterator>
 
 struct LightParameters
 {
@@ -176,6 +178,10 @@ public:
 
 	// set the light at the index
 	void setLight(int index, LightParameters light);
+
+	void writeToFile(std::ofstream&);
+
+	void readFromFile(std::ifstream&);
 	/* --------------------------------------------- */
 
 
