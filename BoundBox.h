@@ -19,7 +19,7 @@ public:
 	glm::mat4 toWorld;
 	GLuint VBO, VAO, EBO;
 	GLuint uProjection, uModelview, uCollision;
-
+	int count_rotate = 0;
 	void draw(GLuint shaderProgram);
 	void update();
 	bool check_collision(BoundBox * other);

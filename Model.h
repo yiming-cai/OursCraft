@@ -114,7 +114,7 @@ private:
 
 
 public:
-
+	glm::vec3 domino_position;
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
 	void setBoundingBox();
 	bool checkBounds(Model * other);

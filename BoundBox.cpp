@@ -80,8 +80,8 @@ bool BoundBox::check_collision(BoundBox * obj) {
 	bool x_collides = false;
 	bool y_collides = false;
 	bool z_collides = false;
-	this->collision = false;
-	obj->collision = false;
+	//this->collision = false;
+	//obj->collision = false;
 	std::sort(this->x_list.begin(), this->x_list.end());
 	std::sort(this->y_list.begin(), this->y_list.end());
 	std::sort(this->z_list.begin(), this->z_list.end());

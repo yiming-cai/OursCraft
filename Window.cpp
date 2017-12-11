@@ -77,7 +77,10 @@ int Window::height;
 bool begin_domino = false;
 bool show_boudingbox = false;
 bool done_collision = false;
-int collision_time = 0;
+int count = 0;
+int count_before = 0;
+int domino_index = 0;
+
 
 void Window::placeObject(int type, int *style)
 {
@@ -193,10 +196,11 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// ------------------FOR TESTING ONLY ---------------------
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 100; i++)
 	{
 		model1 = new Model("../cuboid.obj");
-		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,0.5f*i })*model1->getUModelMatrix());
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0.5f,0.5f*i })*model1->getUModelMatrix());
+		model1->domino_position = glm::vec3(0,0,0.5*i);
 		model1->centerAndScale(1.0f);
 		model1->setBoundingBox();
 		model1->bounding_box->update();
@@ -205,6 +209,8 @@ void Window::initialize_objects()
 		domino.push_back(model1);
 
 	}
+	
+	domino[0]->bounding_box->collision = true;
 
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -318,25 +324,31 @@ void Window::idle_callback()
 	pickObject = testForCollision(&pickObjectFace);
 
 	//fake the domino collision
+	
 	if (begin_domino == true) {
-
-
-		if (!domino[0]->bounding_box->check_collision(domino[1]->bounding_box)) {
-			domino[0]->setModelMatrix(glm::rotate(domino[0]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f)));
-		}
-		else {
-			if (domino[0]->bounding_box->collision == true) {
-				collision_time++;
-				if (collision_time = 1) {
-					domino[0]->bounding_box->collision == false;
-				}
+		
+		glm::mat4 m1, m2, m3;
+		
+		for (int i = 0; i < domino.size()-1; ++i) {
+			if (domino[i]->bounding_box->collision && domino[i]->bounding_box->count_rotate <=70) {
+					m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[i]->domino_position);
+					m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+					m3 = glm::translate(glm::mat4(1.0f), domino[i]->domino_position);
+					domino[i]->setModelMatrix(m3 * m2 * m1 * domino[i]->getUModelMatrix());
+					domino[i]->bounding_box->count_rotate++;
 			}
+			domino[i]->bounding_box->check_collision(domino[i+1]->bounding_box);
 		}
-		/*
-		if (!domino[1]->bounding_box->check_collision(domino[0]->bounding_box)) {
-			domino[1]->setModelMatrix(glm::rotate(domino[1]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+
+		if (domino[domino.size() - 1]->bounding_box->collision == true && count<=90) {
+
+				m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[domino.size() - 1]->domino_position);
+				m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+				m3 = glm::translate(glm::mat4(1.0f), domino[domino.size() - 1]->domino_position);
+				domino[domino.size() - 1]->setModelMatrix(m3 * m2 * m1 * domino[domino.size() - 1]->getUModelMatrix());
+				count++;
+			
 		}
-		*/
 	}
 
 
