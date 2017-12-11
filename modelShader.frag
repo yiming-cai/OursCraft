@@ -206,5 +206,6 @@ void main()
 		if(fog_f  < 0) fog_f  = 0;
 		if(fog_f  > 1.0) fog_f  = 1.0;
 		color = fog_f  * color + vec4((1.0 - fog_f ) * fog_color,0.0f);
+		color.w = 1.0f;
 	}
 }

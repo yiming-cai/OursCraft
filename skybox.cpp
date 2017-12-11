@@ -80,7 +80,7 @@ Skybox::~Skybox()
 void Skybox::draw(glm::mat4 C)
 {
 	glm::mat4 modelview = V * C * glm::mat4(1.0f);
-	glDepthMask(GL_FALSE);
+	//glDepthMask(GL_FALSE);
 	glUseProgram(shader);
 
 	GLuint uProjection = glGetUniformLocation(shader, "projection");
@@ -95,6 +95,7 @@ void Skybox::draw(glm::mat4 C)
 	glBindVertexArray(VAO);
 	glUniform1i(skyboxI, 0);
 	glUniform1f(distanceI, distance);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);

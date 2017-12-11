@@ -1,4 +1,4 @@
-#include "Window.h"
+﻿#include "Window.h"
 
 extern glm::mat4 P;
 extern glm::mat4 V;
@@ -24,6 +24,7 @@ int pickObjectFace;
 int showCoordinate;
 int goRight, goLeft, goUp, goDown, goForward, goBackward;
 int displayLightOnCube;
+int disableWater;
 float mouseX, mouseY;
 glm::vec3 ray_dir;
 Object* pickObject = NULL;
@@ -132,10 +133,11 @@ void Window::initialize_objects()
 	goRight = goLeft = goUp = goDown = goForward = goBackward = 0;
 	showCoordinate = 0;
 	disableFog = 1;
+	disableWater = 1;
 	loadAllShader();
 
 	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
-	int min = -10, max = 10;
+	int min = -2, max = 2;
 	for (int i = min; i <= max; ++i)
 	{
 		for (int j = min; j <= max; ++j) 
@@ -154,7 +156,7 @@ void Window::initialize_objects()
 	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
 	glUniform1i(temp, displayLightOnCube);
 	glUseProgram(Shader_Water);
-	temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+	temp = glGetUniformLocation(Shader_Water, "disableLight");
 	glUniform1i(temp, displayLightOnCube);
 	// init skybox
 	skybox = new Skybox(idCount++, 1000, &faces);
@@ -180,8 +182,9 @@ void Window::initialize_objects()
 
 
 	// init water;
-	water = new Water(idCount++, 100, 100, 0.2, 0, 1, 0);
-	water->setPosition(0, 0, -15);
+	
+	water = new Water(idCount++, 300, 200, 0.2, 0, 1, 0,skybox ->getTexture(), currentCam);
+	water->setPosition(-150, GROUND_LEVEL - 2, 150);
 	// Enables backface culling
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
@@ -346,12 +349,14 @@ void Window::idle_callback()
 		}
 	}
 
-	// fog
-	fog->fogUpdate(disableFog);
+	
 
 
 	//water 
-	water->waterUpdate();
+	if(!disableWater) water->waterUpdate();
+
+	// fog
+	fog->fogUpdate(disableFog);
 	/* ---------Test only ----------------*/
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
@@ -362,7 +367,9 @@ void Window::display_callback(GLFWwindow* window)
 {
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
+	
+	
 	// draw coordinate
 	if (showCoordinate) coordinate->draw(glm::mat4(1.0f));
 
@@ -382,9 +389,9 @@ void Window::display_callback(GLFWwindow* window)
 	
 
 	// draw water;
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	water->draw(glm::mat4(1.0f));
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if(!disableWater) water->draw(glm::mat4(1.0f));
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// test draw model
 	//model->render(Shader_Model);
 	
@@ -411,6 +418,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	// Swap buffers
 	glfwSwapBuffers(window);
+	
 }
 
 void Window::mouseButton_callback(GLFWwindow* window, int button, int action, int mods)
@@ -583,13 +591,15 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		}
 		if (key == GLFW_KEY_F) {
 			disableFog = -disableFog + 1;
-			
 		}
 		if (key == GLFW_KEY_I) {
 			pickStyle--;
 		}
 		if (key == GLFW_KEY_O) {
 			pickStyle++;
+		}
+		if (key == GLFW_KEY_J) {
+			disableWater = -disableWater + 1;
 		}
 		if (key == GLFW_KEY_0) {
 			if (!light_toggle)

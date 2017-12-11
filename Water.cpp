@@ -32,10 +32,11 @@ GLuint Water::loadTexture(int pos)
 
 }
 
-Water::Water(int id, int size, float total, float v, float u, float t, int tex)
+Water::Water(int id, int size, float total, float v, float u, float t, int tex,GLuint skyboxId, Camera *camrea)
 {
 	this->id = id;
 	this->size = size;
+	this->camera = camera;
 	this->total = total;
 	this->water_v = v;
 	this->water_t = t;
@@ -116,7 +117,17 @@ Water::Water(int id, int size, float total, float v, float u, float t, int tex)
 		}
 	}
 
+	frameDepth = skyboxId;
+	glGenTextures(1, &frameBuffer);
+	glBindTexture(GL_TEXTURE_2D, frameBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+
 	glGenVertexArrays(1, &VAO);
+	
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &CBO);
 	glGenBuffers(1, &NBO);
@@ -138,6 +149,8 @@ Water::Water(int id, int size, float total, float v, float u, float t, int tex)
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
+
+	
 
 
 }
@@ -229,6 +242,7 @@ Water::Water(int id, int size, float total, float v, float u, float t,glm::vec3 
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &CBO);
 	glGenBuffers(1, &NBO);
+	
 
 	glBindVertexArray(VAO);
 
@@ -270,14 +284,15 @@ void Water::waterUpdate()
 		}
 	}
 	int count = 0;
-	for (int i = 1; i < total - 1; ++i) {
-		for (int j = 1; j < total - 1; ++j) {
+	for (int i = 0; i < total; ++i) {
+		for (int j = 0; j < total; ++j) {
 			seq = (i * total + j);
 			buffer[seq].y = k1 * buffer2[seq] + k2 * buffer3[seq] + k3 * (
 				((j == total - 1) ? 0 : buffer2[seq + 1]) + 
 				((j == 0) ? 0 : buffer2[seq - 1]) + 
 				((i == total - 1) ? 0 :buffer2[seq + int(total)]) + 
 				((i == 0) ? 0 : buffer2[seq - int(total)]));
+			if (buffer[seq].y > WATER_HEIGHT) buffer[seq].y = WATER_HEIGHT;
 			if (buffer[seq].y <= 0.1) ++count;
 		}
 	}
@@ -297,32 +312,38 @@ void Water::waterUpdate()
 			seq = 18 * (i * (total - 1) + j);
 			ns = i * total + j;
 			vertices[seq + 1] = buffer[ns].y;
-			//normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y); 
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 			// 1,0
 			seq += 3;
 			ns = i * total + j + 1;
 			vertices[seq + 1] = buffer[ns].y;
-			//normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y);
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 			// 0,1
 			seq += 3;
 			ns = (i + 1) * total + j;
 			vertices[seq + 1] = buffer[ns].y;
-			//normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y);
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 			// 1,0
 			seq += 3;
 			ns = i * total + j + 1;
 			vertices[seq + 1] = buffer[ns].y;
-		//	normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y);
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 			// 1,1
 			seq += 3;
 			ns = (i + 1) * total + j + 1;
 			vertices[seq + 1] = buffer[ns].y;
-			//normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y);
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 			// 0,1
 			seq += 3;
 			ns = (i + 1) * total + j;
 			vertices[seq + 1] = buffer[ns].y;
-			//normals[seq] = 0; normals[seq + 1] = 1; normals[seq + 2] = 0;
+			normals[seq] = (j == 0 ? 0 : buffer[ns - 1].y) - (j == total - 1 ? 0 : buffer[ns + 1].y);
+			normals[seq + 2] = (i == total - 1 ? 0 : buffer[ns + int(total)].y) - (i == 0 ? 0 : buffer[ns - int(total)].y);
 		}
 	}
 	glBindVertexArray(VAO);
@@ -342,6 +363,13 @@ void Water::waterUpdate()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
+
+	if (haveTexture) {
+		
+		
+	
+		
+	}
 }
 
 void Water::draw(glm::mat4 C) {
@@ -349,6 +377,16 @@ void Water::draw(glm::mat4 C) {
 	glUseProgram(shader);
 	glm::mat4 model = C * toWorld;
 	glm::vec3 cam_pos = glm::vec3(V[0][3], V[1][3], V[2][3]);
+
+	GLuint reflectionL = glGetUniformLocation(shader, "textureReflection");
+	glUniform1i(reflectionL, 1);
+	//glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+	glViewport(0, 0, 512, 512);
+	glActiveTexture(GL_TEXTURE0 + 1);
+	glBindTexture(GL_TEXTURE_2D, frameBuffer);
+	glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 0, 0, 512, 512, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glViewport(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
 
 	//glm::vec4 temp = glm::vec4(vertices[6], vertices[7], vertices[8], 1.0f);
 	uProjection = glGetUniformLocation(shader, "projection");
@@ -362,6 +400,12 @@ void Water::draw(glm::mat4 C) {
 		glUniform1f(uSize, size);
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");
 		glUniform1i(haveT, haveTexture);
+		GLuint textureL = glGetUniformLocation(shader, "textureBox");
+		reflectionL = glGetUniformLocation(shader, "textureReflection");
+		GLuint fractionL = glGetUniformLocation(shader, "textureFraction");
+		glUniform1i(textureL, 0);
+		glUniform1i(reflectionL, 1);
+		glUniform1i(fractionL, 2);
 	}
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &model[0][0]);
@@ -381,7 +425,18 @@ void Water::draw(glm::mat4 C) {
 		glBindVertexArray(VAO);
 		bindedCubeVAO = true;
 	}
-	if (haveTexture) glBindTexture(GL_TEXTURE_2D, textureID);
+	if (haveTexture) {
+		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+
+		glActiveTexture(GL_TEXTURE0 + 1); 
+		glBindTexture(GL_TEXTURE_2D, frameBuffer);
+
+		glActiveTexture(GL_TEXTURE0 + 2);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, frameDepth);
+
+	}
 	glDrawArrays(GL_TRIANGLES, 0, verticesLen / 3);
 	//glBindVertexArray(0);
 
@@ -389,6 +444,16 @@ void Water::draw(glm::mat4 C) {
 	{
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");
 		glUniform1i(haveT, 0);
+		//gl
+		//glActiveTexture(GL_TEXTURE0 + 0);
+		//glBindTexture(GL_TEXTURE_2D,0);
+
+		//glActiveTexture(GL_TEXTURE0 + 1);
+		//glBindTexture(GL_TEXTURE_2D, 0);
+
+		//glActiveTexture(GL_TEXTURE0 + 2);
+		//glBindTexture(GL_TEXTURE_2D, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	selected = 0;
 }
