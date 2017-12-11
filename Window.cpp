@@ -73,7 +73,10 @@ glm::vec3 cam_up(0.0f, 1.0f, 0.0f);			// up | What orientation "up" is
 int Window::width;
 int Window::height;
 
-
+bool begin_domino = false;
+bool show_boudingbox = false;
+bool done_collision = false;
+int collision_time = 0;
 
 void Window::placeObject(int type, int *style)
 {
@@ -187,28 +190,7 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// ------------------FOR TESTING ONLY ---------------------
-	// Create a test model
-	/**
-	std::cout << "loading model......\n" << std::endl;
-	model = new Model( "../cuboid.obj");
-	model->centerAndScale(1.0f);
-	model->setModelMatrix(glm::mat4(1.0f));
-	model->setBoundingBox();
-	model->bounding_box->update();
-	model->setCamera(currentCam);
-	model->initShader(Shader_Model);
-
-
-	std::cout << "loading model2......\n" << std::endl;
-	model2 = new Model("../cuboid.obj");
-	model2->setModelMatrix(glm::translate(glm::mat4(1.0f), {0,0,0.5f})*model2->getUModelMatrix());
-	model2->centerAndScale(1.0f);
-	model2->setBoundingBox();
-	model2->bounding_box->update();
-	model2->setCamera(currentCam);
-	model2->initShader(Shader_Model);
-	**/
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		model1 = new Model("../cuboid.obj");
 		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0,0.5f*i })*model1->getUModelMatrix());
@@ -333,19 +315,29 @@ void Window::idle_callback()
 	pickObject = testForCollision(&pickObjectFace);
 
 	//fake the domino collision
-	int count = 0;
-	bool collision = false;
-	for (int i = 0; i < 7; i++)
-	{
-		if (!domino[i]->bounding_box->check_collision(domino[i+1]->bounding_box)) {
-			domino[i]->setModelMatrix(glm::rotate(domino[i]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
-			
-		}
-		else {
-			
-		}
-	}
+	if (begin_domino==true){
+	
+		
+			if (!domino[0]->bounding_box->check_collision(domino[1]->bounding_box)) {
+				domino[0]->setModelMatrix(glm::rotate(domino[0]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f)));
+			}
+			else {
+				if (domino[0]->bounding_box->collision == true) {
+					collision_time++;
+					if (collision_time = 1) {
+						domino[0]->bounding_box->collision == false;
+					}
+				}
+			}
+			/*
+			if (!domino[1]->bounding_box->check_collision(domino[0]->bounding_box)) {
+				domino[1]->setModelMatrix(glm::rotate(domino[1]->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0)));
+			}
+			*/
 
+		
+	}
+	
 	// fog
 	fog->fogUpdate(disableFog);
 
@@ -385,28 +377,24 @@ void Window::display_callback(GLFWwindow* window)
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	water->draw(glm::mat4(1.0f));
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	// test draw model
-	//model->render(Shader_Model);
-	
-	//model2->render(Shader_Model);
 
-	for (int i = 0; i < 8; i++)
+	//draw domino
+	for (int i = 0; i < domino.size(); i++)
 	{
 		domino[i]->render(Shader_Model);
 	}
+
 	lightDisplay->render(Shader_DisplayLight);
 	
-	glUseProgram(Shader_BoundBox);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	for (int i = 0; i < 8; i++)
-	{
-		domino[i]->bounding_box->draw(Shader_BoundBox);
+	if (show_boudingbox == true) {
+		glUseProgram(Shader_BoundBox);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		for (int i = 0; i < domino.size(); i++)
+		{
+			domino[i]->bounding_box->draw(Shader_BoundBox);
+		}
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	//model->bounding_box->draw(Shader_BoundBox);
-	
-	//model2->bounding_box->draw(Shader_BoundBox);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 	glfwPollEvents();
 
 	// Swap buffers
@@ -609,6 +597,14 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		{
 			light_toggle = !light_toggle;
 			std::cerr << (light_toggle ? "Enter light selection mode!" : "Exiting light selection mode!") << std::endl;
+		}
+		if (key == GLFW_KEY_Z)
+		{
+			begin_domino = !begin_domino;
+		}
+		if (key == GLFW_KEY_X)
+		{
+			show_boudingbox = !show_boudingbox;
 		}
 		if (light_toggle && key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
 		{

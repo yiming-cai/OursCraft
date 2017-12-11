@@ -6,9 +6,8 @@ extern glm::mat4 V;
 
 BoundBox::BoundBox()
 {
-	collision = false;
 	toWorld = glm::mat4(1.0f);
-
+	collision = false;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
@@ -25,9 +24,8 @@ BoundBox::BoundBox()
 
 BoundBox::BoundBox(float x, float y, float z)
 {
-	collision = false;
 	toWorld = glm::mat4(1.0f);
-
+	collision = false;
 	for (int i = 0; i < 8; i++) {
 		vertices[i][0] *= x;
 		vertices[i][1] *= y;
@@ -65,7 +63,7 @@ void BoundBox::draw(GLuint shaderProgram)
 	uCollision = glGetUniformLocation(shaderProgram, "collision_color");
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
-
+	//set different color
 	if (collision == true) {
 		glUniform3f(uCollision, 1.0f, 0.0f, 0.0f);
 	}
@@ -78,58 +76,44 @@ void BoundBox::draw(GLuint shaderProgram)
 	glEnable(GL_CULL_FACE);
 }
 
-bool BoundBox::check_collision(BoundBox * other) {
+bool BoundBox::check_collision(BoundBox * obj) {
+	bool x_collides = false;
+	bool y_collides = false;
+	bool z_collides = false;
+	this->collision = false;
+	obj->collision = false;
 	std::sort(this->x_list.begin(), this->x_list.end());
 	std::sort(this->y_list.begin(), this->y_list.end());
 	std::sort(this->z_list.begin(), this->z_list.end());
-
-	std::sort(other->x_list.begin(), other->x_list.end());
-	std::sort(other->y_list.begin(), other->y_list.end());
-	std::sort(other->z_list.begin(), other->z_list.end());
-	
+	std::sort(obj->x_list.begin(), obj->x_list.end());
+	std::sort(obj->y_list.begin(), obj->y_list.end());
+	std::sort(obj->z_list.begin(), obj->z_list.end());
 	GLfloat source_x_min = x_list[0];
 	GLfloat source_x_max = x_list[7];
 	GLfloat source_y_min = y_list[0];
 	GLfloat source_y_max = y_list[7];
 	GLfloat source_z_min = z_list[0];
 	GLfloat source_z_max = z_list[7];
-
-	GLfloat target_x_min = other->x_list[0];
-	GLfloat target_x_max = other->x_list[7];
-	GLfloat target_y_min = other->y_list[0];
-	GLfloat target_y_max = other->y_list[7];
-	GLfloat target_z_min = other->z_list[0];
-	GLfloat target_z_max = other->z_list[7];
-
-	bool x_collides = false;
-	bool y_collides = false;
-	bool z_collides = false;
-
-	this->collision = false;
-	other->collision = false;
-
-	// Check x-axis overlaps
-	if (source_x_min >= target_x_min && source_x_min <= target_x_max
-		|| source_x_max >= target_x_min && source_x_max <= target_x_max) {
+	GLfloat target_x_min = obj->x_list[0];
+	GLfloat target_x_max = obj->x_list[7];
+	GLfloat target_y_min = obj->y_list[0];
+	GLfloat target_y_max = obj->y_list[7];
+	GLfloat target_z_min = obj->z_list[0];
+	GLfloat target_z_max = obj->z_list[7];
+	if (source_x_min >= target_x_min && source_x_min <= target_x_max || source_x_max >= target_x_min && source_x_max <= target_x_max) {
 		x_collides = true;
 	}
 
-	// Check y-axis overlaps
-	if (source_y_min >= target_y_min && source_y_min <= target_y_max
-		|| source_y_max >= target_y_min && source_y_max <= target_y_max) {
+	if (source_y_min >= target_y_min && source_y_min <= target_y_max || source_y_max >= target_y_min && source_y_max <= target_y_max) {
 		y_collides = true;
 	}
 
-	// Check z-axis overlaps
-	if (source_z_min >= target_z_min && source_z_min <= target_z_max
-		|| source_z_max >= target_z_min && source_z_max <= target_z_max) {
+	if (source_z_min >= target_z_min && source_z_min <= target_z_max || source_z_max >= target_z_min && source_z_max <= target_z_max) {
 		z_collides = true;
 	}
-
-	// Checks for collision
 	if (x_collides && y_collides && z_collides) {
 		this->collision = true;
-		other->collision = true;
+		obj->collision = true;
 		return true;
 	}
 	else {
