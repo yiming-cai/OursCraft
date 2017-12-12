@@ -14,6 +14,7 @@ extern GLuint Shader_Water;
 std::vector<Cube *> cubeList;
 std::vector<Camera *> cameraList;
 std::vector<Model *> domino;
+std::vector<Model *> otherModels;
 
 int pickType = 0;
 int pickStyle = 0;
@@ -51,15 +52,14 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
-// ------------ FOR TESTING ONLY ------------
-Model * model;
+//Model * model;
 Light lights;
 LightDisplay * lightDisplay;
-//-------------------------------------------
 
-Model * model1;
-Model * model2;
+//Model * model1;
+//Model * model2;
 Sound * sound;
+ALuint bgmSource;
 Util util;
 
 int keyPressed;
@@ -198,7 +198,7 @@ void Window::initialize_objects()
 	// ------------------FOR TESTING ONLY ---------------------
 	for (int i = 0; i < 100; i++)
 	{
-		model1 = new Model("../Gun/handgun_obj.obj");
+		Model * model1 = new Model("../Gun/handgun_obj.obj");
 		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0.5f,0.5f*i })*model1->getUModelMatrix());
 		model1->domino_position = glm::vec3(0,0,0.5*i);
 		model1->centerAndScale(1.0f);
@@ -207,7 +207,6 @@ void Window::initialize_objects()
 		model1->setCamera(currentCam);
 		model1->initShader(Shader_Model);
 		domino.push_back(model1);
-
 	}
 	
 	domino[0]->bounding_box->collision = true;
@@ -235,6 +234,24 @@ void Window::initialize_objects()
 	lightDisplay = new LightDisplay(&lights, currentCam);
 	lightDisplay->initShader(Shader_DisplayLight);
 	lightDisplay->update(Shader_DisplayLight);
+
+	sound = new Sound(currentCam);
+
+	// generate a sound buffer to store sound files
+	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
+
+	// generate a source that plays the buffer
+	bgmSource = sound->generateSource(glm::vec3(0, 0, 0));
+
+	// bind the buffer to the source
+	sound->bindSourceToBuffer(bgmSource, buf);
+
+	// make the bgm loop (don't use this if you just want it to play once)
+	sound->setSourceLooping(bgmSource, true);	// Only if you want the sound to keep on looping!
+
+	// play the sound now
+	sound->playSourceSound(bgmSource);
+	std::cerr << (sound->isSourcePlaying(bgmSource) ? "Playing BGM!" : "Error, BGM is not playing!") << std::endl;
 	// --------------------------------------------------------------
 }
 
@@ -361,6 +378,7 @@ void Window::idle_callback()
 	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
 	/* ----------------------------------- */
+	sound->updateListener();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -627,6 +645,14 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		if (key == GLFW_KEY_X)
 		{
 			show_boudingbox = !show_boudingbox;
+		}
+		// p for pausing or resuming
+		if (key == GLFW_KEY_P)
+		{
+			if (sound->isSourcePlaying(bgmSource))
+				sound->pauseSourceSound(bgmSource);
+			else
+				sound->playSourceSound(bgmSource);
 		}
 		if (light_toggle && key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
 		{

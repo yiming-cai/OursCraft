@@ -24,6 +24,7 @@ ALuint Sound::generateSource(glm::vec3 position)
 	alSource3f(source, AL_POSITION, curr_pos[0], curr_pos[1], curr_pos[2]);
 	alSource3f(source, AL_VELOCITY, 0, 0, 0);
 	alSourcei(source, AL_LOOPING, AL_FALSE);
+	alSourcef(source, AL_ROLLOFF_FACTOR, 0.1f);
 	allGeneratedSources.insert(source);
 	bindedSources[source] = 0;
 
@@ -85,8 +86,8 @@ void Sound::setSourceLooping(ALuint source, bool shouldLoop)
 
 ALuint Sound::generateBuffer(std::string filepath)
 {
-	// set max buffer len to 30mb
-	const static int MAX_BUFFER_LEN = 1024 * 1024 * 30;
+	// set max buffer len to 50mb
+	const static int MAX_BUFFER_LEN = 1024 * 1024 * 25;
 
 	SoundAttributes curr;
 	auto it = soundBuffers.find(filepath);
@@ -138,7 +139,7 @@ ALuint Sound::generateBuffer(std::string filepath)
 		}
 
 		short *data = new short[MAX_BUFFER_LEN];
-		int size = file.read(data, MAX_BUFFER_LEN);
+		int size = file.read(data, MAX_BUFFER_LEN) * sizeof(short);
 
 		curr = { data, size, file.samplerate(), format };
 		soundBuffers[filepath] = curr;
@@ -189,7 +190,12 @@ void Sound::playSourceSound(ALuint source)
 		std::cerr << "This source does not exist!" << std::endl;
 		return;
 	}
+	else
+	{
+		std::cerr << "Playing this source!" << std::endl;
+	}
 	alSourcePlay(source);
+	checkError("Error occurred in playing sound!" );
 }
 
 void Sound::pauseSourceSound(ALuint source)
@@ -289,6 +295,7 @@ Sound::Sound(Camera * cam)
 		return;
 	}
 	
+	//alDistanceModel(AL_LINEAR_DISTANCE);
 	//alutInitWithoutContext(NULL, NULL);
 }
 
