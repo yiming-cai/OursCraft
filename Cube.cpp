@@ -8,12 +8,19 @@ std::vector<std::string> Cube::cubeTexturesAddress = {
 	"../assets/CubeTexture/cube_05.jpg",
 	"../assets/CubeTexture/cube_06.jpg",
 	"../assets/CubeTexture/cube_07.jpg",
-	"../assets/CubeTexture/cube_08.jpg"
+	"../assets/CubeTexture/cube_08.jpg",
+	"../assets/CubeTexture/cube_09.jpg",
+	"../assets/CubeTexture/cube_10.jpg",
+	"../assets/CubeTexture/cube_11.jpg",
+	"../assets/CubeTexture/cube_12.jpg",
+	"../assets/CubeTexture/cube_13.jpg",
+	"../assets/CubeTexture/cube_14.jpg",
+	"../assets/CubeTexture/cube_15.jpg",
+	"../assets/CubeTexture/cube_16.jpg",
+	"../assets/CubeTexture/cube_17.jpg"
 };
 
-std::vector<GLint> Cube::cubeTextureId = {
-	-1,-1,-1,-1,-1,-1,-1,-1
-};
+std::vector<GLint> Cube::cubeTextureId = std::vector<GLint>(CUBE_TEXTURE_NUM, -1);
 
 GLfloat Cube::cubeBoundBoxV[72] = {
 	0,0,0,  1,0,0,	1,1,0,	0,1,0,		// front face counterclockwise

@@ -89,8 +89,9 @@ void Window::placeObject(int type, int *style)
 		glm::vec3 npos = pickObject->getObjectBiasPosition(pickObjectFace);
 		switch (type) {
 		case 1:
-			if (*style >= CUBE_TEXTURE_NUM) *style = 0;
-			if (*style < 0) *style = CUBE_TEXTURE_NUM - 1;
+			if (*style >= CUBE_TEXTURE_NUM) *style = *style%CUBE_TEXTURE_NUM;
+			if (*style < 0) *style = CUBE_TEXTURE_NUM + (*style%CUBE_TEXTURE_NUM);
+			std::cerr << "Using this style: " << *style << std::endl;
 			cube = new Cube(idCount++, 1, *style);
 			cube->setPosition(npos.x, npos.y, npos.z);
 			cubeList.push_back(cube);
@@ -413,7 +414,9 @@ void Window::display_callback(GLFWwindow* window)
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// test draw model
 
-	//draw domino
+	
+	/* ------------------------------------------------
+	// Uncomment if you want to draw the dominos are... commenting this out to help building the world
 	for (int i = 0; i < domino.size(); i++)
 	{
 		domino[i]->render(Shader_Model);
@@ -430,6 +433,9 @@ void Window::display_callback(GLFWwindow* window)
 		}
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
+	---------------------------------------------------- */
+
+
 	glfwPollEvents();
 
 	// Swap buffers
