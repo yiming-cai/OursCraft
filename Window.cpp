@@ -198,7 +198,7 @@ void Window::initialize_objects()
 	// ------------------FOR TESTING ONLY ---------------------
 	for (int i = 0; i < 100; i++)
 	{
-		Model * model1 = new Model("../Gun/handgun_obj.obj");
+		Model * model1 = new Model("../cuboid.obj");
 		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0.5f,0.5f*i })*model1->getUModelMatrix());
 		model1->domino_position = glm::vec3(0,0,0.5*i);
 		model1->centerAndScale(1.0f);
