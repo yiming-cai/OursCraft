@@ -16,12 +16,34 @@ void color4_to_float4(const aiColor4D *c, float f[4])
 }
 
 Model::Model(std::string p_filepath) {
-	filepath = p_filepath;
-	
-	if (importObj(filepath))
+
+	bool success = false;
+	const auto it = references.find(p_filepath);
+	if (it != references.end())
 	{
+		filepath = p_filepath;
+		scene = (*it).second->getScenePtr();
+		if (scene != nullptr) success = true;
+		texCoordsArrays = (*it).second->getTexArrays();
+		faceArrays = (*it).second->getFaceArrays();
+		IDs = (*it).second->getIDs();
+		textureIdMap = (*it).second->getTextureIdMap();
+		myMeshes = (*it).second->getMeshes();
+	}
+	else
+	{
+		filepath = p_filepath;
+		success = importObj(filepath);
+
+		// loads the textures
 		loadGLTextures(scene);
+
+		// loads the vao and materials, and tex coords
 		genVAOsAndUniformBuffer(scene);
+	}
+
+	if (success)
+	{
 		setMinMaxObjectCoord(scene);
 		setBoundingSphere();
 	}
@@ -30,6 +52,8 @@ Model::Model(std::string p_filepath) {
 		std::cerr << "Failed to load " << filepath << std::endl;
 	}
 	std::cerr << filepath << ": loaded " << myMeshes.size() << " meshes!" << std::endl;
+	references[filepath] = this;
+	
 }
 
 

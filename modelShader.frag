@@ -192,7 +192,7 @@ void main()
 		sum_of_colors += max( vec4(0), c_l * c_mat );
 	}
 
-	color = vec4(sum_of_colors.xyz, opacity);
+	color = vec4(sum_of_colors.xyz, 1.0f);
 
 	if (texCount == 1)
 	{

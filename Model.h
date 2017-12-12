@@ -112,8 +112,8 @@ private:
 	std::vector< std::vector<float> > texCoordsArrays;
 	std::vector< std::vector<unsigned int> > faceArrays;
 
-
 public:
+
 	glm::vec3 domino_position;
 	BoundBox* bounding_box = new BoundBox(1.0f, 1.0f, 1.0f);
 	void setBoundingBox();
@@ -134,6 +134,13 @@ public:
 	void update();
 	glm::vec3 getPosition();
 
+	// some getters used for the pseudo-copy constructor
+	const aiScene * getScenePtr() const { return scene; }
+	const std::vector<std::vector<float>> getTexArrays() const { return texCoordsArrays; }
+	const std::vector<std::vector<unsigned int>> getFaceArrays() const{ return faceArrays; }
+	const std::set<GLuint> getIDs() const { return IDs; }
+	const std::map<std::string, GLuint> getTextureIdMap() const { return textureIdMap; }
+	const std::vector<MyMesh> getMeshes() const { return myMeshes; }
 	/* ---------------------------------------------- */
 	// use these when accessing values of getMinMaxValues() Note that these are in object coordinates
 	const static int INDEX_X_MIN = 0;
@@ -226,3 +233,7 @@ public:
 	/* ---------------------------------------------- */
 	/* --------------------------------------------------------------------------------------------------- */
 };
+
+// important: this is used to store reference to the same loaded models
+// do not touch it anywhere else
+static std::map< std::string, Model * > references;
