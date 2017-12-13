@@ -1,19 +1,20 @@
-#include "Particles.h"
-#include "Window.h"
+#define _CRT_SECURE_NO_WARNINGS
+#include "Particle.h"
 #include <iostream>
 const int maxParticles = 1000;
-
-Particles::Particles() {
+extern glm::mat4 P;
+extern glm::mat4 V;
+Particle::Particle() {
 	toWorld = glm::mat4(1.0f);
 
 	GLfloat particle_quad[] = {
-		0.0f, 3.0f, 0.0f,
-		3.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
 		0.0f, 0.0f, 0.0f,
 
-		0.0f, 3.0f, 0.0f,
-		3.0f, 3.0f, 0.0f,
-		3.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
 	};
 	GLfloat particle_texCoord[] = {
 		0.0f, 1.0f,
@@ -39,20 +40,20 @@ Particles::Particles() {
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
 	glBindVertexArray(0);
 
-	for (int i = 0; i < maxParticles; ++i)
+	for (GLint i = 0; i < maxParticles; ++i)
 		this->particles.push_back(Particle());
 	textureID = loadTexture();
 
 }
 
 
-Particles::~Particles() {
+Particle::~Particle() {
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &TBO);
 }
 
-void Particles::update(GLfloat time, GLuint newParticles, glm::vec3 offset)
+void Particle::update(GLfloat time, GLuint newParticles, glm::vec3 offset)
 {
 	//new
 	for (GLuint i = 0; i < newParticles; ++i)
@@ -64,8 +65,8 @@ void Particles::update(GLfloat time, GLuint newParticles, glm::vec3 offset)
 	for (GLuint i = 0; i < maxParticles; ++i)
 	{
 		Particle &p = this->particles[i];
-		p.life -= time; 
-		if (p.life > 0.0f)
+		p.life_time -= time; 
+		if (p.life_time > 0.0f)
 		{	
 			p.pos += glm::vec3(p.speed.x*time, p.speed.y*time - 0.5f * 20 * time*time, p.speed.z*time);
 			p.color.a -= time * 2.5;
@@ -73,19 +74,19 @@ void Particles::update(GLfloat time, GLuint newParticles, glm::vec3 offset)
 	}
 }
 
-void Particles::draw(GLuint shaderProgram) {
-	glm::mat4 modelview = Window::V * toWorld;
+void Particle::draw(GLuint shaderProgram) {
+	glm::mat4 modelview = V * toWorld;
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glUseProgram(shaderProgram);
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
 	uModel = glGetUniformLocation(shaderProgram, "model");
-	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &Window::P[0][0]);
+	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &toWorld[0][0]);
 	for (Particle particle : this->particles)
 	{
-		if (particle.life > 0.0f)
+		if (particle.life_time > 0.0f)
 		{
 			glUniform3f(glGetUniformLocation(shaderProgram, "offset"), particle.pos.x, particle.pos.y, particle.pos.z);
 			glUniform4f(glGetUniformLocation(shaderProgram, "color"), particle.color.x, particle.color.y, particle.color.z, particle.color.w);
@@ -100,7 +101,7 @@ void Particles::draw(GLuint shaderProgram) {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-GLuint Particles::loadTexture() {
+GLuint Particle::loadTexture() {
 	glGenTextures(1, &textureID);
 
 	int width, height;
@@ -109,7 +110,7 @@ GLuint Particles::loadTexture() {
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	image = loadPPM("assets/particles/halfhalf.ppm", width, height);
+	/////////image = loadPPM("", width, height);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
 	// Sets texture parameters
@@ -128,18 +129,18 @@ GLuint Particles::loadTexture() {
 
 // Stores the index of the last particle used (for quick access to next dead particle)
 GLuint lastUsedParticle = 0;
-GLuint Particles::firstUnusedParticle()
+GLuint Particle::firstUnusedParticle()
 {
 	// First search from last used particle, this will usually return almost instantly
 	for (GLuint i = lastUsedParticle; i < maxParticles; ++i) {
-		if (this->particles[i].life <= 0.0f) {
+		if (this->particles[i].life_time <= 0.0f) {
 			lastUsedParticle = i;
 			return i;
 		}
 	}
 	// Otherwise, do a linear search
 	for (GLuint i = 0; i < lastUsedParticle; ++i) {
-		if (this->particles[i].life <= 0.0f) {
+		if (this->particles[i].life_time <= 0.0f) {
 			lastUsedParticle = i;
 			return i;
 		}
@@ -149,7 +150,7 @@ GLuint Particles::firstUnusedParticle()
 	return 0;
 }
 
-void Particles::respawnParticle(Particle &particle, glm::vec3 offset)
+void Particle::respawnParticle(Particle &particle, glm::vec3 offset)
 {
 	GLfloat randomx = ((rand() % 100) - 50) / 10.0f;
 	GLfloat randomy = ((rand() % 100) - 50) / 10.0f;
@@ -161,12 +162,12 @@ void Particles::respawnParticle(Particle &particle, glm::vec3 offset)
 	GLfloat rColor = 0.5 + ((rand() % 100) / 100.0f);
 	particle.pos = glm::vec3(randomx / 3.0f + offset.x, offset.y, offset.z + randomz / 3.0f);
 	particle.color = glm::vec4(rColor, rColor, rColor, 1.0f);
-	particle.life = 30.0f;
+	particle.life_time = 30.0f;
 	particle.speed = glm::vec3(0.2f + randomSpeedx, 1.0f + randomSpeedy, 0.2f + randomSpeedz);
 }
 
 
-unsigned char* Particles::loadPPM(const char* filename, int& width, int& height)
+unsigned char* Particle::loadPPM(const char* filename, int& width, int& height)
 {
 	const int BUFSIZE = 128;
 	FILE* fp;
