@@ -17,6 +17,9 @@ public:
 	~BoundBox();
 	bool collision = false;
 	glm::mat4 toWorld;
+	std::vector<GLfloat> x_list;
+	std::vector<GLfloat> y_list;
+	std::vector<GLfloat> z_list;
 	GLuint VBO, VAO, EBO;
 	GLuint uProjection, uModelview, uCollision;
 	int count_rotate = 0;
@@ -24,22 +27,14 @@ public:
 	void update();
 	bool check_collision(BoundBox * other);
 	void setVertices(std::vector <glm::vec3> newVertices);
-	std::vector<GLfloat> x_list;
-	std::vector<GLfloat> y_list;
-	std::vector<GLfloat> z_list;
+
 
 	const GLuint indices[6][6] = {
-		// Front face
 		{ 0, 1, 2, 2, 3, 0 },
-		// Top face
 		{ 1, 5, 6, 6, 2, 1 },
-		// Back face
 		{ 7, 6, 5, 5, 4, 7 },
-		// Bottom face
 		{ 4, 0, 3, 3, 7, 4 },
-		// Left face
 		{ 4, 5, 1, 1, 0, 4 },
-		// Right face
 		{ 3, 2, 6, 6, 7, 3 }
 	};
 

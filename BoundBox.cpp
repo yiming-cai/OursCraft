@@ -3,7 +3,7 @@
 
 extern glm::mat4 P;
 extern glm::mat4 V;
-
+using namespace std;
 BoundBox::BoundBox()
 {
 	toWorld = glm::mat4(1.0f);
@@ -60,7 +60,7 @@ void BoundBox::draw(GLuint shaderProgram)
 	glm::mat4 modelview = V * toWorld;
 	uProjection = glGetUniformLocation(shaderProgram, "projection");
 	uModelview = glGetUniformLocation(shaderProgram, "modelview");
-	uCollision = glGetUniformLocation(shaderProgram, "collision_color");
+	uCollision = glGetUniformLocation(shaderProgram, "box_color");
 	glUniformMatrix4fv(uProjection, 1, GL_FALSE, &P[0][0]);
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	//set different color
@@ -80,8 +80,6 @@ bool BoundBox::check_collision(BoundBox * obj) {
 	bool x_collides = false;
 	bool y_collides = false;
 	bool z_collides = false;
-	//this->collision = false;
-	//obj->collision = false;
 	std::sort(this->x_list.begin(), this->x_list.end());
 	std::sort(this->y_list.begin(), this->y_list.end());
 	std::sort(this->z_list.begin(), this->z_list.end());
@@ -141,11 +139,9 @@ void BoundBox::update()
 		y_list.push_back(new_point[1]);
 		z_list.push_back(new_point[2]);
 	}
-	std::sort(this->x_list.begin(), this->x_list.end());
-	std::sort(this->y_list.begin(), this->y_list.end());
-	std::sort(this->z_list.begin(), this->z_list.end());
-
-
+	sort(this->x_list.begin(), this->x_list.end());
+	sort(this->y_list.begin(), this->y_list.end());
+	sort(this->z_list.begin(), this->z_list.end());
 }
 
 
