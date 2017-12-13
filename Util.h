@@ -54,8 +54,8 @@
 #define CAMERA_MOVE_STRIP 0.4
 #define GROUND_LEVEL 0
 
-#define VIEW_WIDTH 1280
-#define VIEW_HEIGHT 720
+#define VIEW_WIDTH 1920
+#define VIEW_HEIGHT 1000
 
 // used for defining some useful functions
 class Util

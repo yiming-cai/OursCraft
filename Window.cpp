@@ -54,12 +54,10 @@ std::vector<std::string> faces
 
 const char* window_title = "GLFW Starter Project";
 
-//Model * model;
+Model * hand;
 Light lights;
 LightDisplay * lightDisplay;
 
-//Model * model1;
-//Model * model2;
 Sound * sound;
 ALuint bgmRightSource, bgmLeftSource;
 Util util;
@@ -306,11 +304,11 @@ void Window::initialize_objects()
 	//glCullFace(GL_BACK);
 
 	// ------------------FOR TESTING ONLY ---------------------
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 120; i++)
 	{
 		Model * model1 = new Model("../cuboid.obj");
-		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 0,0.5f,0.5f*i })*model1->getUModelMatrix());
-		model1->domino_position = glm::vec3(0,0,0.5*i);
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.5f,0.5f,-6.0f-0.5f*i })*model1->getUModelMatrix());
+		model1->domino_position = glm::vec3(1.5f,0,-6.0f-0.5*i);
 		model1->centerAndScale(1.0f);
 		model1->setBoundingBox();
 		model1->bounding_box->update();
@@ -318,8 +316,15 @@ void Window::initialize_objects()
 		model1->initShader(Shader_Model);
 		domino.push_back(model1);
 	}
+
+	hand = new Model("../hand.obj");
+	hand->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.3f,1.0f,0 })*hand->getUModelMatrix());
+	hand->centerAndScale(1.0f);
+	hand->setBoundingBox();
+	hand->bounding_box->update();
+	hand->setCamera(currentCam);
+	hand->initShader(Shader_Model);
 	
-	domino[0]->bounding_box->collision = true;
 
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -484,12 +489,21 @@ void Window::idle_callback()
 	
 	if (begin_domino == true) {
 		
+		if (!hand->bounding_box_hand->check_collision(domino[0]->bounding_box)&& !done_collision) {
+			hand->setModelMatrix(hand->getUModelMatrix()*glm::translate(glm::mat4(1.0f), {0,0,-0.1f}) );
+			if (hand->bounding_box_hand->collision) {
+				done_collision = true;
+			}
+		}
+
+
+
 		glm::mat4 m1, m2, m3;
 		
 		for (int i = 0; i < domino.size()-1; ++i) {
 			if (domino[i]->bounding_box->collision && domino[i]->bounding_box->count_rotate <=70) {
 					m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[i]->domino_position);
-					m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+					m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
 					m3 = glm::translate(glm::mat4(1.0f), domino[i]->domino_position);
 					domino[i]->setModelMatrix(m3 * m2 * m1 * domino[i]->getUModelMatrix());
 					domino[i]->bounding_box->count_rotate++;
@@ -498,9 +512,8 @@ void Window::idle_callback()
 		}
 
 		if (domino[domino.size() - 1]->bounding_box->collision == true && count<=90) {
-
 				m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[domino.size() - 1]->domino_position);
-				m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+				m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
 				m3 = glm::translate(glm::mat4(1.0f), domino[domino.size() - 1]->domino_position);
 				domino[domino.size() - 1]->setModelMatrix(m3 * m2 * m1 * domino[domino.size() - 1]->getUModelMatrix());
 				count++;
@@ -555,8 +568,12 @@ void Window::display_callback(GLFWwindow* window)
 	// test draw model
 
 	
-	/* ------------------------------------------------
+	// ------------------------------------------------
 	// Uncomment if you want to draw the dominos are... commenting this out to help building the world
+
+	hand->render(Shader_Model);
+
+
 	for (int i = 0; i < domino.size(); i++)
 	{
 		domino[i]->render(Shader_Model);
@@ -569,9 +586,10 @@ void Window::display_callback(GLFWwindow* window)
 		{
 			domino[i]->bounding_box->draw(Shader_BoundBox);
 		}
+		hand->bounding_box_hand->draw(Shader_BoundBox);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	---------------------------------------------------- */
+	//---------------------------------------------------- 
 
 	for (int i = 0; i < otherModels.size(); i++)
 	{

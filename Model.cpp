@@ -70,9 +70,8 @@ Model::~Model()
 }
 
 void Model::setBoundingBox() {
-	//bounding_box->toWorld = this->getUModelMatrix()* glm::scale(glm::mat4(1.0f), glm::vec3(0.27f, 0.5f, 0.09f));
-	//bounding_box->update();
 	bounding_box->setVertices(getOBBBoundingBoxVertices());
+	bounding_box_hand->setVertices(getOBBBoundingBoxVertices());
 }
 
 
@@ -413,6 +412,7 @@ void Model::render(GLuint shaderProgram)
 		glBindVertexArray(mesh.vao);
 		glBindBufferRange(GL_UNIFORM_BUFFER, materialUniLoc, mesh.uniformBlockIndex, 0, sizeof(struct MyMaterial));
 		// bind texture
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, mesh.texIndex );
 		// Tell OpenGL to draw with triangles, using 36 indices, the type of the indices, and the offset to start from
 		glDrawElements(GL_TRIANGLES, mesh.numFaces * 3, GL_UNSIGNED_INT, 0);
