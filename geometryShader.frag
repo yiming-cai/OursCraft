@@ -53,6 +53,7 @@ uniform int haveTexture;
 uniform samplerCube textureBox;
 uniform vec3 cam_pos;
 uniform int disableLight;
+uniform int disableToon;
 
 // this is for the fog
 uniform int disableFog;
@@ -203,6 +204,12 @@ void main()
 
 	color = color * vec4(sum_of_colors.xyz, 1.0f);
 	
+	if (disableToon == 0)
+	{
+		float edge = max(0.0f, abs(dot(normal_world, normalize( cam_pos -  vert ) )) );
+		color = vec4( (float(floor(color.x*10 + 0.5)))/10.0f, (float(floor(color.y*10 + 0.5)))/10.0f, (float(floor(color.z*10 + 0.5)))/10.0f, color.w );
+	}
+
 	if(disableFog == 0) {
 		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
 		delta.y = 0;

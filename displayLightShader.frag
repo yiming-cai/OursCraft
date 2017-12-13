@@ -49,6 +49,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform vec3 cam_pos;
 uniform int current_light_index;
+uniform int disableToon;
 
 // get the Material properties
 layout (std140) uniform Material {
@@ -188,14 +189,18 @@ void main()
 		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * color;
 	}
 	
-	float edge = max(0.0f, abs(dot(normal_world, normalize( cam_pos -  vert ) )) );
-	if (edge < 0.3f)
+		
+	if (disableToon == 0)
 	{
-		color = vec4(0,0,0,1);
-	}
-	else
-	{
-		color = vec4( (float(int(color.x*10)))/10.0f, (float(int(color.x*10)))/10.0f, (float(int(color.z*10)))/10.0f, color.w );
+		float edge = max(0.0f, abs(dot(normal_world, normalize( cam_pos -  vert ) )) );
+		if (edge < 0.3f)
+		{
+			color = vec4(0,0,0,1);
+		}
+		else
+		{
+			color = vec4( (float(floor(color.x*10 + 0.5)))/10.0f, (float(floor(color.y*10 + 0.5)))/10.0f, (float(floor(color.z*10 + 0.5)))/10.0f, color.w );
+		}
 	}
 
 	if(disableFog == 0) {

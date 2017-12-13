@@ -27,6 +27,7 @@ int showCoordinate;
 int goRight, goLeft, goUp, goDown, goForward, goBackward;
 int displayLightOnCube;
 int disableWater;
+int disableToon;
 float mouseX, mouseY;
 glm::vec3 ray_dir;
 Object* pickObject = NULL;
@@ -251,12 +252,24 @@ void Window::initialize_objects()
 
 	bindedCubeVAO = false;
 
+	// toon shader
+	GLuint temp;
+	disableToon = 0;
+	glUseProgram(Shader_Model);
+	temp = glGetUniformLocation(Shader_Model, "disableToon");
+	glUniform1i(temp, disableToon);
+	glUseProgram(Shader_Geometry);
+	temp = glGetUniformLocation(Shader_Geometry, "disableToon");
+	glUniform1i(temp, disableToon);
+	glUseProgram(Shader_DisplayLight);
+	temp = glGetUniformLocation(Shader_DisplayLight, "disableToon");
+	glUniform1i(temp, disableToon);
 
 
 	// toggle them to on
 	displayLightOnCube = 0;
 	glUseProgram(Shader_Geometry);
-	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+	temp = glGetUniformLocation(Shader_Geometry, "disableLight");
 	glUniform1i(temp, displayLightOnCube);
 	glUseProgram(Shader_Water);
 	temp = glGetUniformLocation(Shader_Water, "disableLight");
@@ -765,6 +778,20 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glUseProgram(Shader_Water);
 			temp = glGetUniformLocation(Shader_Water, "disableLight");
 			glUniform1i(temp, displayLightOnCube);
+		}
+		if (key == GLFW_KEY_Y)
+		{
+			disableToon = (disableToon == 1 ? 0 : 1);
+			GLuint temp;
+			glUseProgram(Shader_Model);
+			temp = glGetUniformLocation(Shader_Model, "disableToon");
+			glUniform1i(temp, disableToon);
+			glUseProgram(Shader_Geometry);
+			temp = glGetUniformLocation(Shader_Geometry, "disableToon");
+			glUniform1i(temp, disableToon);
+			glUseProgram(Shader_DisplayLight);
+			temp = glGetUniformLocation(Shader_DisplayLight, "disableToon");
+			glUniform1i(temp, disableToon);
 		}
 		if (key == GLFW_KEY_F) {
 			disableFog = -disableFog + 1;
