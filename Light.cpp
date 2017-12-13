@@ -86,9 +86,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 100.0f,
-					(float)(rand() % 100) / 100.0f,
-					(float)(rand() % 100) / 100.0f
+				(float)(rand() % 200) / 100.0f,
+					(float)(rand() % 200) / 100.0f,
+					(float)(rand() % 200) / 100.0f
 				)
 			);
 
@@ -108,9 +108,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 10.0f - 5.0f,
-					(float)(rand() % 50) / 10.0f,
-					(float)(rand() % 100) / 10.0f - 5.0f
+				(float)(rand() % 1000) / 10.0f - 50.0f,
+					(float)(rand() % 300) / 10.0f,
+					(float)(rand() % 1000) / 10.0f - 50.0f
 				)
 			);
 
@@ -141,9 +141,9 @@ void Light::randInit()
 				i,
 				glm::vec3
 				(
-				(float)(rand() % 100) / 10.0f - 5.0f,
-					(float)(rand() % 50) / 10.0f,
-					(float)(rand() % 100) / 10.0f - 5.0f
+				(float)(rand() % 1000) / 10.0f - 50.0f,
+					(float)(rand() % 300) / 10.0f,
+					(float)(rand() % 1000) / 10.0f - 50.0f
 				)
 			);
 

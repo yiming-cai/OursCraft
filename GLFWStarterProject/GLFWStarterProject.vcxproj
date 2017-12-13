@@ -41,6 +41,7 @@
     <ClInclude Include="..\stb_image.h" />
     <ClInclude Include="..\Transform.h" />
     <ClInclude Include="..\Translate.h" />
+    <ClInclude Include="..\Tree.h" />
     <ClInclude Include="..\Util.h" />
     <ClInclude Include="..\Water.h" />
     <ClInclude Include="..\Window.h" />
@@ -68,6 +69,7 @@
     <ClCompile Include="..\stb_image.cpp" />
     <ClCompile Include="..\Transform.cpp" />
     <ClCompile Include="..\Translate.cpp" />
+    <ClCompile Include="..\Tree.cpp" />
     <ClCompile Include="..\Util.cpp" />
     <ClCompile Include="..\Water.cpp" />
     <ClCompile Include="..\Window.cpp" />

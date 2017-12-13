@@ -52,5 +52,7 @@ public:
 	static void mouseScroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	static void mousePos_callback(GLFWwindow* window, double xpos, double ypos);
 	static void loadAllShader();
+
+	static bool loadFromFile(std::string filename);
 };
 

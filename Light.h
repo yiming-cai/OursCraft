@@ -105,7 +105,7 @@ private:
 	std::vector<LightParameters> lights;
 
 	// a fixed seed for randomly initializing lights
-	int srand_seed = 16;
+	int srand_seed = 21;
 
 	// the uniform block will be binded to this location
 	const static int LIGHT_UNIFORM_LOC = 7;

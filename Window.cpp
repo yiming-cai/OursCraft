@@ -20,6 +20,7 @@ int pickType = 0;
 int pickStyle = 0;
 int idCount = 0;
 int leftMousePressed,rightMousePressed;
+int leftMouseRepeated;
 int disableFog;
 int pickObjectFace;
 int showCoordinate;
@@ -59,7 +60,7 @@ LightDisplay * lightDisplay;
 //Model * model1;
 //Model * model2;
 Sound * sound;
-ALuint bgmSource;
+ALuint bgmRightSource, bgmLeftSource;
 Util util;
 
 int keyPressed;
@@ -91,7 +92,6 @@ void Window::placeObject(int type, int *style)
 		case 1:
 			if (*style >= CUBE_TEXTURE_NUM) *style = *style%CUBE_TEXTURE_NUM;
 			if (*style < 0) *style = CUBE_TEXTURE_NUM + (*style%CUBE_TEXTURE_NUM);
-			std::cerr << "Using this style: " << *style << std::endl;
 			cube = new Cube(idCount++, 1, *style);
 			cube->setPosition(npos.x, npos.y, npos.z);
 			cubeList.push_back(cube);
@@ -133,9 +133,96 @@ void Window::loadAllShader() {
 	Shader_Water = LoadShaders(WATER_VERTEX_SHADER_PATH, WATER_FRAGMENT_SHADER_PATH);
 }
 
+bool Window::loadFromFile(std::string filename)
+{
+	std::ifstream in(filename, std::ofstream::in);
+	if (!in.is_open())
+	{
+		std::cerr << "Invalid file! Please make a save file first" << std::endl;
+		return false;
+	}
+
+	for (int i = 0; i < cubeList.size(); i++)
+	{
+		delete cubeList[i];
+	}
+	cubeList.clear();
+	std::cerr << (cubeList.size() == 0 ? "Cleared cube list!" : "Failed to clear cube list!") << std::endl;
+
+	std::string line;
+	bool readingCube = false;
+	bool readingLight = false;
+	Cube * cube_temp;
+	while (std::getline(in, line))
+	{
+		std::vector<std::string> tokens = util.split(line, ',');
+		if (tokens[0] == "#IDCOUNT")
+		{
+			int count = std::stoi(tokens[1], nullptr);
+			idCount = count;
+			std::cerr << "load id count: " << idCount << std::endl;
+		}
+		else if (tokens[0] == "#STARTCUBE")
+		{
+			std::cerr << "start to read cube lines..." << std::endl;
+			readingCube = true;
+		}
+		else if (tokens[0] == "#ENDCUBE")
+		{
+			std::cerr << "stop to read cube lines..." << std::endl;
+			readingCube = false;
+		}
+		else if (tokens[0] == "#STARTLIGHT")
+		{
+			readingLight = true;
+		}
+		else if (tokens[0] == "#ENDLIGHT")
+		{
+			readingLight = false;
+		}
+		else if (readingCube)
+		{
+			int id = std::stoi(tokens[FILE_INDEX_ID], nullptr);
+			//if (id == -1) continue;
+			float pos_x = std::stof(tokens[FILE_INDEX_POS_X], nullptr);
+			float pos_y = std::stof(tokens[FILE_INDEX_POS_Y], nullptr);
+			float pos_z = std::stof(tokens[FILE_INDEX_POS_Z], nullptr);
+			float size = std::stof(tokens[FILE_INDEX_SIZE], nullptr);
+			int texId = std::stoi(tokens[FILE_INDEX_TEXTUREID], nullptr);
+			float color_x = std::stof(tokens[FILE_INDEX_COLOR_X], nullptr);
+			float color_y = std::stof(tokens[FILE_INDEX_COLOR_Y], nullptr);
+			float color_z = std::stof(tokens[FILE_INDEX_COLOR_Z], nullptr);
+			if (texId != -1)
+			{
+				cube_temp = new Cube(id, size, texId);
+				cube_temp->setPosition(pos_x, pos_y, pos_z);
+				cubeList.push_back(cube_temp);
+			}
+			else
+			{
+				cube_temp = new Cube(id, size, glm::vec3(color_x, color_y, color_z));
+				cube_temp->setPosition(pos_x, pos_y, pos_z);
+				cubeList.push_back(cube_temp);
+			}
+		}
+		else if (readingLight)
+		{
+			lights.readFromFile(in);
+		}
+		else
+		{
+			std::cerr << "Unknown file line: " << line << std::endl;
+		}
+	}
+
+	std::cout << "Successfully loaded from " << filename << "!" << std::endl;
+	return true;
+}
+
 void Window::initialize_objects()
 {
 	leftMousePressed = 0;
+	leftMouseRepeated = 0;
 	mouseX = mouseY = MOUSEPOS_INIT_VALUE;
 	goRight = goLeft = goUp = goDown = goForward = goBackward = 0;
 	showCoordinate = 0;
@@ -144,21 +231,30 @@ void Window::initialize_objects()
 	loadAllShader();
 
 	//	printf("LoadShaders Finished!2 %d\n", Shader_Geometry);
-	int min = -2, max = 2;
-	for (int i = min; i <= max; ++i)
+	std::stringstream s;
+	s << OUTPUTFILELOCATION << "1";
+	if (!loadFromFile(s.str()))
 	{
-		for (int j = min; j <= max; ++j) 
+		int min = -2, max = 2;
+		for (int i = min; i <= max; ++i)
 		{
-			//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
-			cube = new Cube(idCount++, 1, 0);
-			cube->setPosition(i, GROUND_LEVEL -1, j);
-			cubeList.push_back(cube);
+			for (int j = min; j <= max; ++j)
+			{
+				//cube = new Cube(idCount++, 1, glm::vec3(0.94, 1, 1));
+				cube = new Cube(idCount++, 1, 0);
+				cube->setPosition(i, GROUND_LEVEL - 1, j);
+				cubeList.push_back(cube);
+			}
 		}
 	}
+
+
 	bindedCubeVAO = false;
 
+
+
 	// toggle them to on
-	displayLightOnCube = 1;
+	displayLightOnCube = 0;
 	glUseProgram(Shader_Geometry);
 	GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
 	glUniform1i(temp, displayLightOnCube);
@@ -228,32 +324,55 @@ void Window::initialize_objects()
 	lights.initializeShader(Shader_Model);
 	lights.initializeShader(Shader_Geometry);
 	lights.initializeShader(Shader_Water);
-	//lights.turnAllLightOn();
+	lights.turnAllLightOn();
 	lights.updateAllShader();
 
 
 	lightDisplay = new LightDisplay(&lights, currentCam);
 	lightDisplay->initShader(Shader_DisplayLight);
 	lightDisplay->update(Shader_DisplayLight);
+	// --------------------------------------------------------------
 
+	// ------------ for the BGM ----------------------------------------------
 	sound = new Sound(currentCam);
 
 	// generate a sound buffer to store sound files
 	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
+	glm::vec3 rightSpeakerPos(5.0f, 1.0f, -28.0f);
+	glm::vec3 leftSpeakerPos(-2.0f, 1.0f, -28.0f);
 
 	// generate a source that plays the buffer
-	bgmSource = sound->generateSource(glm::vec3(0, 0, 0));
+	bgmRightSource = sound->generateSource(rightSpeakerPos);
+	bgmLeftSource = sound->generateSource(leftSpeakerPos);
 
 	// bind the buffer to the source
-	sound->bindSourceToBuffer(bgmSource, buf);
+	sound->bindSourceToBuffer(bgmRightSource, buf);
+	sound->bindSourceToBuffer(bgmLeftSource, buf);
 
 	// make the bgm loop (don't use this if you just want it to play once)
-	sound->setSourceLooping(bgmSource, true);	// Only if you want the sound to keep on looping!
+	sound->setSourceLooping(bgmRightSource, true);	// Only if you want the sound to keep on looping!
+	sound->setSourceLooping(bgmLeftSource, true);
 
 	// play the sound now
-	sound->playSourceSound(bgmSource);
-	std::cerr << (sound->isSourcePlaying(bgmSource) ? "Playing BGM!" : "Error, BGM is not playing!") << std::endl;
-	// --------------------------------------------------------------
+	sound->playSourceSound(bgmRightSource);
+	sound->playSourceSound(bgmLeftSource);
+
+	// speaker models
+	Model * speaker = new Model("../assets/speaker/speaker.obj");
+	speaker->centerAndScale(2.0f);
+	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), rightSpeakerPos));
+	speaker->setCamera(currentCam);
+	speaker->initShader(Shader_Model);
+	otherModels.push_back(speaker);
+	
+	speaker = new Model("../assets/speaker/speaker.obj");
+	speaker->centerAndScale(2.0f);
+	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), leftSpeakerPos));
+	speaker->setCamera(currentCam);
+	speaker->initShader(Shader_Model);
+	otherModels.push_back(speaker);
+	// -----------------------------------------------------------------------------
+
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -421,8 +540,6 @@ void Window::display_callback(GLFWwindow* window)
 	{
 		domino[i]->render(Shader_Model);
 	}
-
-	lightDisplay->render(Shader_DisplayLight);
 	
 	if (show_boudingbox == true) {
 		glUseProgram(Shader_BoundBox);
@@ -435,6 +552,12 @@ void Window::display_callback(GLFWwindow* window)
 	}
 	---------------------------------------------------- */
 
+	for (int i = 0; i < otherModels.size(); i++)
+	{
+		otherModels[i]->render(Shader_Model);
+	}
+
+	lightDisplay->render(Shader_DisplayLight);
 
 	glfwPollEvents();
 
@@ -445,7 +568,7 @@ void Window::display_callback(GLFWwindow* window)
 
 void Window::mouseButton_callback(GLFWwindow* window, int button, int action, int mods)
 {
-	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS )
 	{
 		rightMousePressed = 1;
 		if (pickObject != NULL) {
@@ -459,11 +582,17 @@ void Window::mouseButton_callback(GLFWwindow* window, int button, int action, in
 			}
 		}
 	}
-	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+	if (button == GLFW_MOUSE_BUTTON_LEFT && (action == GLFW_PRESS)) {
 		leftMousePressed = 1;
 		placeObject(pickType, &pickStyle);
-		
 	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT && (action == GLFW_REPEAT))
+	{
+		leftMouseRepeated = 1;
+		leftMousePressed = 1;
+		placeObject(pickType, &pickStyle);
+	}
+
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE)
 	{
 		rightMousePressed = 0;
@@ -472,6 +601,7 @@ void Window::mouseButton_callback(GLFWwindow* window, int button, int action, in
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
 	{
 		leftMousePressed = 0;
+		leftMouseRepeated = 0;
 		mouseX = mouseY = MOUSEPOS_INIT_VALUE;
 	}
 }
@@ -532,7 +662,7 @@ glm::vec3 compute_axis(float x1, float y1, float x2, float y2) {
 
 void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 
-	if (leftMousePressed == 0) {
+	//if (leftMousePressed == 0) {
 		if (mouseX == MOUSEPOS_INIT_VALUE) {
 			mouseX = xpos;
 			mouseY = ypos;
@@ -559,7 +689,7 @@ void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 
 		// hides cursor away from screen
 		// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	}
+	//}
 
 
 }
@@ -579,6 +709,14 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		if (key == GLFW_KEY_LEFT_SHIFT || key == GLFW_KEY_RIGHT_SHIFT)
 		{
 			shiftPressed = 1;
+		}
+		if (key == GLFW_KEY_R)
+		{
+			lights.setSeed(rand());
+			lights.randInit();
+			lights.turnAllLightOn();
+			lights.updateAllShader();
+			lightDisplay->update(Shader_DisplayLight);
 		}
 		if (key == GLFW_KEY_W) {
 			goForward = 1;
@@ -608,9 +746,16 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			showCoordinate = -showCoordinate + 1;
 		}
 		if (key == GLFW_KEY_T) {
-			glUseProgram(Shader_Geometry);
 			displayLightOnCube = (displayLightOnCube == 1 ? 0 : 1);
+			
+			// toggle geometry shader
+			glUseProgram(Shader_Geometry);
 			GLuint temp = glGetUniformLocation(Shader_Geometry, "disableLight");
+			glUniform1i(temp, displayLightOnCube);
+
+			// toggle water shader
+			glUseProgram(Shader_Water);
+			temp = glGetUniformLocation(Shader_Water, "disableLight");
 			glUniform1i(temp, displayLightOnCube);
 		}
 		if (key == GLFW_KEY_F) {
@@ -655,10 +800,16 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 		// p for pausing or resuming
 		if (key == GLFW_KEY_P)
 		{
-			if (sound->isSourcePlaying(bgmSource))
-				sound->pauseSourceSound(bgmSource);
+			if (sound->isSourcePlaying(bgmLeftSource) || sound->isSourcePlaying(bgmRightSource))
+			{
+				sound->pauseSourceSound(bgmLeftSource);
+				sound->pauseSourceSound(bgmRightSource);
+			}
 			else
-				sound->playSourceSound(bgmSource);
+			{
+				sound->playSourceSound(bgmLeftSource);
+				sound->playSourceSound(bgmRightSource);
+			}
 		}
 		if (light_toggle && key >= GLFW_KEY_0 && key <= GLFW_KEY_9)
 		{
@@ -726,87 +877,7 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 				int file = key - GLFW_KEY_F1 + 1;
 				std::stringstream filename;
 				filename << OUTPUTFILELOCATION << file;
-				std::ifstream in(filename.str(), std::ofstream::in);
-				if (!in.is_open())
-				{
-					std::cerr << "Invalid file! Please make a save file first" << std::endl;
-					return;
-				}
-
-				for (int i = 0; i < cubeList.size(); i++)
-				{
-					delete cubeList[i];
-				}
-				cubeList.clear();
-				std::cerr << (cubeList.size() == 0 ? "Cleared cube list!" : "Failed to clear cube list!") << std::endl;
-
-				std::string line;
-				bool readingCube = false;
-				bool readingLight = false;
-				Cube * cube_temp;
-				while (std::getline(in, line))
-				{
-					std::vector<std::string> tokens = util.split(line, ',');
-					if (tokens[0] == "#IDCOUNT")
-					{
-						int count = std::stoi(tokens[1], nullptr);
-						idCount = count;
-						std::cerr << "load id count: " << idCount << std::endl;
-					}
-					else if (tokens[0] == "#STARTCUBE")
-					{
-						std::cerr << "start to read cube lines..." << std::endl;
-						readingCube = true;
-					}
-					else if (tokens[0] == "#ENDCUBE")
-					{
-						std::cerr << "stop to read cube lines..." << std::endl;
-						readingCube = false;
-					}
-					else if (tokens[0] == "#STARTLIGHT")
-					{
-						readingLight = true;
-					}
-					else if (tokens[0] == "#ENDLIGHT")
-					{
-						readingLight = false;
-					}
-					else if (readingCube)
-					{
-						int id = std::stoi(tokens[FILE_INDEX_ID], nullptr);
-						//if (id == -1) continue;
-						float pos_x = std::stof(tokens[FILE_INDEX_POS_X], nullptr);
-						float pos_y = std::stof(tokens[FILE_INDEX_POS_Y], nullptr);
-						float pos_z = std::stof(tokens[FILE_INDEX_POS_Z], nullptr);
-						float size = std::stof(tokens[FILE_INDEX_SIZE], nullptr);
-						int texId = std::stoi(tokens[FILE_INDEX_TEXTUREID], nullptr);
-						float color_x = std::stof(tokens[FILE_INDEX_COLOR_X], nullptr);
-						float color_y = std::stof(tokens[FILE_INDEX_COLOR_Y], nullptr);
-						float color_z = std::stof(tokens[FILE_INDEX_COLOR_Z], nullptr);
-						if (texId != -1)
-						{
-							cube_temp = new Cube(id, size, texId);
-							cube_temp->setPosition(pos_x, pos_y, pos_z);
-							cubeList.push_back(cube_temp);
-						}
-						else
-						{
-							cube_temp = new Cube(id, size, glm::vec3(color_x, color_y, color_z));
-							cube_temp->setPosition(pos_x, pos_y, pos_z);
-							cubeList.push_back(cube_temp);
-						}
-					}
-					else if (readingLight)
-					{
-						lights.readFromFile(in);
-					}
-					else
-					{
-						std::cerr << "Unknown file line: " << line << std::endl;
-					}
-				}
-
-				std::cout << "Successfully loaded from " << filename.str() << "!" << std::endl;
+				loadFromFile(filename.str());
 				
 			}
 		}
