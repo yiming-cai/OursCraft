@@ -32,7 +32,7 @@
     <ClInclude Include="..\Node.h" />
     <ClInclude Include="..\Object.h" />
     <ClInclude Include="..\OBJObject.h" />
-    <ClInclude Include="..\Particle.h" />
+    <ClInclude Include="..\ParticleGenerator.h" />
     <ClInclude Include="..\Rotate.h" />
     <ClInclude Include="..\Scale.h" />
     <ClInclude Include="..\shader.h" />
@@ -61,7 +61,7 @@
     <ClCompile Include="..\Node.cpp" />
     <ClCompile Include="..\Object.cpp" />
     <ClCompile Include="..\OBJObject.cpp" />
-    <ClCompile Include="..\Particle.cpp" />
+    <ClCompile Include="..\ParticleGenerator.cpp" />
     <ClCompile Include="..\Rotate.cpp" />
     <ClCompile Include="..\Scale.cpp" />
     <ClCompile Include="..\shader.cpp" />

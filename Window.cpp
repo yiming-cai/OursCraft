@@ -10,7 +10,7 @@ extern GLuint Shader_SimplePointer;
 extern GLuint Shader_BoundBox;
 extern GLuint Shader_DisplayLight;
 extern GLuint Shader_Water;
-
+extern GLuint Shader_Particle;
 std::vector<Cube *> cubeList;
 std::vector<Camera *> cameraList;
 std::vector<Model *> domino;
@@ -39,7 +39,7 @@ Coordinate *coordinate;
 SimplePointer *centerRouter;
 Fog *fog;
 Water *water;
-
+ParticleGenerator * fist;
 std::vector<std::string> faces
 {
 	"../assets/night skybox/2/Right.png",
@@ -303,7 +303,7 @@ void Window::initialize_objects()
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 
-	// ------------------FOR TESTING ONLY ---------------------
+	// init domino
 	for (int i = 0; i < 120; i++)
 	{
 		Model * model1 = new Model("../cuboid.obj");
@@ -325,6 +325,10 @@ void Window::initialize_objects()
 	hand->setCamera(currentCam);
 	hand->initShader(Shader_Model);
 	
+	//init particle
+	fist = new ParticleGenerator();
+
+
 
 	// Enable depth buffering
 	// glEnable(GL_BLEND); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -411,6 +415,8 @@ void Window::clean_up()
 	glDeleteProgram(Shader_SimplePointer);
 	glDeleteProgram(Shader_BoundBox);
 	glDeleteProgram(Shader_Water);
+	delete(hand);
+	delete(fist);
 }
 
 GLFWwindow* Window::create_window(int width, int height)
@@ -503,8 +509,12 @@ void Window::idle_callback()
 				done_collision = true;
 			}
 		}
-
-
+		/*
+		if (done_collision) {
+			glUseProgram(Shader_Particle);
+			fist->draw(Shader_Particle);
+		}
+		*/
 
 		glm::mat4 m1, m2, m3;
 		

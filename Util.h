@@ -48,6 +48,8 @@
 #define WATER_FRAGMENT_SHADER_PATH "../waterShader.frag"
 #define OUTPUTFILELOCATION "../savefile.dat"
 #define CUBE_TEXTURE_NUM 17
+#define PARTICLE_VERTEX_SHADER_PATH "../particleShader.vert"
+#define PARTICLE_FRAGMENT_SHADER_PATH "../particleShader.frag"
 
 #define WATER_HEIGHT 1
 #define MOUSEPOS_INIT_VALUE -1999999

@@ -10,6 +10,7 @@ GLuint Shader_SimplePointer;
 GLuint Shader_BoundBox;
 GLuint Shader_DisplayLight;
 GLuint Shader_Water;
+GLuint Shader_Particle;
 // use this for optimization of cube drawing only
 // check Geometry draw function to find out more
 bool bindedCubeVAO;

@@ -17,7 +17,7 @@
 #include "Water.h"
 #include "Fog.h"
 #include "Sound.h"
-
+#include "ParticleGenerator.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>
