@@ -202,8 +202,8 @@ void main()
 		
 	if (disableToon == 0)
 	{
-		float edge = max(0.0f, abs(dot(normal_world, normalize( cam_pos -  vert ) )) );
-		if (edge < 0.1f)
+		float edge = max(0.0f, abs(dot(normal_world, normalize(   vert  - cam_pos ) )) );
+		if (edge < 0.2f)
 		{
 			color = vec4(0,0,0,1);
 		}
