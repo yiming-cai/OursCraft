@@ -49,7 +49,6 @@ uniform mat4 model;
 uniform mat4 view;
 uniform vec3 cam_pos;
 
-
 // get the Material properties
 layout (std140) uniform Material {
 	vec4 diffuse;
@@ -77,11 +76,11 @@ layout (std140) uniform LightBlock {
 };
 
 
-
-
 // main loop
 void main()
 {
+
+
 	// records the sum of light colors;
 	vec4 sum_of_colors = vec4(0);
 
@@ -199,6 +198,16 @@ void main()
 		color = texture2D(tex, vec2(texCoord.x, texCoord.y)) * sum_of_colors;
 	}
 
+	float edge = max(0.0f, abs(dot(normal_world, normalize( cam_pos -  vert ) )) );
+	if (edge < 0.1f)
+	{
+		color = vec4(0,0,0,1);
+	}
+	else
+	{
+		color = vec4( (float(int(color.x*10)))/10.0f, (float(int(color.y*10)))/10.0f, (float(int(color.z*10)))/10.0f, color.w );
+	}
+
 	if(disableFog == 0) {
 		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
 		delta.y = 0;
@@ -208,4 +217,6 @@ void main()
 		color = fog_f  * color + vec4((1.0 - fog_f ) * fog_color,0.0f);
 		color.w = 1.0f;
 	}
+
+
 }

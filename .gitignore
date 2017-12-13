@@ -53,6 +53,7 @@ artifacts/
 !Gun/Handgun_obj.obj
 !assets/*
 !assets/lights/*
+!assets/speaker/*
 *.pch
 *.pdb
 *.pgc

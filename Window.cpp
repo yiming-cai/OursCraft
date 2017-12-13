@@ -373,6 +373,13 @@ void Window::initialize_objects()
 	otherModels.push_back(speaker);
 	// -----------------------------------------------------------------------------
 
+	// ----------------- Other models and test models -----------------------------
+	Model * model = new Model("../cockle/common-cockle.obj");
+	model->centerAndScale(3.0f);
+	model->setModelMatrix( glm::translate( glm::mat4(1.0f), glm::vec3(0,3.0f,0)) );
+	model->setCamera(currentCam);
+	model->initShader(Shader_Model);
+	otherModels.push_back(model);
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -519,6 +526,7 @@ void Window::display_callback(GLFWwindow* window)
 
 
 	// draw cube!!!!!
+	GLuint temp = glGetUniformLocation(Shader_Geometry, "cam_look_at");
 	drawingCube = true;
 	for (int i = 0; i < cubeList.size();++i)
 		cubeList[i]->draw(glm::mat4(1.0f));

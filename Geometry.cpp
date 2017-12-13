@@ -12,6 +12,7 @@ void Geometry::draw(glm::mat4 C) {
 	uView = glGetUniformLocation(shader, "view");
 	GLuint sel = glGetUniformLocation(shader, "selected");
 	GLuint uCam = glGetUniformLocation(shader, "cam_pos");
+
 	if (haveTexture)
 	{
 		GLuint haveT = glGetUniformLocation(shader, "haveTexture");

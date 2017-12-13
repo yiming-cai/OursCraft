@@ -202,6 +202,7 @@ void main()
 	}
 
 	color = color * vec4(sum_of_colors.xyz, 1.0f);
+	
 	if(disableFog == 0) {
 		vec3 delta = vec3(model * vec4(position,1.0f)) - fog_pos;
 		delta.y = 0;
