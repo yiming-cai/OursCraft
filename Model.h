@@ -142,6 +142,7 @@ public:
 	const std::set<GLuint> getIDs() const { return IDs; }
 	const std::map<std::string, GLuint> getTextureIdMap() const { return textureIdMap; }
 	const std::vector<MyMesh> getMeshes() const { return myMeshes; }
+
 	/* ---------------------------------------------- */
 	// use these when accessing values of getMinMaxValues() Note that these are in object coordinates
 	const static int INDEX_X_MIN = 0;

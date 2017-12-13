@@ -2,7 +2,12 @@
 
 void Geometry::draw(glm::mat4 C) {
 
-	glUseProgram(shader);
+	// shader optimization
+	if (!drawingCube || !bindedCubeVAO)
+	{
+		glUseProgram(shader);
+	}
+
 	glm::mat4 model = C * toWorld;
 	glm::vec3 cam_pos = glm::vec3(V[0][3],V[1][3],V[2][3]);
 

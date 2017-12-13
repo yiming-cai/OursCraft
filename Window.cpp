@@ -300,8 +300,8 @@ void Window::initialize_objects()
 	water = new Water(idCount++, 300, 200, 0.2, 0, 1, 0,skybox ->getTexture(), currentCam);
 	water->setPosition(-150, GROUND_LEVEL - 2, 150);
 	// Enables backface culling
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// init domino
 	for (int i = 0; i < 120; i++)
@@ -396,12 +396,24 @@ void Window::initialize_objects()
 	// -----------------------------------------------------------------------------
 
 	// ----------------- Other models and test models -----------------------------
-	Model * model = new Model("../cockle/common-cockle.obj");
-	model->centerAndScale(3.0f);
-	model->setModelMatrix( glm::translate( glm::mat4(1.0f), glm::vec3(0,3.0f,0)) );
-	model->setCamera(currentCam);
-	model->initShader(Shader_Model);
-	otherModels.push_back(model);
+	std::vector<glm::vec3> cockle_pos = { {16,0,-8}, { 18,0,-11 },{ 20,0,-14 },{ 27,0,-21 },{ 26,0,-32 },{ 27,0,-24 },{ 30,0,-42 },{ 30,0,-48 },{ 29,0,-63 },
+										  { 26,0,-65 },{ 14,0,-70 },{ 0,0,-68 },{ 5,0,-69 },{ -30,0,-60 },{ -30,0,-50 },{ -28,0,-39 },{ -28,0,-26 },{ -25,0,-21 },
+										  { -27,0,-13 },{ -19,0,-11 },{ -25,0,-42 },{ 9,0,-68 },{ -25,0,-66 },{ -21,0,-52 },{ -24,0,-56 },{ -29,0,-64 },{ -27,0,-52 },
+										  { -26,0,-27 },{ -23,0,-13 },{ 15,0,-62 },{ 24,0,-54 },{ 27,0,-37 },{ 9,0,-5 },{ 23,0,-17 },{ -11,0,-12 } };
+	srand(32132);
+	for (int i = 0; i < cockle_pos.size(); i++)
+	{
+		Model * model = new Model("../cockle/common-cockle.obj");
+		model->centerAndScale( ( float(rand()%100)/200.0f)+0.5f );
+		model->setModelMatrix(glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(model->getModelMatrix() * glm::vec4(0, model->getMinMaxValues()[Model::INDEX_Y_MIN], 0, 1))));
+		//cockle_pos[i][1] -= 0.2f;
+		model->setModelMatrix(glm::translate(model->getUModelMatrix(), cockle_pos[i]));
+		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 180.0f * glm::pi<float>() / 180.0f, glm::vec3(1,0,0)));
+		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), float(rand()%180) * glm::pi<float>()/180.0f, glm::vec3( float(rand()%100)/100.0f, float(rand() % 100) / 100.0f, float(rand() % 100) / 100.0f)));
+		model->setCamera(currentCam);
+		model->initShader(Shader_Model);
+		otherModels.push_back(model);
+	}
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
