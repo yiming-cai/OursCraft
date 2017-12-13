@@ -318,7 +318,7 @@ void Window::initialize_objects()
 	}
 
 	hand = new Model("../hand.obj");
-	hand->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.3f,1.0f,0 })*hand->getUModelMatrix());
+	hand->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.4f,0.8f,0 })*hand->getUModelMatrix());
 	hand->centerAndScale(1.0f);
 	hand->setBoundingBox();
 	hand->bounding_box->update();
@@ -403,6 +403,14 @@ void Window::initialize_objects()
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
+	glDeleteProgram(Shader_Geometry);
+	glDeleteProgram(Shader_Skybox);
+	glDeleteProgram(Shader_Coordinate);
+	glDeleteProgram(Shader_Model);
+	glDeleteProgram(Shader_DisplayLight);
+	glDeleteProgram(Shader_SimplePointer);
+	glDeleteProgram(Shader_BoundBox);
+	glDeleteProgram(Shader_Water);
 }
 
 GLFWwindow* Window::create_window(int width, int height)

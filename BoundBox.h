@@ -17,9 +17,9 @@ public:
 	~BoundBox();
 	bool collision = false;
 	glm::mat4 toWorld;
-	std::vector<GLfloat> x_list;
-	std::vector<GLfloat> y_list;
-	std::vector<GLfloat> z_list;
+	std::vector<float> x_list;
+	std::vector<float> y_list;
+	std::vector<float> z_list;
 	GLuint VBO, VAO, EBO;
 	GLuint uProjection, uModelview, uCollision;
 	int count_rotate = 0;
