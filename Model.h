@@ -128,6 +128,7 @@ public:
 	void initShader(GLuint shaderProgram );
 	void setCamera(Camera * cam);
 
+	void switchShader(GLuint shaderProgram);
 	void render(GLuint shaderProgram);
 	void draw(glm::mat4 C, GLuint shaderProgram);
 

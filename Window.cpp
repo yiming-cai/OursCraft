@@ -404,7 +404,7 @@ void Window::initialize_objects()
 	for (int i = 0; i < cockle_pos.size(); i++)
 	{
 		Model * model = new Model("../cockle/common-cockle.obj");
-		model->centerAndScale( ( float(rand()%100)/200.0f)+0.5f );
+		model->centerAndScale( ( float(rand()%100)/200.0f) + 0.2f );
 		model->setModelMatrix(glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(model->getModelMatrix() * glm::vec4(0, model->getMinMaxValues()[Model::INDEX_Y_MIN], 0, 1))));
 		//cockle_pos[i][1] -= 0.2f;
 		model->setModelMatrix(glm::translate(model->getUModelMatrix(), cockle_pos[i]));
@@ -598,17 +598,8 @@ void Window::display_callback(GLFWwindow* window)
 	// test draw model
 
 	
-	// ------------------------------------------------
-	// Uncomment if you want to draw the dominos are... commenting this out to help building the world
+	// --------- These are all boundbox shader -----------------------
 
-	hand->render(Shader_Model);
-
-
-	for (int i = 0; i < domino.size(); i++)
-	{
-		domino[i]->render(Shader_Model);
-	}
-	
 	if (show_boudingbox == true) {
 		glUseProgram(Shader_BoundBox);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -621,12 +612,27 @@ void Window::display_callback(GLFWwindow* window)
 	}
 	//---------------------------------------------------- 
 
+	// ------------- These are all Shader_Model, group them together for optimization -----------
+	glUseProgram(Shader_Model);
+
+	// render hand
+	hand->render(Shader_Model);
+
+	// render models
 	for (int i = 0; i < otherModels.size(); i++)
 	{
 		otherModels[i]->render(Shader_Model);
 	}
 
+	// render dominos
+	for (int i = 0; i < domino.size(); i++)
+	{
+		domino[i]->render(Shader_Model);
+	}
+	// -------------------------------------------------------------------------------------------
+
 	lightDisplay->render(Shader_DisplayLight);
+
 
 	glfwPollEvents();
 

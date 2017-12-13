@@ -386,10 +386,15 @@ void Model::initShader(GLuint shaderProgram)
 	glUniformBlockBinding(shaderProgram, glGetUniformBlockIndex(shaderProgram, "Material"), materialUniLoc);
 }
 
+void Model::switchShader(GLuint shaderProgram)
+{
+	glUseProgram(shaderProgram);
+}
+
 void Model::render(GLuint shaderProgram)
 {
 	if (scene == nullptr) return;
-	glUseProgram(shaderProgram);
+	//glUseProgram(shaderProgram);
 
 	for (auto mesh : myMeshes)
 	{
