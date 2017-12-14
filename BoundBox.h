@@ -22,7 +22,7 @@ public:
 	std::vector<float> z_list;
 	GLuint VBO, VAO, EBO;
 	GLuint uProjection, uModelview, uCollision;
-	int count_rotate = 0;
+	float count_rotate = 0;
 	void draw(GLuint shaderProgram);
 	void update();
 	bool check_collision(BoundBox * other);

@@ -70,8 +70,10 @@ Model::~Model()
 }
 
 void Model::setBoundingBox() {
-	bounding_box->setVertices(getOBBBoundingBoxVertices());
-	bounding_box_hand->setVertices(getOBBBoundingBoxVertices());
+	bounding_box->setVertices(getAABBBoundingBoxVertices());
+	//bounding_box->update();
+	bounding_box_hand->setVertices(getAABBBoundingBoxVertices());
+	//bounding_box_hand->update();
 }
 
 

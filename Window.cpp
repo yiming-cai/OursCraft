@@ -51,7 +51,9 @@ std::vector<std::string> faces
 	"../assets/night skybox/2/Front.png"
 };
 
-
+//int domino_turn_point;
+std::pair<int, int> domino_branch;
+int first_branch_last;
 
 const char* window_title = "GLFW Starter Project";
 
@@ -306,26 +308,381 @@ void Window::initialize_objects()
 	water = new Water(idCount++, 300, 200, 0.2, 0, 1, 0,skybox ->getTexture(), currentCam);
 	water->setPosition(-150, GROUND_LEVEL - 2, 150);
 	// Enables backface culling
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	// init domino
-	for (int i = 0; i < 120; i++)
+	int domino_scale = 1.5f;
+
+	// Define a list of points
+	Model * model1;
+	const static glm::vec3 P1 = { -34, 0, -1 };
+	const static glm::vec3 P2 = { 1, 0, -1 };
+	const static glm::vec3 P3 = { 1, 0, -65 };
+	const static glm::vec3 P4 = { 25, 0, -65 };
+	const static glm::vec3 P5 = { 25, 0, -18 };
+	const static glm::vec3 P6 = { -28, 0, -64 };
+	const static glm::vec3 P7 = { -28, 0, -11 };
+	const static glm::vec3 P8 = { -11, 0, -11 };
+	const static glm::vec3 P9 = { -11, 0, -1 };
+	const static float straight_spacing = 0.5f*1.34f*domino_scale;
+	const static float diagonal_spacing = 0.5f*1.50f*domino_scale;
+
+	// loop 1, from p2 to p3;
+	glm::vec3 start = P2, end = P3;
+	//start.x += 0.5f; start.z += 0.5f; end.x += 0.5f; end.y += 0.5;
+	int max_number = int( glm::length(end - start) / straight_spacing );
+	glm::vec3 direction = glm::normalize(end - start);
+	float rotation = 0;
+
+	for (int i = 0; i < max_number; i++)
 	{
-		Model * model1 = new Model("../cuboid.obj");
-		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.5f,0.5f,-6.0f-0.5f*i })*model1->getUModelMatrix());
-		model1->domino_position = glm::vec3(1.5f,0,-6.0f-0.5*i);
-		model1->centerAndScale(1.0f);
-		model1->setBoundingBox();
-		model1->bounding_box->update();
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+
 		model1->setCamera(currentCam);
 		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		int asdf = 0;
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+		
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+
 		domino.push_back(model1);
 	}
 
+	domino_branch.first = domino.size() - 1;
+
+	rotation = 45;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+		
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P3, end = P6;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 90.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix( glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)) );
+		model1->setModelMatrix( glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix() );
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	rotation = 135;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P6, end = P7;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 180.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	rotation = 225;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P7, end = P8;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 270.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	rotation = 225;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P8, end = P9;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 180.0f;
+
+	for (int i = 1; i < max_number+1; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	rotation = 135;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P9, end = P1;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 90.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+	first_branch_last = domino.size() - 1;
+	// --------------- branch two ----------------------------
+
+	end = P3;
+	rotation = 315;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+		
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+	domino_branch.second = domino.size() - 1;
+
+	// loop 2, from p3 to p6;
+	start = P3, end = P4;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 270.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix( glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)) );
+		model1->setModelMatrix( glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix() );
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	rotation = 225;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+	// loop 2, from p3 to p6;
+	start = P4, end = P5;
+	//start.x += 1.5f; start.z += 0.5f; end.x += 1.5f; end.y += 0.5;
+	max_number = int(glm::length(end - start) / straight_spacing);
+	direction = glm::normalize(end - start);
+	rotation = 180.0f;
+
+	for (int i = 1; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+
+		model1->centerAndScale(domino_scale);
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation * glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * straight_spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+
+
+
 	hand = new Model("../hand.obj");
-	hand->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.4f,0.8f,0 })*hand->getUModelMatrix());
 	hand->centerAndScale(1.0f);
+	hand->setModelMatrix(glm::translate(glm::mat4(1.0f), { 1.39f,0.99f,0.01f })*hand->getUModelMatrix());
+	//hand->setModelMatrix(glm::rotate(glm::mat4(1.0f), 45.0f*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)) * hand->getUModelMatrix());
 	hand->setBoundingBox();
 	hand->bounding_box->update();
 	hand->setCamera(currentCam);
@@ -448,6 +805,8 @@ void Window::clean_up()
 	glDeleteProgram(Shader_SimplePointer);
 	glDeleteProgram(Shader_BoundBox);
 	glDeleteProgram(Shader_Water);
+	glDeleteProgram(Shader_Tree);
+	glDeleteProgram(Shader_Particle);
 	delete(hand);
 	delete(fist);
 }
@@ -542,35 +901,84 @@ void Window::idle_callback()
 				done_collision = true;
 			}
 		}
-		
-		//particle effect
-		//if (done_collision) {
 			
-			fist->update(0.1f, 1000, { 0.1f,0.1f,0.1f });
-		//}
+		fist->update(0.1f, 1000, { 0.1f,0.1f,0.1f });
 		
-
 		glm::mat4 m1, m2, m3;
 		
 		for (int i = 0; i < domino.size()-1; ++i) {
-			if (domino[i]->bounding_box->collision && domino[i]->bounding_box->count_rotate <=70) {
-					m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[i]->domino_position);
-					m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
-					m3 = glm::translate(glm::mat4(1.0f), domino[i]->domino_position);
-					domino[i]->setModelMatrix(m3 * m2 * m1 * domino[i]->getUModelMatrix());
-					domino[i]->bounding_box->count_rotate++;
-			}
-			domino[i]->bounding_box->check_collision(domino[i+1]->bounding_box);
-		}
+			if (domino[i]->bounding_box->collision && domino[i]->bounding_box->count_rotate <=75) {
 
-		if (domino[domino.size() - 1]->bounding_box->collision == true && count<=90) {
-				m1 = glm::translate(glm::mat4(1.0f), -1.0f * domino[domino.size() - 1]->domino_position);
-				m2 = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(-1.0f, 0.0f, 0.0f));
-				m3 = glm::translate(glm::mat4(1.0f), domino[domino.size() - 1]->domino_position);
-				domino[domino.size() - 1]->setModelMatrix(m3 * m2 * m1 * domino[domino.size() - 1]->getUModelMatrix());
-				count++;
+				float angle = 1.0f - float(domino[i]->bounding_box->count_rotate) / 100.0f;
+
+				std::vector<float> minmax = domino[i]->getMinMaxValues();
+				glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4( 0, 0, minmax[Model::INDEX_Z_MAX],1.0f );
+				glm::vec3 ref_p2 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MIN], 1.0f);
+				glm::vec3 dir = glm::normalize(ref_p2 - ref_p1); // direction domino is facing
+				glm::vec3 up = glm::vec3(0, 1, 0);
+				glm::vec3 axis = glm::normalize(glm::cross(up,dir));
+				glm::vec3 domino_displacement = domino[i]->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN] , minmax[Model::INDEX_Z_MIN], 1.0f);
+				glm::mat4 returnToOrigin = glm::translate(glm::mat4(1.0f), -1.0f*domino_displacement);
+				glm::mat4 returnToPosition = glm::translate(glm::mat4(1.0f), domino_displacement);
+				glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle *glm::pi<float>() / 180.0f, axis);
+
+				domino[i]->setModelMatrix( returnToPosition * rotation * returnToOrigin * domino[i]->getUModelMatrix() );
+
+				domino[i]->bounding_box->count_rotate += angle;
+				domino[i]->bounding_box->update();
+
+			}
+
+			domino[i]->bounding_box->check_collision(domino[i + 1]->bounding_box);
+			if (i == domino_branch.first)
+			{
+				domino[i]->bounding_box->check_collision(domino[domino_branch.second]->bounding_box);
+			}
 			
 		}
+
+		if (domino[domino.size() - 1]->bounding_box->collision == true && count<=89) {
+			int i = domino.size() - 1;
+
+			std::vector<float> minmax = domino[i]->getMinMaxValues();
+			glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MAX], 1.0f);
+			glm::vec3 ref_p2 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MIN], 1.0f);
+			glm::vec3 dir = glm::normalize(ref_p2 - ref_p1); // direction domino is facing
+			glm::vec3 up = glm::vec3(0, 1, 0);
+			glm::vec3 axis = glm::normalize(glm::cross(up, dir));
+			glm::vec3 domino_displacement = domino[i]->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], minmax[Model::INDEX_Z_MIN], 1.0f);
+			glm::mat4 returnToOrigin = glm::translate(glm::mat4(1.0f), -1.0f*domino_displacement);
+			glm::mat4 returnToPosition = glm::translate(glm::mat4(1.0f), domino_displacement);
+			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, axis);
+
+			domino[i]->setModelMatrix(returnToPosition * rotation * returnToOrigin * domino[i]->getUModelMatrix());
+			domino[i]->bounding_box->update();
+
+			count++;
+		}
+
+		if (domino[first_branch_last]->bounding_box->collision == true && domino[first_branch_last]->bounding_box->count_rotate <= 89) {
+			int i = first_branch_last;
+
+			float angle = 1.0f - float(domino[i]->bounding_box->count_rotate) / 100.0f;
+
+			std::vector<float> minmax = domino[i]->getMinMaxValues();
+			glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MAX], 1.0f);
+			glm::vec3 ref_p2 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MIN], 1.0f);
+			glm::vec3 dir = glm::normalize(ref_p2 - ref_p1); // direction domino is facing
+			glm::vec3 up = glm::vec3(0, 1, 0);
+			glm::vec3 axis = glm::normalize(glm::cross(up, dir));
+			glm::vec3 domino_displacement = domino[i]->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], minmax[Model::INDEX_Z_MIN], 1.0f);
+			glm::mat4 returnToOrigin = glm::translate(glm::mat4(1.0f), -1.0f*domino_displacement);
+			glm::mat4 returnToPosition = glm::translate(glm::mat4(1.0f), domino_displacement);
+			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle *glm::pi<float>() / 180.0f, axis);
+
+			domino[i]->setModelMatrix(returnToPosition * rotation * returnToOrigin * domino[i]->getUModelMatrix());
+
+			domino[i]->bounding_box->count_rotate += angle;
+			domino[i]->bounding_box->update();
+		}
+
 	}
 
 
@@ -579,10 +987,7 @@ void Window::idle_callback()
 
 	// fog
 	fog->fogUpdate(disableFog);
-	/* ---------Test only ----------------*/
-	//model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
-	//model2->setModelMatrix(glm::rotate(model2->getUModelMatrix(), 1.0f*glm::pi<float>() / 180.0f, glm::vec3(1.0f, 1.0f, 0)));
-	/* ----------------------------------- */
+
 	sound->updateListener();
 }
 
@@ -718,55 +1123,6 @@ void Window::mouseScroll_callback(GLFWwindow* window, double xoffset, double yof
 {
 
 }
-/*
-float compute_angle(float x1,float y1,float x2,float y2)  
-{
-	float r = MAX(Window::width, Window::height);
-	r /= 2;
-	x1 -= sphereX;
-	x2 -= sphereX;
-	y1 -= sphereY;
-	y2 -= sphereY;
-	float len1 = x1 * x1 + y1 * y1;
-	float len2 = x2 * x2 + y2 * y2;
-	len1 = len1 > r * r - 1 ? r * r : len1;
-	len2 = len2 > r * r - 1 ? r * r : len2;
-
-	float z1 = sqrtf(r * r - len1);
-	float z2 = sqrtf(r * r - len2);
-	glm::vec3 v1(x1, y1, z1);
-	glm::vec3 v2(x2, y2, z2);
-	v1 = glm::normalize(v1);
-	v2 = glm::normalize(v2);
-	
-	//printf("%f %f %f %f %f %f\n", v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
-	return glm::acos(glm::dot(v1,v2)) * 180.0f / glm::pi<float>();
-}
-
-glm::vec3 compute_axis(float x1, float y1, float x2, float y2) {
-	float r = MAX(Window::width, Window::height);
-	r /= 2;
-	x1 -= sphereX;
-	x2 -= sphereX;
-	y1 -= sphereY;
-	y2 -= sphereY;
-	float len1 = x1 * x1 + y1 * y1;
-	float len2 = x2 * x2 + y2 * y2;
-	len1 = len1 > r * r - 1 ? r * r : len1;
-	len2 = len2 > r * r - 1 ? r * r : len2;
-
-	float z1 = sqrtf(r * r - len1);
-	float z2 = sqrtf(r * r - len2);
-	//printf("%f %f\n", z1, z2);
-	glm::vec3 v1(x1, y1, z1);
-	glm::vec3 v2(x2, y2, z2);
-	v1 = glm::normalize(v1);
-	v2 = glm::normalize(v2);
-	glm::vec3 re = glm::cross(v1, v2);
-	//printf("%f %f %f %f %f %f\n", v1.x, v1.y, v1.z, v2.x, v2.y, v2.z);
-	return re;
-}
-*/
 
 void Window::mousePos_callback(GLFWwindow* window, double xpos, double ypos) {
 

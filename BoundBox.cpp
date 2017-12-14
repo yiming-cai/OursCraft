@@ -80,12 +80,7 @@ bool BoundBox::check_collision(BoundBox * obj) {
 	bool x_collides = false;
 	bool y_collides = false;
 	bool z_collides = false;
-	std::sort(this->x_list.begin(), this->x_list.end());
-	std::sort(this->y_list.begin(), this->y_list.end());
-	std::sort(this->z_list.begin(), this->z_list.end());
-	std::sort(obj->x_list.begin(), obj->x_list.end());
-	std::sort(obj->y_list.begin(), obj->y_list.end());
-	std::sort(obj->z_list.begin(), obj->z_list.end());
+
 	GLfloat source_x_min = x_list[0];
 	GLfloat source_x_max = x_list[7];
 	GLfloat source_y_min = y_list[0];
@@ -98,22 +93,55 @@ bool BoundBox::check_collision(BoundBox * obj) {
 	GLfloat target_y_max = obj->y_list[7];
 	GLfloat target_z_min = obj->z_list[0];
 	GLfloat target_z_max = obj->z_list[7];
-	if (source_x_min >= target_x_min && source_x_min <= target_x_max || source_x_max >= target_x_min && source_x_max <= target_x_max) {
-		x_collides = true;
+
+	if ( source_x_min < target_x_min ) {
+		if (target_x_min <= source_x_max)
+		{
+			x_collides = true;
+		}
+	}
+	else
+	{
+		if (source_x_min <= target_x_max)
+		{
+			x_collides = true;
+		}
 	}
 
-	if (source_y_min >= target_y_min && source_y_min <= target_y_max || source_y_max >= target_y_min && source_y_max <= target_y_max) {
-		y_collides = true;
+	if (source_y_min < target_y_min) {
+		if (target_y_min <= source_y_max)
+		{
+			y_collides = true;
+		}
+	}
+	else
+	{
+		if (source_y_min <= target_y_max)
+		{
+			y_collides = true;
+		}
 	}
 
-	if (source_z_min >= target_z_min && source_z_min <= target_z_max || source_z_max >= target_z_min && source_z_max <= target_z_max) {
-		z_collides = true;
+	if (source_z_min < target_z_min) {
+		if (target_z_min <= source_z_max)
+		{
+			z_collides = true;
+		}
 	}
+	else
+	{
+		if (source_z_min <= target_z_max)
+		{
+			z_collides = true;
+		}
+	}
+
 	if (x_collides && y_collides && z_collides) {
 		this->collision = true;
 		obj->collision = true;
 		return true;
 	}
+
 	else {
 		return false;
 	}
@@ -134,7 +162,7 @@ void BoundBox::update()
 	z_list.clear();
 	for (int i = 0; i < 8; i++) {
 		glm::vec4 new_point = glm::vec4(vertices[i][0], vertices[i][1], vertices[i][2], 1.0f);
-		new_point = this->toWorld * new_point;
+		//new_point = this->toWorld * new_point;
 		x_list.push_back(new_point[0]);
 		y_list.push_back(new_point[1]);
 		z_list.push_back(new_point[2]);
