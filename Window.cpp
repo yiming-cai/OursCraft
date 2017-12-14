@@ -63,6 +63,8 @@ LightDisplay * lightDisplay;
 
 Sound * sound;
 ALuint bgmRightSource, bgmLeftSource;
+ALuint collisionBuffer;
+ALuint collisionSource;
 Util util;
 std::vector<Tree *> trees;
 
@@ -311,6 +313,52 @@ void Window::initialize_objects()
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 
+	// ------------ for the BGM ----------------------------------------------
+	sound = new Sound(currentCam);
+
+	// generate a sound buffer to store sound files
+	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
+	collisionBuffer = sound->generateBuffer("../assets/sounds/collision.wav");
+	glm::vec3 rightSpeakerPos(5.0f, 1.0f, -28.0f);
+	glm::vec3 leftSpeakerPos(-2.0f, 1.0f, -28.0f);
+
+	// generate a source that plays the buffer
+	bgmRightSource = sound->generateSource(rightSpeakerPos);
+	bgmLeftSource = sound->generateSource(leftSpeakerPos);
+	collisionSource = sound->generateSource(glm::vec3(0));
+
+	// bind the buffer to the source
+	sound->bindSourceToBuffer(bgmRightSource, buf);
+	sound->bindSourceToBuffer(bgmLeftSource, buf);
+	sound->bindSourceToBuffer(collisionSource, collisionBuffer);
+
+	// make the bgm loop (don't use this if you just want it to play once)
+	sound->setSourceLooping(bgmRightSource, true);	// Only if you want the sound to keep on looping!
+	sound->setSourceLooping(bgmLeftSource, true);
+	sound->setSourceLooping(collisionSource, false);
+
+	// play the sound now
+	sound->playSourceSound(bgmRightSource);
+	sound->playSourceSound(bgmLeftSource);
+
+	// speaker models
+	Model * speaker = new Model("../assets/speaker/speaker.obj");
+	speaker->centerAndScale(2.0f);
+	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), rightSpeakerPos));
+	speaker->setCamera(currentCam);
+	speaker->initShader(Shader_Model);
+	otherModels.push_back(speaker);
+
+	speaker = new Model("../assets/speaker/speaker.obj");
+	speaker->centerAndScale(2.0f);
+	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), leftSpeakerPos));
+	speaker->setCamera(currentCam);
+	speaker->initShader(Shader_Model);
+	otherModels.push_back(speaker);
+	// -----------------------------------------------------------------------------
+
+
+	// ------------------------ DOMINO --------------------------------------
 	// init domino
 	int domino_scale = 1.5f;
 
@@ -719,46 +767,6 @@ void Window::initialize_objects()
 	lightDisplay->update(Shader_DisplayLight);
 	// --------------------------------------------------------------
 
-	// ------------ for the BGM ----------------------------------------------
-	sound = new Sound(currentCam);
-
-	// generate a sound buffer to store sound files
-	ALuint buf = sound->generateBuffer("../assets/sounds/song_mono.wav");
-	glm::vec3 rightSpeakerPos(5.0f, 1.0f, -28.0f);
-	glm::vec3 leftSpeakerPos(-2.0f, 1.0f, -28.0f);
-
-	// generate a source that plays the buffer
-	bgmRightSource = sound->generateSource(rightSpeakerPos);
-	bgmLeftSource = sound->generateSource(leftSpeakerPos);
-
-	// bind the buffer to the source
-	sound->bindSourceToBuffer(bgmRightSource, buf);
-	sound->bindSourceToBuffer(bgmLeftSource, buf);
-
-	// make the bgm loop (don't use this if you just want it to play once)
-	sound->setSourceLooping(bgmRightSource, true);	// Only if you want the sound to keep on looping!
-	sound->setSourceLooping(bgmLeftSource, true);
-
-	// play the sound now
-	sound->playSourceSound(bgmRightSource);
-	sound->playSourceSound(bgmLeftSource);
-
-	// speaker models
-	Model * speaker = new Model("../assets/speaker/speaker.obj");
-	speaker->centerAndScale(2.0f);
-	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), rightSpeakerPos));
-	speaker->setCamera(currentCam);
-	speaker->initShader(Shader_Model);
-	otherModels.push_back(speaker);
-	
-	speaker = new Model("../assets/speaker/speaker.obj");
-	speaker->centerAndScale(2.0f);
-	speaker->setModelMatrix(glm::translate(glm::mat4(1.0f), leftSpeakerPos));
-	speaker->setCamera(currentCam);
-	speaker->initShader(Shader_Model);
-	otherModels.push_back(speaker);
-	// -----------------------------------------------------------------------------
-
 	// ----------------- Other models and test models -----------------------------
 	std::vector<glm::vec3> cockle_pos = { {16,0,-8}, { 18,0,-11 },{ 20,0,-14 },{ 27,0,-21 },{ 26,0,-32 },{ 27,0,-24 },{ 30,0,-42 },{ 30,0,-48 },{ 29,0,-63 },
 										  { 26,0,-65 },{ 14,0,-70 },{ 0,0,-68 },{ 5,0,-69 },{ -30,0,-60 },{ -30,0,-50 },{ -28,0,-39 },{ -28,0,-26 },{ -25,0,-21 },
@@ -910,6 +918,7 @@ void Window::idle_callback()
 			if (domino[i]->bounding_box->collision && domino[i]->bounding_box->count_rotate <=75) {
 
 				float angle = 1.0f - float(domino[i]->bounding_box->count_rotate) / 100.0f;
+				angle *= 10.0f;
 
 				std::vector<float> minmax = domino[i]->getMinMaxValues();
 				glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4( 0, 0, minmax[Model::INDEX_Z_MAX],1.0f );
@@ -929,7 +938,15 @@ void Window::idle_callback()
 
 			}
 
+			bool notCollidedBefore = !(domino[i + 1]->bounding_box->collision);
 			domino[i]->bounding_box->check_collision(domino[i + 1]->bounding_box);
+			bool collidedNow = domino[i + 1]->bounding_box->collision;
+			if (notCollidedBefore && collidedNow)
+			{
+				sound->updateSourcePosition( collisionSource, domino[i+1]->getBoundingSphere().first );
+				sound->playSourceSound(collisionSource);
+			}
+
 			if (i == domino_branch.first)
 			{
 				domino[i]->bounding_box->check_collision(domino[domino_branch.second]->bounding_box);
@@ -937,8 +954,11 @@ void Window::idle_callback()
 			
 		}
 
-		if (domino[domino.size() - 1]->bounding_box->collision == true && count<=89) {
+		if (domino[domino.size() - 1]->bounding_box->collision == true && domino[domino.size()-1]->bounding_box->count_rotate <= 89) {
 			int i = domino.size() - 1;
+
+			float angle = 1.0f - float(domino[i]->bounding_box->count_rotate) / 100.0f;
+			angle *= 10.0f;
 
 			std::vector<float> minmax = domino[i]->getMinMaxValues();
 			glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MAX], 1.0f);
@@ -949,18 +969,19 @@ void Window::idle_callback()
 			glm::vec3 domino_displacement = domino[i]->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], minmax[Model::INDEX_Z_MIN], 1.0f);
 			glm::mat4 returnToOrigin = glm::translate(glm::mat4(1.0f), -1.0f*domino_displacement);
 			glm::mat4 returnToPosition = glm::translate(glm::mat4(1.0f), domino_displacement);
-			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), 1.0f*glm::pi<float>() / 180.0f, axis);
+			glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle *glm::pi<float>() / 180.0f, axis);
 
 			domino[i]->setModelMatrix(returnToPosition * rotation * returnToOrigin * domino[i]->getUModelMatrix());
-			domino[i]->bounding_box->update();
 
-			count++;
+			domino[i]->bounding_box->count_rotate += angle;
+			domino[i]->bounding_box->update();
 		}
 
 		if (domino[first_branch_last]->bounding_box->collision == true && domino[first_branch_last]->bounding_box->count_rotate <= 89) {
 			int i = first_branch_last;
 
 			float angle = 1.0f - float(domino[i]->bounding_box->count_rotate) / 100.0f;
+			angle *= 10.0f;
 
 			std::vector<float> minmax = domino[i]->getMinMaxValues();
 			glm::vec3 ref_p1 = domino[i]->getModelMatrix() * glm::vec4(0, 0, minmax[Model::INDEX_Z_MAX], 1.0f);

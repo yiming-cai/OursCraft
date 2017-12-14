@@ -642,7 +642,7 @@ std::vector<float> Model::getAABBTightestBoundingBoxMinMax()
 std::pair<glm::vec3, float> Model::getBoundingSphere()
 {
 	std::pair< glm::vec3, float > boundingSphereWorldCoord;
-	boundingSphereObjectCoord.first = glm::vec3(modelMatrix * glm::vec4(boundingSphereObjectCoord.first, 1.0f));
+	boundingSphereWorldCoord.first = glm::vec3(modelMatrix * glm::vec4(boundingSphereObjectCoord.first, 1.0f));
 	boundingSphereWorldCoord.second = boundingSphereObjectCoord.second;
 
 	// check if we already ever found a bounding sphere
