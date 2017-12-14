@@ -15,10 +15,12 @@ uniform mat4 projection;
 uniform mat4 modelview;
 
 out vec3 TexCoords;
+out vec3 pos;
 
 void main()
 {
     // OpenGL maintains the D matrix so you only need to multiply by P, V (aka C inverse), and M
 	TexCoords = vec3(position.x * distance,position.y * distance, position.z * distance);
     gl_Position = projection * modelview * vec4(position.x * distance ,position.y * distance, position.z * distance, 1.0);
+	pos = position;
 }

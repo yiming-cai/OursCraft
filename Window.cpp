@@ -301,7 +301,10 @@ void Window::initialize_objects()
 	fog->addShader(Shader_DisplayLight);
 	fog->addShader(Shader_Model);
 	fog->addShader(Shader_Water);
+	fog->addShader(Shader_Tree);
+	fog->addShader(Shader_Skybox);
 	fog->fogUpdate(disableFog);
+
 	printf("Init All Done\n PLEASE TYPE 1-4 to select Object, and use I O to select Texture\n");
 
 
@@ -915,16 +918,10 @@ void Window::idle_callback()
 			bool collidedNow = domino[0]->bounding_box->collision;
 			if (collidedNow)
 			{
-				if (!sound->isSourcePlaying(collisionSource) || sound->isSourcePlaying(collisionSource2))
-				{
-					sound->updateSourcePosition(collisionSource, domino[0]->getBoundingSphere().first);
-					sound->playSourceSound(collisionSource);
-				}
-				else
-				{
-					sound->updateSourcePosition(collisionSource2, domino[0]->getBoundingSphere().first);
-					sound->playSourceSound(collisionSource2);
-				}
+
+				sound->updateSourcePosition(collisionSource, domino[0]->getBoundingSphere().first);
+				sound->playSourceSound(collisionSource);
+
 			}
 		}
 			
@@ -961,7 +958,7 @@ void Window::idle_callback()
 			bool collidedNow = domino[i + 1]->bounding_box->collision;
 			if (notCollidedBefore && collidedNow)
 			{
-				if (!sound->isSourcePlaying(collisionSource) || sound->isSourcePlaying(collisionSource2))
+				if (i <= first_branch_last)
 				{
 					sound->updateSourcePosition(collisionSource, domino[i + 1]->getBoundingSphere().first);
 					sound->playSourceSound(collisionSource);

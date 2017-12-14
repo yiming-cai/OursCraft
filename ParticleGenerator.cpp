@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ParticleGenerator.h"
 #include <iostream>
-const int maxParticles = 5000;
+const int maxParticles = 1000;
 extern glm::mat4 P;
 extern glm::mat4 V;
 ParticleGenerator::ParticleGenerator() {
@@ -70,7 +70,7 @@ void ParticleGenerator::update(GLfloat time, GLuint newParticles, glm::vec3 offs
 		p.Life -= time;
 		if (p.Life > 0.0f)
 		{
-			p.Position += glm::vec3(p.Velocity.x*time, p.Velocity.y* time, p.Velocity.z*time);
+			p.Position += p.Velocity * time;
 			p.Color.a -= time * 2.5;
 		}
 	}
@@ -90,6 +90,7 @@ void ParticleGenerator::draw(GLuint shaderProgram) {
 	glUniformMatrix4fv(uModelview, 1, GL_FALSE, &modelview[0][0]);
 	glUniformMatrix4fv(uModel, 1, GL_FALSE, &toWorld[0][0]);
 
+	glBindVertexArray(VAO);
 	for (Particle particle : this->particles)
 	{
 		if (particle.Life > 0.0f)
@@ -97,13 +98,14 @@ void ParticleGenerator::draw(GLuint shaderProgram) {
 			glUniform3f(glGetUniformLocation(shaderProgram, "offset"), particle.Position.x, particle.Position.y, particle.Position.z);
 			glUniform4f(glGetUniformLocation(shaderProgram, "color"), particle.Color.x, particle.Color.y, particle.Color.z, particle.Color.w);
 			glUniform1i(glGetUniformLocation(shaderProgram, "sprite"), 0);
-			glBindVertexArray(VAO);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, textureID);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glBindVertexArray(0);
+
 		}
 	}
+	glBindVertexArray(0);
+
 	//reset to default blending mode
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_CULL_FACE);
