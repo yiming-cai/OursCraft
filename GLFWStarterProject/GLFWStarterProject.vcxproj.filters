@@ -234,5 +234,11 @@
     </None>
     <None Include="..\particleShader.vert" />
     <None Include="..\particleShader.frag" />
+    <None Include="..\treeShader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="..\treeShader.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -50,6 +50,8 @@
 #define CUBE_TEXTURE_NUM 17
 #define PARTICLE_VERTEX_SHADER_PATH "../particleShader.vert"
 #define PARTICLE_FRAGMENT_SHADER_PATH "../particleShader.frag"
+#define TREE_VERTEX_SHADER_PATH "../treeShader.vert"
+#define TREE_FRAGMENT_SHADER_PATH "../treeShader.frag"
 
 #define WATER_HEIGHT 1
 #define MOUSEPOS_INIT_VALUE -1999999

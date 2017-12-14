@@ -18,6 +18,7 @@
 #include "Fog.h"
 #include "Sound.h"
 #include "ParticleGenerator.h"
+#include "Tree.h"
 #include <iostream>
 #include <sstream>
 #include <fstream>

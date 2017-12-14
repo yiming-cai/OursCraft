@@ -11,6 +11,7 @@ extern GLuint Shader_BoundBox;
 extern GLuint Shader_DisplayLight;
 extern GLuint Shader_Water;
 extern GLuint Shader_Particle;
+extern GLuint Shader_Tree;
 std::vector<Cube *> cubeList;
 std::vector<Camera *> cameraList;
 std::vector<Model *> domino;
@@ -61,6 +62,7 @@ LightDisplay * lightDisplay;
 Sound * sound;
 ALuint bgmRightSource, bgmLeftSource;
 Util util;
+std::vector<Tree *> trees;
 
 int keyPressed;
 int shiftPressed;
@@ -130,6 +132,7 @@ void Window::loadAllShader() {
 	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
 	Shader_BoundBox = LoadShaders(BOUNDBOX_VERTEX_SHADER_PATH,BOUNDBOX_FRAGMENT_SHADER_PATH);
 	Shader_Water = LoadShaders(WATER_VERTEX_SHADER_PATH, WATER_FRAGMENT_SHADER_PATH);
+	Shader_Tree = LoadShaders(TREE_VERTEX_SHADER_PATH, TREE_FRAGMENT_SHADER_PATH);
 }
 
 bool Window::loadFromFile(std::string filename)
@@ -262,7 +265,9 @@ void Window::initialize_objects()
 	glUseProgram(Shader_DisplayLight);
 	temp = glGetUniformLocation(Shader_DisplayLight, "disableToon");
 	glUniform1i(temp, disableToon);
-
+	glUseProgram(Shader_Tree);
+	temp = glGetUniformLocation(Shader_Tree, "disableToon");
+	glUniform1i(temp, disableToon);
 
 	// toggle them to on
 	displayLightOnCube = 0;
@@ -346,6 +351,7 @@ void Window::initialize_objects()
 	lights.initializeShader(Shader_Model);
 	lights.initializeShader(Shader_Geometry);
 	lights.initializeShader(Shader_Water);
+	lights.initializeShader(Shader_Tree);
 	lights.turnAllLightOn();
 	lights.updateAllShader();
 
@@ -406,7 +412,6 @@ void Window::initialize_objects()
 		Model * model = new Model("../cockle/common-cockle.obj");
 		model->centerAndScale( ( float(rand()%100)/200.0f) + 0.2f );
 		model->setModelMatrix(glm::translate(glm::mat4(1.0f), -1.0f * glm::vec3(model->getModelMatrix() * glm::vec4(0, model->getMinMaxValues()[Model::INDEX_Y_MIN], 0, 1))));
-		//cockle_pos[i][1] -= 0.2f;
 		model->setModelMatrix(glm::translate(model->getUModelMatrix(), cockle_pos[i]));
 		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), 180.0f * glm::pi<float>() / 180.0f, glm::vec3(1,0,0)));
 		model->setModelMatrix(glm::rotate(model->getUModelMatrix(), float(rand()%180) * glm::pi<float>()/180.0f, glm::vec3( float(rand()%100)/100.0f, float(rand() % 100) / 100.0f, float(rand() % 100) / 100.0f)));
@@ -414,6 +419,21 @@ void Window::initialize_objects()
 		model->initShader(Shader_Model);
 		otherModels.push_back(model);
 	}
+	// ------------------------------------------------------------------------------
+	
+	// ------------------- for rendering trees -----------------------------------
+	std::vector< std::pair<float, float>> tree_locations = { {8,-57},{12,-57},{16,-57},{ 19,-57 },{ 21,-55 },{ 21,-52 },{ 21,-49 },{ 21,-46 },{ 21,-43 },{ 21,-40 },
+															 { 21,-37 },{ 21,-34 },{ 21,-31 },{ 21,-28 },{ 21,-25 },{ 21,-22 },{ 18,-21 },{ 14,-21 },{ 10,-21 },
+															 { 6,-21 },{ -6,-21 },{ -10,-21 },{ -13,-21 },{ -16,-21 },{ -19,-22 },{ -19,-25 },{ -19,-28 },{ -19,-32 },
+															 { -19,-36 },{ -19,-40 },{ -19,-44 },{ -19,-48 },{ -19,-52 },{ -19,-56 },{ -17,-57 } };
+	srand(16);
+	for (int i = 0; i < tree_locations.size(); i++)
+	{
+		Tree * newTree = new Tree(rand());
+		trees.push_back(newTree);
+		newTree->setPosition(tree_locations[i].first, tree_locations[i].second);
+	}
+	// ---------------------------------------------------------------------------
 }
 
 // Treat this as a destructor function. Delete dynamically allocated memory here.
@@ -633,7 +653,13 @@ void Window::display_callback(GLFWwindow* window)
 
 	lightDisplay->render(Shader_DisplayLight);
 
-
+	// ----------- These are all Shader_Tree -----------------------------------------------------
+	glUseProgram(Shader_Tree);
+	for (int i = 0; i < trees.size(); i++)
+	{
+		trees[i]->render(Shader_Tree);
+	}
+	// ------------------------------------------------------------------------------------------
 	glfwPollEvents();
 
 	// Swap buffers
@@ -845,6 +871,9 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			glUniform1i(temp, disableToon);
 			glUseProgram(Shader_DisplayLight);
 			temp = glGetUniformLocation(Shader_DisplayLight, "disableToon");
+			glUniform1i(temp, disableToon);
+			glUseProgram(Shader_Tree);
+			temp = glGetUniformLocation(Shader_Tree, "disableToon");
 			glUniform1i(temp, disableToon);
 		}
 		if (key == GLFW_KEY_F) {

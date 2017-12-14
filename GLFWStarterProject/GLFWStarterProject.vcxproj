@@ -95,6 +95,8 @@
     <None Include="..\simplePointerShader.vert" />
     <None Include="..\skyboxShader.frag" />
     <None Include="..\skyboxShader.vert" />
+    <None Include="..\treeShader.frag" />
+    <None Include="..\treeShader.vert" />
     <None Include="..\waterShader.frag" />
     <None Include="..\waterShader.vert" />
     <None Include="packages.config">
