@@ -226,6 +226,56 @@ bool Window::loadFromFile(std::string filename)
 	return true;
 }
 
+void Window::setDominos(glm::vec3 start, glm::vec3 end, float spacing, float rotationLine, float rotationEnd, float domino_scale)
+{
+	float rotation = rotationLine;
+	int max_number = int(glm::length(end - start) / spacing);
+	glm::vec3 direction = glm::normalize(end - start);
+	Model * model1;
+
+	for (int i = 0; i < max_number; i++)
+	{
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		int asdf = 0;
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), start + i * spacing * direction + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+
+		domino.push_back(model1);
+	}
+
+	rotation = rotationEnd;
+	if (rotation < 0) return;
+	{
+		//domino_turn_point = domino.size();
+
+		model1 = new Model("../cuboid.obj");
+		model1->centerAndScale(domino_scale);
+
+		model1->setCamera(currentCam);
+		model1->initShader(Shader_Model);
+
+		std::vector<float> minmax = model1->getMinMaxValues();
+		glm::vec3 domino_displacement = -1.0f*model1->getModelMatrix() * glm::vec4(0, minmax[Model::INDEX_Y_MIN], 0, 1.0f);
+		model1->setModelMatrix(glm::rotate(glm::mat4(1.0f), rotation*glm::pi<float>() / 180.0f, glm::vec3(0, 1, 0)));
+		model1->setModelMatrix(glm::translate(glm::mat4(1.0f), end + domino_displacement)*model1->getUModelMatrix());
+
+		model1->setBoundingBox();
+		model1->bounding_box->update();
+		domino.push_back(model1);
+	}
+}
+
 void Window::initialize_objects()
 {
 	leftMousePressed = 0;
@@ -379,12 +429,12 @@ void Window::initialize_objects()
 	const static glm::vec3 P7 = { -28.5, 0, -11.5 };
 	const static glm::vec3 P8 = { -11.5, 0, -11.5 };
 	const static glm::vec3 P9 = { -11.5, 0, -1.5 };
+
 	const static float straight_spacing = 0.5f*1.34f*domino_scale;
 	const static float diagonal_spacing = 0.5f*1.50f*domino_scale;
 
 	// loop 1, from p2 to p3;
 	glm::vec3 start = P2, end = P3;
-	//start.x += 0.5f; start.z += 0.5f; end.x += 0.5f; end.y += 0.5;
 	int max_number = int( glm::length(end - start) / straight_spacing );
 	glm::vec3 direction = glm::normalize(end - start);
 	float rotation = 0;

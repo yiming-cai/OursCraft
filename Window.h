@@ -55,5 +55,6 @@ public:
 	static void loadAllShader();
 
 	static bool loadFromFile(std::string filename);
+	static void setDominos(glm::vec3 start, glm::vec3 end, float spacing, float rotationLine, float rotationEnd, float domino_scale);
 };
 
