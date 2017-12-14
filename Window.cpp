@@ -130,6 +130,7 @@ void Window::loadAllShader() {
 	Shader_SimplePointer = LoadShaders(SIMPLE_POINTER_VERTEX_SHADER_PATH, SIMPLE_POINTER_FRAGMENT_SHADER_PATH);
 	Shader_BoundBox = LoadShaders(BOUNDBOX_VERTEX_SHADER_PATH,BOUNDBOX_FRAGMENT_SHADER_PATH);
 	Shader_Water = LoadShaders(WATER_VERTEX_SHADER_PATH, WATER_FRAGMENT_SHADER_PATH);
+	Shader_Particle = LoadShaders(PARTICLE_VERTEX_SHADER_PATH,PARTICLE_FRAGMENT_SHADER_PATH);
 }
 
 bool Window::loadFromFile(std::string filename)
@@ -300,8 +301,8 @@ void Window::initialize_objects()
 	water = new Water(idCount++, 300, 200, 0.2, 0, 1, 0,skybox ->getTexture(), currentCam);
 	water->setPosition(-150, GROUND_LEVEL - 2, 150);
 	// Enables backface culling
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 
 	// init domino
 	for (int i = 0; i < 120; i++)
@@ -521,12 +522,13 @@ void Window::idle_callback()
 				done_collision = true;
 			}
 		}
-		/*
-		if (done_collision) {
-			glUseProgram(Shader_Particle);
-			fist->draw(Shader_Particle);
-		}
-		*/
+		
+		//particle effect
+		//if (done_collision) {
+			
+			fist->update(0.1f, 1000, { 0.1f,0.1f,0.1f });
+		//}
+		
 
 		glm::mat4 m1, m2, m3;
 		
@@ -589,6 +591,11 @@ void Window::display_callback(GLFWwindow* window)
 	bindedCubeVAO = false;
 	drawingCube = false;
 	
+	//draw particle
+	glUseProgram(Shader_Particle);
+	fist->draw(Shader_Particle);
+	
+
 
 	// draw water;
 
