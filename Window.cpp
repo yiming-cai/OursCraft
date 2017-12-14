@@ -364,15 +364,15 @@ void Window::initialize_objects()
 
 	// Define a list of points
 	Model * model1;
-	const static glm::vec3 P1 = { -34, 0, -1 };
-	const static glm::vec3 P2 = { 1, 0, -1 };
-	const static glm::vec3 P3 = { 1, 0, -65 };
-	const static glm::vec3 P4 = { 25, 0, -65 };
-	const static glm::vec3 P5 = { 25, 0, -18 };
-	const static glm::vec3 P6 = { -28, 0, -64 };
-	const static glm::vec3 P7 = { -28, 0, -11 };
-	const static glm::vec3 P8 = { -11, 0, -11 };
-	const static glm::vec3 P9 = { -11, 0, -1 };
+	const static glm::vec3 P1 = { -34.5, 0, -1.5 };
+	const static glm::vec3 P2 = { 1.5, 0, -1.5 };
+	const static glm::vec3 P3 = { 1.5, 0, -65.5 };
+	const static glm::vec3 P4 = { 25.5, 0, -65.5 };
+	const static glm::vec3 P5 = { 25.5, 0, -18.5 };
+	const static glm::vec3 P6 = { -28.5, 0, -64.5 };
+	const static glm::vec3 P7 = { -28.5, 0, -11.5 };
+	const static glm::vec3 P8 = { -11.5, 0, -11.5 };
+	const static glm::vec3 P9 = { -11.5, 0, -1.5 };
 	const static float straight_spacing = 0.5f*1.34f*domino_scale;
 	const static float diagonal_spacing = 0.5f*1.50f*domino_scale;
 
