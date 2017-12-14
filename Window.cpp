@@ -64,7 +64,7 @@ LightDisplay * lightDisplay;
 Sound * sound;
 ALuint bgmRightSource, bgmLeftSource;
 ALuint collisionBuffer;
-ALuint collisionSource;
+ALuint collisionSource, collisionSource2;
 Util util;
 std::vector<Tree *> trees;
 
@@ -326,16 +326,19 @@ void Window::initialize_objects()
 	bgmRightSource = sound->generateSource(rightSpeakerPos);
 	bgmLeftSource = sound->generateSource(leftSpeakerPos);
 	collisionSource = sound->generateSource(glm::vec3(0));
+	collisionSource2 = sound->generateSource(glm::vec3(0));
 
 	// bind the buffer to the source
 	sound->bindSourceToBuffer(bgmRightSource, buf);
 	sound->bindSourceToBuffer(bgmLeftSource, buf);
 	sound->bindSourceToBuffer(collisionSource, collisionBuffer);
+	sound->bindSourceToBuffer(collisionSource2, collisionBuffer);
 
 	// make the bgm loop (don't use this if you just want it to play once)
 	sound->setSourceLooping(bgmRightSource, true);	// Only if you want the sound to keep on looping!
 	sound->setSourceLooping(bgmLeftSource, true);
 	sound->setSourceLooping(collisionSource, false);
+	sound->setSourceLooping(collisionSource2, false);
 
 	// play the sound now
 	sound->playSourceSound(bgmRightSource);
@@ -908,6 +911,21 @@ void Window::idle_callback()
 			if (hand->bounding_box_hand->collision) {
 				done_collision = true;
 			}
+
+			bool collidedNow = domino[0]->bounding_box->collision;
+			if (collidedNow)
+			{
+				if (!sound->isSourcePlaying(collisionSource) || sound->isSourcePlaying(collisionSource2))
+				{
+					sound->updateSourcePosition(collisionSource, domino[0]->getBoundingSphere().first);
+					sound->playSourceSound(collisionSource);
+				}
+				else
+				{
+					sound->updateSourcePosition(collisionSource2, domino[0]->getBoundingSphere().first);
+					sound->playSourceSound(collisionSource2);
+				}
+			}
 		}
 			
 		fist->update(0.1f, 1000, { 0.1f,0.1f,0.1f });
@@ -943,8 +961,16 @@ void Window::idle_callback()
 			bool collidedNow = domino[i + 1]->bounding_box->collision;
 			if (notCollidedBefore && collidedNow)
 			{
-				sound->updateSourcePosition( collisionSource, domino[i+1]->getBoundingSphere().first );
-				sound->playSourceSound(collisionSource);
+				if (!sound->isSourcePlaying(collisionSource) || sound->isSourcePlaying(collisionSource2))
+				{
+					sound->updateSourcePosition(collisionSource, domino[i + 1]->getBoundingSphere().first);
+					sound->playSourceSound(collisionSource);
+				}
+				else
+				{
+					sound->updateSourcePosition(collisionSource2, domino[i + 1]->getBoundingSphere().first);
+					sound->playSourceSound(collisionSource2);
+				}
 			}
 
 			if (i == domino_branch.first)
