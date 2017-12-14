@@ -15,5 +15,5 @@ uniform mat4 model;
 void main(){
 	TexCoords = texCoord;
 	ParticleColor = color;
-	gl_Position = projection * modelview * vec4((vertex.xyz * 0.2f) + offset, 1.0);
+	gl_Position = projection * modelview * vec4((vertex.xyz * 0.1f) + offset, 1.0);
 }

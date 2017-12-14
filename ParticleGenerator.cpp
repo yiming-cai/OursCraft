@@ -1,27 +1,27 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "ParticleGenerator.h"
 #include <iostream>
-const int maxParticles = 1000;
+const int maxParticles = 5000;
 extern glm::mat4 P;
 extern glm::mat4 V;
 ParticleGenerator::ParticleGenerator() {
 	toWorld = glm::mat4(1.0f);
 
 	GLfloat particle_quad[] = {
-		0.0f, 1.0f, 0.0f, 
-		1.0f, 0.0f, 0.0f,
+		0.0f, 1.5f, 0.0f, 
+		1.5f, 0.0f, 0.0f,
 		0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
+		0.0f, 1.5f, 0.0f,
+		1.5f, 1.5f, 0.0f,
+		1.5f, 0.0f, 0.0f,
 	};
 	GLfloat particle_texCoord[] = {
-		0.0f, 1.0f,
-		1.0f, 0.0f,
+		0.0f, 2.0f,
+		2.0f, 0.0f,
 		0.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f
+		0.0f, 2.0f,
+		2.0f, 2.0f,
+		2.0f, 0.0f
 	};
 
 	glGenVertexArrays(1, &VAO);
@@ -67,7 +67,7 @@ void ParticleGenerator::update(GLfloat time, GLuint newParticles, glm::vec3 offs
 		p.Life -= time;
 		if (p.Life > 0.0f)
 		{
-			p.Position += glm::vec3(p.Velocity.x*time, p.Velocity.y, p.Velocity.z*time);
+			p.Position += glm::vec3(p.Velocity.x*time, p.Velocity.y* time, p.Velocity.z*time);
 			p.Color.a -= time * 2.5;
 		}
 	}
@@ -208,17 +208,15 @@ GLuint ParticleGenerator::loadTexture() {
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	image = loadPPM("../asset/orange.ppm", width, height);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
-	// Sets texture parameters
+	image = loadPPM("../assets/orange.ppm", width, height);
+	std::cout << "\n-----------successful loeading pparticle---------------\n" ;
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	// Unbinds texture
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return textureID;

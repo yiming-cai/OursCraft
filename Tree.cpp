@@ -8,8 +8,8 @@ Tree::Tree(int seed)
 	iterations = rand() % 10 + 5;
 	angleleft = float(rand() % 50 + 30) * glm::pi<float>() / 180.0f;
 	angleright = -1.0f * float(rand() % 50 + 30) * glm::pi<float>() / 180.0f;
-	initial_length = float(rand() % 50 + 30)/10.0f;
-	trunk_thickness = float(rand() % 15 + 5)/10.0f;
+	initial_length = float(rand() % 50 + 20)/10.0f;
+	trunk_thickness = float(rand() % 5 + 7)/10.0f;
 
 	root = new Branch(iterations, angleleft, angleright, initial_length, trunk_thickness, root, glm::vec3(0), glm::vec3(0,1,0), allBranches);
 	for (int i = 0; i < allBranches.size(); i++)
@@ -150,7 +150,7 @@ Branch::Branch(int numIterations, float angleLeft, float angleRight, float lengt
 	start_point = origin;
 	end_point = origin + direction * length;
 	start_size = thickness;
-	end_size = thickness - thickness/(float(rand()%150)/100.0f + 1.0f);
+	end_size = thickness/(float(rand()%150)/100.0f + 1.5f);
 	all.push_back(this);
 	if (numIterations == 0)
 		return;
