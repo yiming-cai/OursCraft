@@ -36,10 +36,10 @@ And then finally we can create a world with an amazing domino project, then maki
 | 2017.12.3 Sun | Finish basic engine (object placing,skybox, lighting, etc.) for first snapshot (**finished 50%**) |Ke Cai|
 | 2017.12.3 Sun | Finish basic domino part (including configuring domino and collision) |Pan|
 | 2017.12.4 Mon | Finish the first blog and Finish the combanation|T|
-| 2017.12.8 Fri | DIY basic environment(including dominoes placement)||
+| 2017.12.8 Fri | DIY basic environment(including dominoes placement)| Yiming and Pan |
 | 2017.12.8 Fri | Copy backup for another man to start some advanced parts ||
 | | by this time, we should finish a "at least can be shown" project =_=||
-| 2017.12.10 Sun| Finish the advanced part like NPC&OBJ animation, water reflection, motion blur... anyway, the time to "pick score" from the final project Inc |
+| 2017.12.10 Sun| Finish the advanced part like NPC&OBJ animation, water reflection, motion blur... anyway, the time to "pick score" from the final project Inc | all |
 | 2017.12.11 Mon| Finish the blog||
 | 2017.12.12 Tue| Finish camera tracking settlement and then record our project||
 | 2017.12.13 Wed| Prepare for presentation ||

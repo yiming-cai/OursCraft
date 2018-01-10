@@ -391,7 +391,7 @@ void Window::initialize_objects()
 
 	for (int i = 0; i < max_number; i++)
 	{
-		model1 = new Model("../cuboid.obj");
+		model1 = new Model("../domino.obj");
 		model1->centerAndScale(domino_scale);
 
 
